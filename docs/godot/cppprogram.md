@@ -10,7 +10,7 @@ The Sandbox can run C++ code inside it in isolation, but first you need to build
 
 - [Docker](https://docs.docker.com/compose/) installed and running.
 
-## Create C++ Source Files
+## C++ Source Files
 
 In Godot create a new folder called `src`. Inside it create a new file called `main.cpp`, by clicking on the folder and selecting `Create New` -> `Script` -> `CPPScript`.
 
@@ -36,7 +36,7 @@ If it is not working, you need to set the docker path manually by going to **Pro
 
 :::
 
-# ELF Script
+## ELF Script
 
 Once you compiled the source code to a binary, you can investigate it. To do this simply click the `.elf` file and you should see all the functions that are exported and available to call from the host.
 

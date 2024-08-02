@@ -6,7 +6,7 @@ sidebar_position: 3
 
 In order to run your code in isolation, you need to create a **Sandbox** node first. 
 
-## Create a Sandbox Node in a new Scene
+## Create a Sandbox
 
 Create a new **Scene**. The Root Node can be anything, even a **Node**. Next click **Add Child Node** and add a node of type **Sandbox**:
 
@@ -22,7 +22,7 @@ Now, when running the scene, you should see printed on the console:
 Hello World
 ```
 
-## Calling functions inside the Sandbox
+## Calling functions
 
 Next, create a GDScript on the **Sandbox** node in order to call functions inside the sandbox. Inside the script add the following:
 
