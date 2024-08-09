@@ -14,7 +14,7 @@ Create a new **Scene**. The Root Node can be anything, even a **Node**. Next cli
 
 Now, when running the scene, you should see printed on the console:
 
-```js
+```
 Hello World!
 ```
 
@@ -43,7 +43,7 @@ This will export to the editor a **Sandbox** which you have to now put on the no
 
 After setting it and running, you should now see:
 
-```js
+```
 Hello world!
 Arguments: 
 1
