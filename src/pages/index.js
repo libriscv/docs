@@ -18,7 +18,6 @@ function HomepageHeader() {
           <img
               src={animation}
               alt="loading..."
-              height={460}
               style={{
                 "border-top-left-radius": "5px",
                 "border-bottom-left-radius": "5px",

@@ -12,23 +12,27 @@ The Sandbox can run C++ code inside it in isolation, but first you need to build
 
 ## C++ Source Files
 
-In Godot create a new folder called `src`. Inside it create a new file called `main.cpp`, by clicking on the folder and selecting `Create New` -> `Script` -> `CPPScript`.
+In Godot create a new folder called `src`. Inside it create a new cpp script, by clicking on the folder and selecting `Create New` -> `Script` -> `CPPScript`.
 
 ![new script](/img/cppprogram/new-script.png)
 
-Inside it write the following:
+Inside it write the following (it's the default that gets written once the file is created):
 
 ```cpp
+#include "api.hpp"
+
 int main() {
-	UtilityFunctions::print("Hello World");
+	UtilityFunctions::print("Hello world!\n");
+	halt();
 }
 
-void test_function() {
-	UtilityFunctions::print("test_function");
+extern "C" Variant public_function(Variant arg) {
+    UtilityFunctions::print("Arguments: ", arg);
+    return "Hello from the other side";
 }
 ```
 
-Now, simply save the file and the binary, `src.elf` should be automatically created. This file is created by compiling the source file to a binary using docker. The image used is [libriscv/compiler](https://github.com/orgs/libriscv/packages).
+Now, simply save the file and the binary, `new_file.elf` should be automatically created. This file is created by compiling the source file to a binary using docker. The image used is [libriscv/compiler](https://github.com/orgs/libriscv/packages).
 
 :::note
 
