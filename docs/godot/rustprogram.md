@@ -1,33 +1,40 @@
 ---
-sidebar_position: 2
+sidebar_position: 3
 ---
 
-# C++ Code
+# Rust Code
 
-The Sandbox can run C++ code inside it in isolation, but first you need to build the C++ code.
+The Sandbox can run Rust code inside it in isolation, but first you need to build Rust source code.
 
 ## What you'll need
 
 - [Docker](https://docs.docker.com/compose/) installed and running.
 
-## C++ Source Files
+## Rust Source Files
 
-In Godot create a new folder called `src`. Inside it create a new cpp script, by clicking on the folder and selecting `Create New` -> `Script` -> `CPPScript`.
+In Godot create a new folder called `src`. Inside it create a new cpp script, by clicking on the folder and selecting `Create New` -> `Script` -> `RustScript`. Name the first Rust file in the folder `main.rs`, as *cargo* uses it as the default main source file.
 
-![new script](/img/cppprogram/new-script.png)
+![new script](/img/rustprogram/new-script.png)
 
 Inside it write the following (it's the default that gets written once the file is created):
 
-```cpp
-#include "api.hpp"
+```rust
+mod sysalloc;
+mod api;
+use api::*;
 
-extern "C" Variant public_function(Variant arg) {
-    print("Arguments: ", arg);
-    return "Hello from the other side";
+pub fn main() {
+}
+
+#[no_mangle]
+pub fn public_function() -> Variant {
+	gprint(&Variant::new_string("Hello from Rust!"));
+
+	return Variant::new_float(3.14);
 }
 ```
 
-Now, simply save the file and the binary, `src.elf` should be automatically created. This file is created by compiling the source file to a binary using docker. The image used is [libriscv/cpp_compiler](https://github.com/orgs/libriscv/packages).
+Now, simply save the file and the binary, `src.elf` should be automatically created. This file is created by compiling the source file to a binary using docker. The image used is [libriscv/rust_compiler](https://github.com/orgs/libriscv/packages).
 
 The name of the program is based on the folder name, hence `src.elf`. This allows you to have multiple source files, which will all be automatically compiled together into one final program.
 
