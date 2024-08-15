@@ -45,7 +45,7 @@ export default function Home() {
   return (
     <Layout
       title={`${siteConfig.title}`}
-      description="Lib RISC-V is a simple, slim and complete sandbox that is highly embeddable and configurable.">
+      description="libriscv is a simple, slim and complete sandbox that is highly embeddable and configurable.">
       <HomepageHeader />
 
       <main>

@@ -40,3 +40,7 @@ When exporting for web, you have to enable a few settings, otherwise the whole b
 Next, you can also enable the **Runnable** option and then click **Run in browser**:
 
 ![run-web](/img/intro/run-web.png)
+
+The demo project for this extension [runs in the browser here](https://gonzerelli.itch.io/demo).
+
+![demo screenshot](demoshot.png)

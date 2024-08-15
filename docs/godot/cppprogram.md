@@ -22,12 +22,12 @@ Inside it write the following (it's the default that gets written once the file 
 #include "api.hpp"
 
 int main() {
-	UtilityFunctions::print("Hello world!\n");
+	print("Hello world!\n");
 	halt();
 }
 
 extern "C" Variant public_function(Variant arg) {
-    UtilityFunctions::print("Arguments: ", arg);
+    print("Arguments: ", arg);
     return "Hello from the other side";
 }
 ```
@@ -42,6 +42,6 @@ If it is not working, you need to set the docker path manually by going to **Pro
 
 ## ELF Script
 
-Once you compiled the source code to a binary, you can investigate it. To do this simply click the `.elf` file and you should see all the functions that are exported and available to call from the host.
+Once you compiled the source code to a binary, you can investigate it. To do this simply click the `.elf` file and you should see all the functions that are exported and available to call from Godot. These functions are exported normally and can even be used as targets for signals.
 
 ![elf file](/img/cppprogram/elf-file.png)
