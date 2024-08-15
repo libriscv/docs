@@ -55,7 +55,7 @@ Hello from the other side
 
 There is a second mode of operation for sandboxes: Attached directly to a node as a script, similar to GDScript. When this happens, the sandbox is shared among all instances of that program. This means that even when deleting all instances that uses the sandbox, the sandbox will remain as one instance.
 
-![use scripts directly](embed_direct.png)
+![use scripts directly](/img/sandbox/embed_direct.png)
 
 This mode is super useful when it's attached to objects that are numerous and have very dynamic lifetimes. It is thus possible to use sandboxing on eg. 10'000 monsters, as the memory usage remains the same. All monsters will share the same instance, but can still modify different state inside it.
 
@@ -68,7 +68,7 @@ Advantages:
 - Call functions on the object directly
 - Attach signals directly
 
-![attach signal](attach_signal.png)
+![attach signal](/img/sandbox/attach_signal.png)
 
 It's possible to attach signals directly to a Node like you usually would do with GDScript when the script is directly embedded.
 

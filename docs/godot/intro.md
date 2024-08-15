@@ -43,4 +43,4 @@ Next, you can also enable the **Runnable** option and then click **Run in browse
 
 The demo project for this extension [runs in the browser here](https://gonzerelli.itch.io/demo).
 
-![demo screenshot](demoshot.png)
+![demo screenshot](/img/intro/demoshot.png)
