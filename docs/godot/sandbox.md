@@ -49,3 +49,36 @@ Arguments:
 1
 Hello from the other side
 ```
+
+
+## Using programs directly as scripts
+
+There is a second mode of operation for sandboxes: Attached directly to a node as a script, similar to GDScript. When this happens, the sandbox is shared among all instances of that program. This means that even when deleting all instances that uses the sandbox, the sandbox will remain as one instance.
+
+![use scripts directly](embed_direct.png)
+
+This mode is super useful when it's attached to objects that are numerous and have very dynamic lifetimes. It is thus possible to use sandboxing on eg. 10'000 monsters, as the memory usage remains the same. All monsters will share the same instance, but can still modify different state inside it.
+
+Care must be taken to reset state manually as scene reloads do not affect these instances.
+
+Advantages:
+- Entities with high instance counts.
+- Entities with high churn.
+- Global statistics, save state.
+- Call functions on the object directly
+- Attach signals directly
+
+![attach signal](attach_signal.png)
+
+It's possible to attach signals directly to a Node like you usually would do with GDScript when the script is directly embedded.
+
+## Guarantees
+
+A sandbox gives these guarantees:
+
+- Execution will eventually time out
+	- This prevents infinite loops
+- Memory and resource usage is restricted
+	- There are limitations placed on the programs in the sandbox that limits them from creating too many resources.
+- Memory safety
+	- The host game client or server is protected from misbehaving programs
