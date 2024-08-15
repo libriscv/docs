@@ -21,18 +21,15 @@ Inside it write the following (it's the default that gets written once the file 
 ```cpp
 #include "api.hpp"
 
-int main() {
-	print("Hello world!\n");
-	halt();
-}
-
 extern "C" Variant public_function(Variant arg) {
     print("Arguments: ", arg);
     return "Hello from the other side";
 }
 ```
 
-Now, simply save the file and the binary, `new_file.elf` should be automatically created. This file is created by compiling the source file to a binary using docker. The image used is [libriscv/compiler](https://github.com/orgs/libriscv/packages).
+Now, simply save the file and the binary, `src.elf` should be automatically created. This file is created by compiling the source file to a binary using docker. The image used is [libriscv/compiler](https://github.com/orgs/libriscv/packages).
+
+The name of the program is based on the folder name, hence `src.elf`. This allows you to have multiple source files, which will all be automatically compiled together into one final program.
 
 :::note
 
