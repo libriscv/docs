@@ -93,55 +93,16 @@ struct Variant {
 };
 ```
 
-## Node
+## Object
 
 ```cpp
-struct Node {
-	/// @brief Construct a Node object from an existing in-scope Node object.
-	/// @param addr The address of the Node object.
-	Node(uint64_t addr) : m_address{addr} {}
+struct Object {
+	/// @brief Construct an Object object from an allowed global object.
+	Object(const std::string &name);
 
-	/// @brief Construct a Node object from a path.
-	/// @param path The path to the Node object.
-	Node(const std::string& path);
-
-	/// @brief Construct a Node object from a path relative to this node.
-	/// @param path The path to the Node object.
-	/// @return The Node object.
-	Node get(const std::string &path) const;
-
-	/// @brief Get the name of the node.
-	/// @return The name of the node.
-	std::string get_name() const;
-
-	/// @brief Get the path of the node, relative to the root node.
-	/// @return The path of the node.
-	std::string get_path() const;
-
-	/// @brief Get the parent of the node.
-	/// @return The parent node.
-	Node get_parent() const;
-
-	/// @brief Add a child to the node.
-	/// @param child The child node to add.
-	/// @param deferred If true, the child will be added next frame.
-	void add_child(const Node &child, bool deferred = false);
-
-	/// @brief Get a list of children of the node.
-	/// @return A list of children nodes.
-	std::vector<Node> get_children() const;
-
-	/// @brief Remove this node from its parent, freeing it.
-	/// @note This is a potentially deferred operation.
-	void queue_free();
-
-	/// @brief  Duplicate the node.
-	/// @return A new Node object with the same properties and children.
-	Node duplicate() const;
-
-	/// @brief Get a list of methods available on the node.
-	/// @return A list of method names.
-	std::vector<std::string> get_method_list() const;
+	/// @brief Construct an Object object from an existing in-scope Object object.
+	/// @param addr The address of the Object object.
+	Object(uint64_t addr) : m_address{addr} {}
 
 	// Call a method on the node.
 	// @param method The method to call.
@@ -159,11 +120,119 @@ struct Node {
 	template <typename... Args>
 	Variant call_deferred(const std::string &method, Args... args);
 
+	/// @brief Get a list of methods available on the object.
+	/// @return A list of method names.
+	std::vector<std::string> get_method_list() const;
+
+	// Get a property of the node.
+	// @param name The name of the property.
+	// @return The value of the property.
+	Variant get(const std::string &name) const;
+
+	// Set a property of the node.
+	// @param name The name of the property.
+	// @param value The value to set the property to.
+	void set(const std::string &name, const Variant &value);
+
+	// Get a list of properties available on the object.
+	// @return A list of property names.
+	std::vector<std::string> get_property_list() const;
+
+	// Connect a signal to a method on another object.
+	// @param signal The signal to connect.
+	// @param target The object to connect to.
+	// @param method The method to call when the signal is emitted.
+	void connect(Object target, const std::string &signal, const std::string &method);
+	void connect(const std::string &signal, const std::string &method);
+
+	// Disconnect a signal from a method on another object.
+	// @param signal The signal to disconnect.
+	// @param target The object to disconnect from.
+	// @param method The method to disconnect.
+	void disconnect(Object target, const std::string &signal, const std::string &method);
+	void disconnect(const std::string &signal, const std::string &method);
+
+	// Get a list of signals available on the object.
+	// @return A list of signal names.
+	std::vector<std::string> get_signal_list() const;
+
 	// Get the object identifier.
 	uint64_t address() const { return m_address; }
 
 	// Check if the node is valid.
 	bool is_valid() const { return m_address != 0; }
+};
+```
+
+## Node
+
+```cpp
+struct Node : public Object {
+	/// @brief Construct a Node object from an existing in-scope Node object.
+	/// @param addr The address of the Node object.
+	Node(uint64_t addr) : Object{addr} {}
+
+	/// @brief Construct a Node object from a path.
+	/// @param path The path to the Node object.
+	Node(const std::string& path);
+
+	/// @brief Get the name of the node.
+	/// @return The name of the node.
+	std::string get_name() const;
+
+	/// @brief Get the path of the node, relative to the root node.
+	/// @return The path of the node.
+	std::string get_path() const;
+
+	/// @brief Get the parent of the node.
+	/// @return The parent node.
+	Node get_parent() const;
+
+	/// @brief Get the Node object at the given path, relative to this node.
+	/// @param path The path to the Node object.
+	/// @return The Node object.
+	Node get_node(const std::string &path) const;
+
+	/// @brief Get the number of children of the node.
+	/// @return The number of children.
+	unsigned get_child_count() const;
+
+	/// @brief Get the child of the node at the given index.
+	/// @param index The index of the child.
+	/// @return The child node.
+	Node get_child(unsigned index) const;
+
+	/// @brief Add a child to the node.
+	/// @param child The child node to add.
+	/// @param deferred If true, the child will be added next frame.
+	void add_child(const Node &child, bool deferred = false);
+
+	/// @brief Add a sibling to the node.
+	/// @param sibling The sibling node to add.
+	/// @param deferred If true, the sibling will be added next frame.
+	void add_sibling(const Node &sibling, bool deferred = false);
+
+	/// @brief Move a child of the node to a new index.
+	/// @param child The child node to move.
+	/// @param index The new index of the child.
+	void move_child(const Node &child, unsigned index);
+
+	/// @brief Remove a child from the node. The child is *not* freed.
+	/// @param child The child node to remove.
+	/// @param deferred If true, the child will be removed next frame.
+	void remove_child(const Node &child, bool deferred = false);
+
+	/// @brief Get a list of children of the node.
+	/// @return A list of children nodes.
+	std::vector<Node> get_children() const;
+
+	/// @brief Remove this node from its parent, freeing it.
+	/// @note This is a potentially deferred operation.
+	void queue_free();
+
+	/// @brief  Duplicate the node.
+	/// @return A new Node object with the same properties and children.
+	Node duplicate() const;
 };
 ```
 
@@ -250,4 +319,34 @@ struct Node3D : public Node {
 	/// @return A new Node3D object with the same properties and children.
 	Node3D duplicate() const;
 };
+```
+
+## Globals
+
+```cpp
+/// @brief Get the current scene tree.
+/// @return The root node of the scene tree.
+Object get_tree() {
+	return Object("SceneTree");
+}
+
+/// @brief A macro to define a static function that returns a custom state object
+/// tied to a Node object. For shared sandbox instances, this is the simplest way
+/// to store per-node-instance state.
+/// @param State The type of the state object.
+/// @note There is currently no way to clear the state objects, so be careful
+/// with memory usage.
+/// @example
+/// struct SlimeState {
+/// 	int direction = 1;
+/// };
+/// PER_OBJECT(SlimeState);
+/// // Then use it like this:
+/// auto& state = GetSlimeState(slime);
+#define PER_OBJECT(State) \
+	static State &Get ## State(const Node &node) { \
+		static std::unordered_map<uint64_t, State> state; \
+		return state[node.address()]; \
+	}
+
 ```
