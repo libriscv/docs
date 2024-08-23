@@ -7,15 +7,53 @@ sidebar_position: 5
 The current C++ API is likely to change over time. Feel free to contribute improvements to the API.
 
 
-
-## General API
+## Globals
 
 ```cpp
 /// @brief Print a message to the console.
 /// @param ...vars A list of Variant objects to print.
 template <typename... Args>
-void print(Args &&...vars)
+void print(Args &&...vars);
+
+/// @brief Get the current scene tree.
+/// @return The root node of the scene tree.
+Object get_tree();
+
+/// @brief A macro to define a static function that returns a custom state object
+/// tied to a Node object. For shared sandbox instances, this is the simplest way
+/// to store per-node-instance state.
+/// @param State The type of the state object.
+/// @note There is currently no way to clear the state objects, so be careful
+/// with memory usage.
+/// @example
+/// struct SlimeState {
+/// 	int direction = 1;
+/// };
+/// PER_OBJECT(SlimeState);
+/// // Then use it like this:
+/// auto& state = GetSlimeState(slime);
+#define PER_OBJECT(State) \
+	static State &Get ## State(const Node &node) { \
+		static std::unordered_map<uint64_t, State> state; \
+		return state[node.address()]; \
+	}
+
+/// @brief Check if the program is running in the Godot editor.
+/// @return True if running in the editor, false otherwise.
+inline bool is_editor();
+
+struct Engine {
+	/// @brief Check if the program is running in the Godot editor.
+	/// @return True if running in the editor, false otherwise.
+	static bool is_editor_hint();
+};
+
+/// @brief Check if the given Node is a part of the current scene tree. Not an instance of another scene.
+/// @param node The Node to check.
+/// @return True if the Node is a part of the current scene tree, false otherwise.
+inline bool is_part_of_tree(Node node);
 ```
+
 
 ## Variant
 
@@ -321,32 +359,41 @@ struct Node3D : public Node {
 };
 ```
 
-## Globals
+## Vector2
 
 ```cpp
-/// @brief Get the current scene tree.
-/// @return The root node of the scene tree.
-Object get_tree() {
-	return Object("SceneTree");
-}
+struct Vector2 {
+	float x;
+	float y;
 
-/// @brief A macro to define a static function that returns a custom state object
-/// tied to a Node object. For shared sandbox instances, this is the simplest way
-/// to store per-node-instance state.
-/// @param State The type of the state object.
-/// @note There is currently no way to clear the state objects, so be careful
-/// with memory usage.
-/// @example
-/// struct SlimeState {
-/// 	int direction = 1;
-/// };
-/// PER_OBJECT(SlimeState);
-/// // Then use it like this:
-/// auto& state = GetSlimeState(slime);
-#define PER_OBJECT(State) \
-	static State &Get ## State(const Node &node) { \
-		static std::unordered_map<uint64_t, State> state; \
-		return state[node.address()]; \
-	}
+	float length() const noexcept;
+	Vector2 normalized() const noexcept;
+	Vector2 rotated(float angle) const noexcept;
+	float distance_to(const Vector2& other) const noexcept;
+	Vector2 direction_to(const Vector2& other) const noexcept;
+	float dot(const Vector2& other) const noexcept;
+	static Vector2 from_angle(float angle) noexcept;
 
+	auto& operator += (const Vector2& other);
+	auto& operator -= (const Vector2& other);
+	auto& operator *= (const Vector2& other);
+	auto& operator /= (const Vector2& other);
+};
+```
+
+## Vector3
+
+```cpp
+struct Vector3 {
+	float x;
+	float y;
+	float z;
+
+	// TODO: More to come here
+
+	auto& operator += (const Vector3& other);
+	auto& operator -= (const Vector3& other);
+	auto& operator *= (const Vector3& other);
+	auto& operator /= (const Vector3& other);
+};
 ```
