@@ -68,6 +68,13 @@ struct Variant {
 	template <typename T>
 	Variant(T value);
 
+	Variant(const Array&);
+	Variant(const Dictionary&);
+	Variant(const Object&);
+	Variant(const Node&);
+	Variant(const Node2D&);
+	Variant(const Node3D&);
+
 	// Constructor specifically the STRING_NAME type
 	static Variant string_name(const std::string &name);
 
@@ -128,6 +135,75 @@ struct Variant {
 	bool operator<(const Variant &other) const;
 
 	Type get_type() const noexcept { return m_type; }
+};
+```
+
+## Array
+
+```cpp
+struct Array {
+	Array(unsigned size = 0);
+	Array(const std::vector<Variant> &values);
+	Array(const Array &other);
+	Array(Array &&other);
+	~Array();
+
+	Array &operator=(const Array &other);
+	Array &operator=(Array &&other);
+
+	operator Variant() const;
+
+	// Array operations
+	void push_back(const Variant &value);
+	void push_front(const Variant &value);
+	void pop_at(int idx);
+	void pop_back();
+	void pop_front();
+	void insert(int idx, const Variant &value);
+	void erase(int idx);
+	void resize(int size);
+	void clear();
+	void sort();
+
+	// Array access
+	Variant operator[](int idx) const;
+	Variant at(int idx) const;
+
+	// Array size
+	int size() const;
+
+	auto begin();
+	auto end();
+	auto rbegin();
+	auto rend();
+};
+```
+
+## Dictionary
+
+```cpp
+struct Dictionary {
+	Dictionary();
+	Dictionary(const Dictionary &other);
+	Dictionary(Dictionary &&other);
+	~Dictionary();
+
+	Dictionary &operator=(const Dictionary &other);
+	Dictionary &operator=(Dictionary &&other);
+
+	operator Variant() const;
+
+	void clear();
+	void erase(const Variant &key);
+	bool has(const Variant &key) const;
+	void merge(const Dictionary &other);
+	bool is_empty() const;
+	int size() const;
+
+	Variant get(const Variant &key) const;
+	void set(const Variant &key, const Variant &value);
+
+	DictAccessor operator[](const Variant &key);
 };
 ```
 
