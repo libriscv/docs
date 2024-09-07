@@ -35,7 +35,7 @@ One real-world example script function is one that computes a rainbow vertex col
 
 The substantially lower system call latency made it a no-brainer to make `sin` a system call, and as a result, the overall time needed is at least 5x to 7x lower than other emulators.
 
-Finally, we are comparing WebAssembly without game engine integration (so just calling into emulator directly) against a fully integrated libriscv inside another game engine, with extra sandboxing measures (like maximum call depth). So, we can safely assume that WebAssembly needs additional nanoseconds in a real game engine integration. It's better to sabotage ourselves a little, than the opposite!
+Finally, we are comparing WebAssembly without game engine integration (so just calling into emulator directly) against a fully integrated _libriscv_ inside another game engine, with extra sandboxing measures (like maximum call depth). So, we can safely assume that WebAssembly needs additional nanoseconds in a real game engine integration. It's better to sabotage ourselves a little, than the opposite!
 
 
 ## A made-up example
@@ -44,15 +44,17 @@ Nobody has the energy to fully implement a solution of all these solutions into 
 
 ![alt text](/img/performance/Made-up_example.png)
 
-In this made-up example we can't see the real measurements, but we can still see the tendencies of each solution. Interpreted libriscv is an order of magnitude faster than other solutions in this particular instance.
+In this made-up example we can't see the real measurements, but we can still see the tendencies of each solution. Interpreted _libriscv_ is an order of magnitude faster than other solutions in this particular instance.
 
 
 ## Godot engine integration
 
 When integrated into the [Godot engine](https://godotengine.org/), the fixed overheads outside of our control are 40ns for each call and we also use the Godot Variant as function arguments as a quality-of-life feature.
 
-![alt text](/img/performance/GDScript_vs_Sandbox_function_calls_in_Godot.png)
+![Function calls with integer arguments](/img/performance/vmcall_integer_args.png)
 
-As a result, the call overheads are fairly large, but we're doing alright. As a sandbox we have to translate and verify everything, which is costly when Variants have so many rules. Matching GDScript in latency, which is not a sandbox, is quite OK!
+![Function calls with string arguments](/img/performance/vmcall_string_args.png)
 
-Since libriscv is way faster than GDScript at processing, we can say that it *always makes sense* to call into the sandbox, compared to staying in GDScript. At least when performance is a factor.
+As a sandbox we have to translate and verify everything, which is costly when Variants have so many rules. Matching GDScript in latency, which is not a sandbox, is great!
+
+Since _libriscv_ is much faster than GDScript at processing, we can say that it *always makes sense* to call into the sandbox, compared to staying in GDScript. At least when performance is a factor.
