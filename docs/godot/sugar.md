@@ -22,7 +22,7 @@ Node2D node("MyAnimatedSprite2D");
 
 Still, what if we want to play an animation? If we look at the [documentation for AnimatedSprite2D](https://docs.godotengine.org/en/stable/classes/class_animatedsprite2d.html) it has a [play method](https://docs.godotengine.org/en/stable/classes/class_animatedsprite2d.html#class-animatedsprite2d-method-play) used to start playing animations.
 
-In Godot, these are callable functions on nodes. So, it turns out we can actually just call the function on our node:
+In Godot, methods are callable functions on objects, including nodes. So, it turns out we can actually just call `play` as a function on our node object:
 
 ```cpp
 Node2D node("MyAnimatedSprite2D");
@@ -35,6 +35,15 @@ We don't actually need to "have" an AnimatedSprite2D to call any function that i
 Node2D mysprite("MyAnimatedSprite2D");
 mysprite("play", "idle");
 ```
+
+That means we have access to all methods of all objects via calls. What about properties? Well, the API has support for `get()` and `set()`, which lets us get and set properties. The [current animation](https://docs.godotengine.org/en/stable/classes/class_animatedsprite2d.html#class-animatedsprite2d-property-animation) is a property that we can use `get()` on:
+
+```cpp
+Variant current_animation = mysprite.get("animation");
+```
+
+With access to methods, properties, objects, nodes and node-operations, globals and Variants, we can say that the Godot Sandbox has the entire Godot engine available to it.
+
 
 ## Sugaring
 
