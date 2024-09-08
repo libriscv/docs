@@ -10,3 +10,14 @@ sidebar_position: 1
 - It has specialized APIs that make **passing data in and out** of the sandbox safe and low-latency.
 - It runs on **all platforms** without requiring the sandbox code to be recompiled.
 - It has bindings for the **Godot Game Engine**
+
+## Godot Sandbox
+
+If you are starting out using the Godot Sandbox, [have a look here](godot/intro.md).
+
+
+## Real-world Usage example
+
+![alt text](/img/realworld_example.png)
+
+Image of 60 000 conveyor belt blocks, each using custom logic and ticking through _libriscv_. The server sits at 4-6% single CPU usage when processing these 60k fully scripted conveyors.

@@ -1,5 +1,5 @@
 ---
-sidebar_position: 5
+sidebar_position: 6
 ---
 
 # C++ API
@@ -78,6 +78,14 @@ struct Variant {
 	// Constructor specifically the STRING_NAME type
 	static Variant string_name(const std::string &name);
 
+	// Create a new empty Array
+	static Variant new_array();
+	// Create a new Array from a vector of Variants
+	static Variant from_array(const std::vector<Variant> &array);
+
+	// Empty Dictionary constructor
+	static Variant new_dictionary();
+
 	operator bool() const;
 	operator int64_t() const;
 	operator int32_t() const;
@@ -89,14 +97,26 @@ struct Variant {
 	operator uint8_t() const;
 	operator double() const;
 	operator float() const;
-	operator const std::string&() const; // String for STRING and PACKED_BYTE_ARRAY
-	operator std::string&();
-	operator std::string_view() const; // View for STRING and PACKED_BYTE_ARRAY
-	operator std::span<uint8_t>() const; // Modifiable span for PACKED_BYTE_ARRAY
+	operator std::string() const; // String for STRING and PACKED_BYTE_ARRAY
+	operator std::u32string() const; // u32string for STRING, STRING_NAME
+	operator String() const;
 
+	Object as_object() const;
 	Node as_node() const;
 	Node2D as_node2d() const;
 	Node3D as_node3d() const;
+	Array as_array() const;
+	Dictionary as_dictionary() const;
+	String as_string() const;
+	std::string as_std_string() const;
+	std::u32string as_std_u32string() const;
+	std::vector<uint8_t> as_byte_array() const;
+	std::vector<float> as_float32_array() const;
+	std::vector<double> as_float64_array() const;
+	std::vector<int32_t> as_int32_array() const;
+	std::vector<int64_t> as_int64_array() const;
+	std::vector<Vector2> as_vector2_array() const;
+	std::vector<Vector3> as_vector3_array() const;
 
 	const Vector2& v2() const;
 	Vector2& v2();
@@ -115,8 +135,14 @@ struct Variant {
 	const Rect2i& r2i() const;
 	Rect2i& r2i();
 
-	std::vector<float>& f32array() const; // Modifiable vector for PACKED_FLOAT32_ARRAY
-	std::vector<double>& f64array() const; // Modifiable vector for PACKED_FLOAT64_ARRAY
+	operator Vector2() const { return v2(); }
+	operator Vector2i() const { return v2i(); }
+	operator Vector3() const { return v3(); }
+	operator Vector3i() const { return v3i(); }
+	operator Vector4() const { return v4(); }
+	operator Vector4i() const { return v4i(); }
+	operator Rect2() const { return r2(); }
+	operator Rect2i() const { return r2i(); }
 
 	void callp(const std::string &method, const Variant *args, int argcount, Variant &r_ret, int &r_error);
 
@@ -204,6 +230,48 @@ struct Dictionary {
 	void set(const Variant &key, const Variant &value);
 
 	DictAccessor operator[](const Variant &key);
+};
+```
+
+## String
+
+```cpp
+/**
+ * @brief String wrapper for Godot String.
+ * Implemented by referencing and mutating a host-side String Variant.
+ */
+struct String {
+	String(std::string_view value = "");
+	String(const String &other);
+	String(String &&other);
+	~String() = default;
+
+	String &operator=(const String &other);
+	String &operator=(String &&other);
+
+	// String operations
+	void append(const String &value);
+	void append(std::string_view value);
+	void erase(int idx, int count = 1);
+	void insert(int idx, const String &value);
+	int find(const String &value) const;
+	bool contains(std::string_view value);
+	bool empty() const;
+
+	String &operator +=(const String &value);
+	String &operator +=(std::string_view value);
+
+	// String access
+	String operator[](int idx) const;
+	String at(int idx) const;
+
+	operator std::string() const;
+	operator std::u32string() const;
+	std::string utf8() const;
+	std::u32string utf32() const;
+
+	// String size
+	int size() const;
 };
 ```
 
