@@ -1,8 +1,8 @@
 ---
-sidebar_position: 6
+sidebar_position: 7
 ---
 
-# C++ API
+# C++ API Reference
 
 The current C++ API is likely to change over time. Feel free to contribute improvements to the API.
 
