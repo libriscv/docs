@@ -4,9 +4,9 @@ sidebar_position: 6
 
 # C++ Examples
 
-## Coin example
+## Coin pickup example
 
-When a C++ program is attached as a script to a node, the usual functions like `_process`, `_ready` will get called in the Sandbox.
+When a C++ program is attached as a script to a node, the usual functions like `_process`, `_ready` and `_input` will get called in the Sandbox.
 
 ```cpp
 #include "api.hpp"
@@ -67,11 +67,11 @@ extern "C" Variant _input(Variant event) {
 
 It's also possible to attach signals to VM functions, like `_on_body_entered`.
 
-![alt text](/img/cppexamples/connect.png)
+<img src="/img/cppexamples/connect.png" width="60%" />
 
 Once connected, the Godot engine will directly call the function `_on_body_entered` in our sandboxed program.
 
-Many functions check if we are in the editor using `is_editor()` and do different things based on that. For example, the coin idle animation is playing in the editor.
+We can check if we are in the editor using `is_editor()` and do different things based on that. For example, the coin idle animation is automatically playing in the editor.
 
 Finally, one of the most common needs is to get the current node, which is the node that the script is attached to. It can be accessed from `.`, which is a node path:
 
@@ -114,9 +114,14 @@ Properties in the Sandbox are supported. They are stored in the global scope, an
 
 ![alt text](/img/cppexamples/properties.png)
 
-Properties can be edited in the Godot inspector and is a powerful and simple way to expose data from the script.
+Properties can be edited in the Godot inspector and is a powerful and simple way to expose data from the script. The values of these properties are saved in the Godot project and restored on reopening the project.
 
-In this example, the players name cannot be changed in the editor, as the property will just keep returning the same value, effectively making it read-only.
+
+:::note
+
+In this example, the players name cannot be changed in the editor, as the property will just keep returning the same value, _effectively making it read-only_. That is, the getter for the `player_name` property only returns `"Slide Knight"`.
+
+:::
 
 ## Timers
 
@@ -150,4 +155,84 @@ The Sandbox API supports timers with lambda capture storage. Timers are implemen
 
 ```cpp
 timer.as_node().queue_free();
+```
+
+Capture storage allows us to bring some data with us into the callback:
+
+```cpp
+	struct SomeData {
+		int some_int = 1;
+		float some_float = 2.0f;
+	} somedata;
+	// Capture 'somedata' by value
+	Timer::oneshot(1.0f, [somedata] (Variant timer) -> Variant {
+		timer.as_node().queue_free();
+
+		print("Float: ", somedata.some_float);
+		return {};
+	});
+```
+
+:::note
+
+We should not try to capture complex variants in the capture storage, as they have special sandboxing restrictions. Complex variants are arrays, strings, dictionaries, callables etc.
+
+:::
+
+## Callables
+
+We can create a way to make function calls into the sandbox at a later time. In C++ this would be like creating a lambda callback that we can call later.
+
+```py
+var func = my_program.vmcallable("my_function")
+
+# Now call it later
+func.call(1, 2, 3)
+```
+
+Callables can also take pre-passed arguments in an array. Arguments passed to `call()` later will get appended.
+
+```py
+var func = my_program.vmcallable("my_function", [1, 2, 3])
+
+# Now call it later
+func.call(4, 5, 6)
+```
+
+The above call will call the C++ function `my_function` in the sandbox with the arguments `(1, 2, 3, 4, 5, 6)`.
+
+### A complete callable example
+
+Let's make a complete working example. In GDScript:
+
+```py
+extends Node
+
+@export var my_program : Sandbox
+
+func _ready() -> void:
+	var func = my_program.vmcallable("sum_function", [1, 2, 3])
+
+	# Now call it and print the result
+	print("Sum: ", func.call(4, 5, 6))
+```
+
+Remember to assign a Sandbox instance to the GDScript export variable:
+
+![alt text](/img/cppexamples/assign_program.png)
+
+You can create a new Sandbox node and hang it under the node with the GDScript attached. Now we implement the `sum_function` in the C++ program that was assigned to the variable:
+
+```cpp
+extern "C" Variant sum_function(
+	Variant a1, Variant a2, Variant a3, Variant a4, Variant a5, Variant a6)
+{
+	return int(a1) + int(a2) + int(a3) + int(a4) + int(a5) + int(a6);
+}
+```
+
+We should see the console print 21:
+
+```
+Sum: 21
 ```
