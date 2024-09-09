@@ -31,7 +31,7 @@ Object get_tree();
 /// };
 /// PER_OBJECT(SlimeState);
 /// // Then use it like this:
-/// auto& state = GetSlimeState(slime);
+/// SlimeState& state = GetSlimeState(slime);
 #define PER_OBJECT(State) \
 	static State &Get ## State(const Node &node) { \
 		static std::unordered_map<uint64_t, State> state; \
@@ -518,10 +518,10 @@ struct Vector2 {
 	float dot(const Vector2& other) const noexcept;
 	static Vector2 from_angle(float angle) noexcept;
 
-	auto& operator += (const Vector2& other);
-	auto& operator -= (const Vector2& other);
-	auto& operator *= (const Vector2& other);
-	auto& operator /= (const Vector2& other);
+	Vector2& operator += (const Vector2& other);
+	Vector2& operator -= (const Vector2& other);
+	Vector2& operator *= (const Vector2& other);
+	Vector2& operator /= (const Vector2& other);
 };
 ```
 
@@ -535,9 +535,9 @@ struct Vector3 {
 
 	// TODO: More to come here
 
-	auto& operator += (const Vector3& other);
-	auto& operator -= (const Vector3& other);
-	auto& operator *= (const Vector3& other);
-	auto& operator /= (const Vector3& other);
+	Vector3& operator += (const Vector3& other);
+	Vector3& operator -= (const Vector3& other);
+	Vector3& operator *= (const Vector3& other);
+	Vector3& operator /= (const Vector3& other);
 };
 ```
