@@ -6,7 +6,9 @@ sidebar_position: 6
 
 ## Coin pickup example
 
-When a C++ program is attached as a script to a node, the usual functions like `_process`, `_ready` and `_input` will get called in the Sandbox.
+The sandbox is a node, and so the usual functions like `_process`, `_ready` and `_input` will get called in the Sandbox. If the program running inside the sandbox implements any of these functions, the sandbox will forward the call to the program inside the sandbox.
+
+As an example, this C++ example program implements `_ready`, and so when the ready callbacks are triggered on the scene tree, this C++ function will also get called as part of that.
 
 ```cpp
 #include "api.hpp"
@@ -65,19 +67,38 @@ extern "C" Variant _input(Variant event) {
 }
 ```
 
+We can check if we are in the editor using `is_editor()` and do different things based on that. For example, the coin idle animation is automatically playing in the editor.
+
+### Signals
+
 It's also possible to attach signals to VM functions, like `_on_body_entered`.
 
 <img src="/img/cppexamples/connect.png" width="60%" />
 
+:::note
+
+You won't be able to see the sandbox program functions on the image above, but they can still be connected.
+
+:::
+
 Once connected, the Godot engine will directly call the function `_on_body_entered` in our sandboxed program.
 
-We can check if we are in the editor using `is_editor()` and do different things based on that. For example, the coin idle animation is automatically playing in the editor.
+### Node paths
 
-Finally, one of the most common needs is to get the current node, which is the node that the script is attached to. It can be accessed from `.`, which is a node path:
+All node paths are relative to the node that has the script program attached.
+
+The current node can be accessed using `.`:
 
 ```cpp
 Node current_node(".");
 ```
+
+:::note
+
+Getting the parent of the current node can be used to access the tree of the current scene, even when the current node is in its own tree. Eg. `../Texts/CoinLabel` accesses a coin label in another scene.
+
+:::
+
 
 ## Sandboxed Properties
 
@@ -111,6 +132,12 @@ SANDBOXED_PROPERTIES(3, {
 ```
 
 Properties in the Sandbox are supported. They are stored in the global scope, and each one has a custom getter and setter function.
+
+:::note
+
+Reloading the editor is required to make the changes visible after changing embedded properties in the programs. Go to the Editor menu and select Reload Current Project.
+
+:::
 
 ![alt text](/img/cppexamples/properties.png)
 
@@ -157,6 +184,8 @@ The Sandbox API supports timers with lambda capture storage. Timers are implemen
 timer.as_node().queue_free();
 ```
 
+### Capture storage
+
 Capture storage allows us to bring some data with us into the callback:
 
 ```cpp
@@ -175,7 +204,7 @@ Capture storage allows us to bring some data with us into the callback:
 
 :::note
 
-We should not try to capture complex variants in the capture storage, as they have special sandboxing restrictions. Complex variants are arrays, strings, dictionaries, callables etc.
+We should not try to capture complex variants in the capture storage, as they have special sandboxing restrictions. Complex variants are Array, String, Dictionary, Callable, packed arrays etc.
 
 :::
 
