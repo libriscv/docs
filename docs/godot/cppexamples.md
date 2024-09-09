@@ -6,7 +6,7 @@ sidebar_position: 6
 
 ## Coin example
 
-When a C++ program is attached as a script to a node, the usual functions like `_process`, `_ready` will get called in the Sandbox. It's also possible to attach signals to VM functions, like `_on_body_entered`.
+When a C++ program is attached as a script to a node, the usual functions like `_process`, `_ready` will get called in the Sandbox.
 
 ```cpp
 #include "api.hpp"
@@ -64,6 +64,12 @@ extern "C" Variant _input(Variant event) {
 	return {};
 }
 ```
+
+It's also possible to attach signals to VM functions, like `_on_body_entered`.
+
+![alt text](/img/cppexamples/connect.png)
+
+Once connected, the Godot engine will directly call the function `_on_body_entered` in our sandboxed program.
 
 Many functions check if we are in the editor using `is_editor()` and do different things based on that. For example, the coin idle animation is playing in the editor.
 
