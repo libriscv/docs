@@ -23,7 +23,7 @@ static void add_coin(const Node& player) {
 	coins ++;
 	// In our demo project we can access the coin label from the player
 	// using a node path: Player -> get_parent() -> Texts -> CoinLabel
-	auto coinlabel = player.get_node("../Texts/CoinLabel");
+	Node coinlabel = player.get_node("../Texts/CoinLabel");
 	coinlabel.set("text", "You have collected "
 		+ std::to_string(coins) + ((coins == 1) ? " coin" : " coins"));
 }
