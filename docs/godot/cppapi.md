@@ -7,17 +7,27 @@ sidebar_position: 8
 The current C++ API is likely to change over time. Feel free to contribute improvements to the API.
 
 
-## Globals
+## General
 
 ```cpp
 /// @brief Print a message to the console.
-/// @param ...vars A list of Variant objects to print.
+/// @param ...vars A list of Variants to print.
 template <typename... Args>
-void print(Args &&...vars);
+inline void print(Args &&...vars);
 
 /// @brief Get the current scene tree.
 /// @return The root node of the scene tree.
-Object get_tree();
+inline Object get_tree();
+
+/// @brief Check if the given Node is a part of the current scene tree. Not an instance of another scene.
+/// @param node The Node to check.
+/// @return True if the Node is a part of the current scene tree, false otherwise.
+inline bool is_part_of_tree(Node node);
+
+/// @brief Get a node by its path. By default, this returns the current node.
+/// @param path The path to the node.
+/// @return The node at the given path.
+inline Node get_node(std::string_view path = ".");
 
 /// @brief A macro to define a static function that returns a custom state object
 /// tied to a Node object. For shared sandbox instances, this is the simplest way
@@ -31,12 +41,42 @@ Object get_tree();
 /// };
 /// PER_OBJECT(SlimeState);
 /// // Then use it like this:
-/// SlimeState& state = GetSlimeState(slime);
+/// auto& state = GetSlimeState(slime);
 #define PER_OBJECT(State) \
 	static State &Get ## State(const Node &node) { \
 		static std::unordered_map<uint64_t, State> state; \
 		return state[node.address()]; \
 	}
+
+/// @brief A property struct that must be instantiated in the global scope.
+/// @note This is used to define custom properties for the Sandbox class.
+/// On program load, the properties are automatically exposed on the script instance.
+/// @example
+/// SANDBOXED_PROPERTIES(1, {
+/// 	.name = "my_property",
+/// 	.type = Variant::Type::INT,
+/// 	.getter = []() -> Variant { return 42; },
+/// 	.setter = [](Variant value) { print("Set to: ", value); },
+/// 	.default_value = Variant{42},
+/// });
+struct Property {
+	using getter_t = Variant (*)();
+	using setter_t = Variant (*)(Variant);
+
+	const char * const name = 0;
+	const unsigned size = sizeof(Property);
+	const Variant::Type type;
+	const getter_t getter;
+	const setter_t setter;
+	const Variant default_value;
+};
+#define SANDBOXED_PROPERTIES(num, ...) \
+	extern "C" const Property properties[num+1] { __VA_ARGS__, {0} };
+
+/// @brief Stop execution of the program.
+/// @note This function may return if the program is resumed. However, no such
+/// functionality is currently implemented.
+inline void halt();
 
 /// @brief Check if the program is running in the Godot editor.
 /// @return True if running in the editor, false otherwise.
@@ -46,12 +86,20 @@ struct Engine {
 	/// @brief Check if the program is running in the Godot editor.
 	/// @return True if running in the editor, false otherwise.
 	static bool is_editor_hint();
+
+	/// @brief Get the singleton instance of the Engine.
+	/// @return The Engine singleton.
+	static Object get_singleton();
 };
 
-/// @brief Check if the given Node is a part of the current scene tree. Not an instance of another scene.
-/// @param node The Node to check.
-/// @return True if the Node is a part of the current scene tree, false otherwise.
-inline bool is_part_of_tree(Node node);
+/// @brief The class database for instantiating Godot objects.
+struct ClassDB {
+	/// @brief Instantiate a new object of the given class.
+	/// @param class_name The name of the class to instantiate.
+	/// @param name The name of the object, if it's a Node. Otherwise, this is ignored.
+	/// @return The new object.
+	static Object instantiate(std::string_view class_name, std::string_view name = "");
+};
 ```
 
 
