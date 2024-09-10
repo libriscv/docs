@@ -12,15 +12,9 @@ Create a new **Scene**. The Root Node can be anything, even a **Node**. Next cli
 
 ![node](/img/sandbox/node.png)
 
-Now, when running the scene, you should see printed on the console:
-
-```
-Hello World!
-```
-
 :::note
 
-Even though you are not calling any function on the **Sandbox**, notice that the **main** function is still called. This cannot be disabled.
+Even though you are not calling any function on the **Sandbox**, the **main** function is always called. This cannot be disabled, as it is part of the C++ language. You may override the `int main()` function with your own.
 
 :::
 
@@ -74,11 +68,13 @@ It's possible to attach signals directly to a Node like you usually would do wit
 
 ## Guarantees
 
-A sandbox gives these guarantees:
+A sandbox currently gives these guarantees:
 
 - Execution will eventually time out
 	- This prevents infinite loops
 - Memory and resource usage is restricted
-	- There are limitations placed on the programs in the sandbox that limits them from creating too many resources.
+	- A sandbox instance is limited from creating too many resources during a function call
 - Memory safety
 	- The host game client or server is protected from misbehaving programs
+
+These limits can be configured in the Editors inspector.

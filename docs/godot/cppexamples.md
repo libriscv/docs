@@ -4,6 +4,68 @@ sidebar_position: 6
 
 # C++ Examples
 
+Currently, the Godot Sandbox has access to all of Godot through calls, properties, objects, nodes and so on. This might not be apparent from looking at the APIs, especially if one is unfamiliar with how Godot works under the hood.
+
+## The current node
+
+```cpp
+get_node()
+```
+
+`get_node()` retrieves the current node. It also takes an optional node path:
+
+```cpp
+Node2D n = get_node("MyAnimatedSprite2D");
+```
+
+which is equivalent to:
+
+```cpp
+Node2D n("MyAnimatedSprite2D");
+```
+
+Paths are relative the owner of the sandbox. If the sandbox is attached as a script to a node, then the owner is that node.
+
+
+## Nodes, methods and properties
+
+Let's take an example: Playing animations using an AnimatedSprite2D.
+
+```cpp
+Node node("MyAnimatedSprite2D");
+```
+
+Above: Accessing a node through its path relative to the script. However, what we get in return is a Node, not an AnimatedSprite2D and not even a Node2D. The API does have a wrapper for Node2D, so let's just make use of that now:
+
+```cpp
+Node2D node("MyAnimatedSprite2D");
+```
+
+Still, what if we want to play an animation? If we look at the [documentation for AnimatedSprite2D](https://docs.godotengine.org/en/stable/classes/class_animatedsprite2d.html) it has a [play method](https://docs.godotengine.org/en/stable/classes/class_animatedsprite2d.html#class-animatedsprite2d-method-play) used to start playing animations.
+
+In Godot, methods are callable functions on objects, including nodes. So, we can just call `play` as a function on our node object:
+
+```cpp
+Node2D node("MyAnimatedSprite2D");
+node.call("play", "idle");
+```
+
+We don't actually need to "have" an AnimatedSprite2D to call any function that it has. Further, the call is such an important function that there is a dedicated `operator (...)` for it:
+
+```cpp
+Node2D mysprite("MyAnimatedSprite2D");
+mysprite("play", "idle");
+```
+
+That means we have access to all methods of all objects via calls. What about properties? Well, the API has support for `get()` and `set()`, which lets us get and set properties. The [current animation](https://docs.godotengine.org/en/stable/classes/class_animatedsprite2d.html#class-animatedsprite2d-property-animation) is a property that we can use `get()` on:
+
+```cpp
+Variant current_animation = mysprite.get("animation");
+```
+
+With access to methods, properties, objects, nodes and node-operations, globals and Variants, we can say that the Godot Sandbox has the entire Godot engine available to it.
+
+
 ## Coin pickup example
 
 The sandbox is a node, and so the usual functions like `_process`, `_ready` and `_input` will get called in the Sandbox. If the program running inside the sandbox implements any of these functions, the sandbox will forward the call to the program inside the sandbox.
@@ -12,7 +74,7 @@ As an example, this C++ example program implements `_ready`, and so when the rea
 
 ```cpp
 #include "api.hpp"
-// We can store data in the script
+// We can store data in the script, just like a regular C++ program
 static int coins = 0;
 
 extern "C" void reset_game() {
@@ -35,7 +97,7 @@ extern "C" Variant _on_body_entered(Variant arg) {
 	if (player_node.get_name() != "Player")
 		return {};
 
-	Node(".").queue_free(); // Remove the current coin!
+	get_node().queue_free(); // Remove the current coin!
 	add_coin(player_node);
 	return {};
 }
@@ -57,11 +119,12 @@ extern "C" Variant _process(Variant delta) {
 }
 
 extern "C" Variant _input(Variant event) {
-	// Event is the Input object
+	// Event is the Input singleton
+	// Make the coins red whenever the player presses the jump key
 	if (event("is_action_pressed", "jump")) {
-		Node2D(".").set("modulate", 0xFF6060FF);
+		get_node().set("modulate", 0xFF6060FF);
 	} else if (event("is_action_released", "jump")) {
-		Node2D(".").set("modulate", 0xFFFFFFFF);
+		get_node().set("modulate", 0xFFFFFFFF);
 	}
 	return {};
 }

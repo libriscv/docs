@@ -4,50 +4,9 @@ sidebar_position: 7
 
 # Adding sugar
 
-Currently, the Godot Sandbox has access to all of Godot through calls, properties, objects, nodes and so on. This might not be apparent from looking at the APIs, especially if one is unfamiliar with how Godot works under the hood.
-
-## Using arbitrary nodes
-
-Let's take an example: Playing animations using an AnimatedSprite2D.
-
-```cpp
-Node node("MyAnimatedSprite2D");
-```
-
-Above: Accessing a node through its path relative to the script. However, what we get in return is a Node, not an AnimatedSprite2D and not even a Node2D. The API currently does have support for Node2D, so let's just make use of that now:
-
-```cpp
-Node2D node("MyAnimatedSprite2D");
-```
-
-Still, what if we want to play an animation? If we look at the [documentation for AnimatedSprite2D](https://docs.godotengine.org/en/stable/classes/class_animatedsprite2d.html) it has a [play method](https://docs.godotengine.org/en/stable/classes/class_animatedsprite2d.html#class-animatedsprite2d-method-play) used to start playing animations.
-
-In Godot, methods are callable functions on objects, including nodes. So, it turns out we can actually just call `play` as a function on our node object:
-
-```cpp
-Node2D node("MyAnimatedSprite2D");
-node.call("play", "idle");
-```
-
-We don't actually need to "have" an AnimatedSprite2D to call any function that it has. Further, the call is such an important function that there is a dedicated `operator (...)` for it:
-
-```cpp
-Node2D mysprite("MyAnimatedSprite2D");
-mysprite("play", "idle");
-```
-
-That means we have access to all methods of all objects via calls. What about properties? Well, the API has support for `get()` and `set()`, which lets us get and set properties. The [current animation](https://docs.godotengine.org/en/stable/classes/class_animatedsprite2d.html#class-animatedsprite2d-property-animation) is a property that we can use `get()` on:
-
-```cpp
-Variant current_animation = mysprite.get("animation");
-```
-
-With access to methods, properties, objects, nodes and node-operations, globals and Variants, we can say that the Godot Sandbox has the entire Godot engine available to it.
-
-
 ## Sugaring
 
-Now, let's talk about sugaring. Sugaring is the way we create nicer looking, easier-to-use APIs using a foundation that is more verbose.
+Sugaring is the way we create nicer looking, easier-to-use APIs using a foundation that is more verbose.
 
 Let's make an AnimatedSprite2D class that inherits from Node2D:
 
