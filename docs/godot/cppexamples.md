@@ -6,7 +6,24 @@ sidebar_position: 6
 
 Currently, the Godot Sandbox has access to all of Godot through calls, properties, objects, nodes and so on. This might not be apparent from looking at the APIs, especially if one is unfamiliar with how Godot works under the hood.
 
-## The current node
+## Node paths
+
+All node paths are relative to the node that has the script program attached.
+
+The current node can be accessed using `.`:
+
+```cpp
+Node current_node(".");
+```
+
+:::note
+
+Getting the parent of the current node can be used to access the tree of the current scene, even when the current node is in its own tree. Eg. `../Texts/CoinLabel` accesses a coin label in another scene.
+
+:::
+
+
+There's also the global helper function:
 
 ```cpp
 get_node()
@@ -24,7 +41,19 @@ which is equivalent to:
 Node2D n("MyAnimatedSprite2D");
 ```
 
-Paths are relative the owner of the sandbox. If the sandbox is attached as a script to a node, then the owner is that node.
+As written before, paths are relative to the owner of the sandbox. If the sandbox is attached as a script to a node, then the owner is that node.
+
+The current scene tree is also accessible through a global helper:
+
+```cpp
+get_tree()
+```
+
+So, to reload the current scene after the frame ends:
+
+```cpp
+get_tree().call_deferred("reload_current_scene");
+```
 
 
 ## Nodes, methods and properties
@@ -105,7 +134,7 @@ extern "C" Variant _on_body_entered(Variant arg) {
 extern "C" Variant _ready() {
 	if (is_editor()) {
 		// Ignore inputs when in the Editor
-		Node(".")("set_process_input", false);
+		get_node()("set_process_input", false);
 	}
 	return {};
 }
@@ -145,23 +174,6 @@ You won't be able to see the sandbox program functions on the image above, but t
 :::
 
 Once connected, the Godot engine will directly call the function `_on_body_entered` in our sandboxed program.
-
-### Node paths
-
-All node paths are relative to the node that has the script program attached.
-
-The current node can be accessed using `.`:
-
-```cpp
-Node current_node(".");
-```
-
-:::note
-
-Getting the parent of the current node can be used to access the tree of the current scene, even when the current node is in its own tree. Eg. `../Texts/CoinLabel` accesses a coin label in another scene.
-
-:::
-
 
 ## Sandboxed Properties
 
@@ -219,8 +231,7 @@ In this example, the players name cannot be changed in the editor, as the proper
 #include "api.hpp"
 
 extern "C" Variant _on_body_entered(Variant bodyVar) {
-	Object engine("Engine");
-	engine.set("time_scale", 0.5f);
+	Engine::get_singleton().set("time_scale", 0.5f);
 
 	Node2D body = cast_to<Node2D> (bodyVar);
 	body.set("velocity", Vector2(0.0f, -120.0f));
@@ -229,8 +240,7 @@ extern "C" Variant _on_body_entered(Variant bodyVar) {
 
 	Timer::oneshot(1.0f, [] (Variant timer) -> Variant {
 		timer.as_node().queue_free();
-		Object engine("Engine");
-		engine.set("time_scale", 1.0f);
+		Engine::get_singleton().set("time_scale", 1.0f);
 
 		get_tree().call_deferred("reload_current_scene");
 		return {};
