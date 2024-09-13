@@ -65,7 +65,7 @@ get_tree().call_deferred("reload_current_scene");
 
 ## VM function calls
 
-The Sandbox is by default in low-latency mode, which means that it will prefer to pass primitive or performant arguments to the VM. As a result, incoming arguments are usually not a Variant. However, the return value is always a Variant.
+The Sandbox is by default in unboxed arguments mode, which means that it will prefer to pass primitive or performant arguments to the VM. As a result, incoming arguments are usually not a Variant. However, the return value is always a Variant.
 
 ### Example function
 
@@ -80,7 +80,7 @@ Variant function_that_takes_string_node_input(String str, Node node, Object inpu
 }
 ```
 
-The low-latency mode can be disabled in the project settings, in the Script section. Unticking "Native Types" and reloading the editor will make all arguments Variant, simplifying writing functions. In that case the function looks like this:
+The unboxed arguments mode can be disabled in the project settings, in the Script section. Unticking "Native Types" and reloading the editor will make all arguments Variant, simplifying writing functions. In that case the function looks like this:
 
 ```cpp
 Variant function_that_takes_string_node_input(Variant str, Variant node, Variant input) {
