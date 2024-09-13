@@ -21,7 +21,7 @@ The default C++ template should look something like this:
 ```cpp
 #include "api.hpp"
 
-extern "C" Variant public_function(Variant arg) {
+extern "C" Variant public_function(String arg) {
     print("Arguments: ", arg);
     return "Hello from the other side";
 }

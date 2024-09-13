@@ -43,6 +43,13 @@ Node2D n("MyAnimatedSprite2D");
 
 As written before, paths are relative to the owner of the sandbox. If the sandbox is attached as a script to a node, then the owner is that node.
 
+You can also retrieve a node relative to a node:
+
+```cpp
+Node2D n("MyAnimatedSprite2D");
+Node2D n2 = n.get_node("../Texts/CoinLabel");
+```
+
 The current scene tree is also accessible through a global helper:
 
 ```cpp
@@ -54,6 +61,67 @@ So, to reload the current scene after the frame ends:
 ```cpp
 get_tree().call_deferred("reload_current_scene");
 ```
+
+
+## VM function calls
+
+The Sandbox is by default in low-latency mode, which means that it will prefer to pass primitive or performant arguments to the VM. As a result, incoming arguments are usually not a Variant. However, the return value is always a Variant.
+
+### Example function
+
+Example:
+
+```cpp
+Variant function_that_takes_string_node_input(String str, Node node, Object input) {
+	Dictionary d = Dictionary::Create();
+	d["123"] = "456";
+	d[str] = node;
+	return d;
+}
+```
+
+The low-latency mode can be disabled in the project settings, in the Script section. Unticking "Native Types" and reloading the editor will make all arguments Variant, simplifying writing functions. In that case the function looks like this:
+
+```cpp
+Variant function_that_takes_string_node_input(Variant str, Variant node, Variant input) {
+	Dictionary d = Dictionary::Create();
+	d["123"] = "456";
+	d[str] = node;
+	return d;
+}
+```
+
+Again, the above example function is for when "Native Types" are disabled in project settings.
+
+
+### Primitive types
+
+When primitive types and small structs are passed to the Sandbox, they get passed by value directly in registers, which is a big performance benefit.
+
+Godot integers become `int64_t` or `long`, floats become `double` and booleans become `bool`. 2-vectors become `Vector2` and `Vector2i`.
+
+```cpp
+Variant function_with_int_float_and_bool(int x, double y, bool z) {
+	return {};
+}
+```
+
+We always need to return a variant. We are not required to read a 64-bit integer. We can choose to read it as any integer, eg. `uint8_t`, `int64_t`, `int`, `long` etc.
+
+Floating-point values are `double` as arguments. Make sure you don't try to read a `float` as it will be read as garbage. Booleans are just `bool` (or an integer, technically).
+
+### Complex types
+
+Complex types are those that benefit greatly from being accessed by reference. Examples of complex types are String, Array, Dictionary, Object, Callables and all nodes.
+
+The C++ API has wrappers for most types:
+
+```cpp
+Variant function_that_takes_wrapped_types(String str, Array a, Dictionary d, Variant callable) {
+	return {};
+}
+```
+As shown, `Callable` does not yet have a wrapper, but can still be used. Simply use `callable(x, y, z)`.
 
 
 ## Nodes, methods and properties
@@ -119,10 +187,9 @@ static void add_coin(const Node& player) {
 		+ std::to_string(coins) + ((coins == 1) ? " coin" : " coins"));
 }
 
-extern "C" Variant _on_body_entered(Variant arg) {
+extern "C" Variant _on_body_entered(Node2D player_node) {
 	// This function is called when a body enters the coin
 	// Most likely it's the player, but we still check!
-	Node player_node = arg.as_node();
 	if (player_node.get_name() != "Player")
 		return {};
 
@@ -139,7 +206,7 @@ extern "C" Variant _ready() {
 	return {};
 }
 
-extern "C" Variant _process(Variant delta) {
+extern "C" Variant _process(double delta) {
 	if (is_editor()) {
 		// When in the Editor, play an animation
 		Node("AnimatedSprite2D")("play", "idle");
@@ -147,7 +214,7 @@ extern "C" Variant _process(Variant delta) {
 	return {};
 }
 
-extern "C" Variant _input(Variant event) {
+extern "C" Variant _input(Object event) {
 	// Event is the Input singleton
 	// Make the coins red whenever the player presses the jump key
 	if (event("is_action_pressed", "jump")) {
@@ -230,16 +297,15 @@ In this example, the players name cannot be changed in the editor, as the proper
 ```cpp
 #include "api.hpp"
 
-extern "C" Variant _on_body_entered(Variant bodyVar) {
+extern "C" Variant _on_body_entered(Node2D body) {
 	Engine::get_singleton().set("time_scale", 0.5f);
 
-	Node2D body = cast_to<Node2D> (bodyVar);
 	body.set("velocity", Vector2(0.0f, -120.0f));
 	body.get_node("CollisionShape2D").queue_free();
 	body.get_node("AnimatedSprite2D")("play", "died");
 
-	Timer::oneshot(1.0f, [] (Variant timer) -> Variant {
-		timer.as_node().queue_free();
+	Timer::oneshot(1.0f, [] (Node timer) -> Variant {
+		timer.queue_free();
 		Engine::get_singleton().set("time_scale", 1.0f);
 
 		get_tree().call_deferred("reload_current_scene");
@@ -254,7 +320,7 @@ This is the code from a killzone. Once the player touches it, we slow down the g
 The Sandbox API supports timers with lambda capture storage. Timers are implemented by creating a Timer node, which means we _must remember to remove it after we're done with it_. In this case we are reloading the scene, but we still do it properly:
 
 ```cpp
-timer.as_node().queue_free();
+timer.queue_free();
 ```
 
 ### Capture storage
@@ -267,8 +333,8 @@ Capture storage allows us to bring some data with us into the callback:
 		float some_float = 2.0f;
 	} somedata;
 	// Capture 'somedata' by value
-	Timer::oneshot(1.0f, [somedata] (Variant timer) -> Variant {
-		timer.as_node().queue_free();
+	Timer::oneshot(1.0f, [somedata] (Node timer) -> Variant {
+		timer.queue_free();
 
 		print("Float: ", somedata.some_float);
 		return {};
@@ -326,10 +392,9 @@ Remember to assign a Sandbox instance to the GDScript export variable:
 You can create a new Sandbox node and hang it under the node with the GDScript attached. Now we implement the `sum_function` in the C++ program that was assigned to the variable:
 
 ```cpp
-extern "C" Variant sum_function(
-	Variant a1, Variant a2, Variant a3, Variant a4, Variant a5, Variant a6)
+extern "C" Variant sum_function(int a1, int a2, int a3, int a4, int a5, int a6)
 {
-	return int(a1) + int(a2) + int(a3) + int(a4) + int(a5) + int(a6);
+	return a1 + a2 + a3 + a4 + a5 + a6;
 }
 ```
 

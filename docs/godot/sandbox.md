@@ -28,7 +28,7 @@ extends Node
 @export var sandbox: Sandbox_SrcSrc
 
 func _ready() -> void:
-	sandbox.public_function(1)
+	print(sandbox.public_function("Hello World!"))
 ```
 
 This will export to the editor a **Sandbox** which you have to now put on the node you created:
@@ -38,9 +38,8 @@ This will export to the editor a **Sandbox** which you have to now put on the no
 After setting it and running, you should now see:
 
 ```
-Hello world!
 Arguments: 
-1
+ Hello World!
 Hello from the other side
 ```
 

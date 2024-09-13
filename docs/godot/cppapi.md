@@ -216,14 +216,10 @@ struct Variant {
 
 ```cpp
 struct Array {
-	Array(unsigned size = 0);
+	constexpr Array();
+	Array(unsigned size);
 	Array(const std::vector<Variant> &values);
-	Array(const Array &other);
-	Array(Array &&other);
-	~Array();
-
-	Array &operator=(const Array &other);
-	Array &operator=(Array &&other);
+	static Array Create(unsigned size = 0);
 
 	operator Variant() const;
 
@@ -257,13 +253,8 @@ struct Array {
 
 ```cpp
 struct Dictionary {
-	Dictionary();
-	Dictionary(const Dictionary &other);
-	Dictionary(Dictionary &&other);
-	~Dictionary();
-
-	Dictionary &operator=(const Dictionary &other);
-	Dictionary &operator=(Dictionary &&other);
+	constexpr Dictionary();
+	static Dictionary Create();
 
 	operator Variant() const;
 
@@ -289,13 +280,12 @@ struct Dictionary {
  * Implemented by referencing and mutating a host-side String Variant.
  */
 struct String {
-	String(std::string_view value = "");
-	String(const String &other);
-	String(String &&other);
-	~String() = default;
+	constexpr String();
+	String(std::string_view value);
+	template <size_t N>
+	String(const char (&value)[N]);
 
-	String &operator=(const String &other);
-	String &operator=(String &&other);
+	String &operator =(std::string_view value);
 
 	// String operations
 	void append(const String &value);
