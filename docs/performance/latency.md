@@ -49,7 +49,7 @@ In this made-up example we can't see the real measurements, but we can still see
 
 ## Godot engine integration
 
-When integrated into the [Godot engine](https://godotengine.org/), the fixed overheads outside of our control are 40ns for each call and we also use the Godot Variant as function arguments as a quality-of-life feature.
+When integrated into the [Godot engine](https://godotengine.org/), the fixed overheads outside of our control are 40ns for each call. This may be improved if and when the Sandbox is embedded directly into Godot. For now these are the reality:
 
 ![Function calls with integer arguments](/img/performance/vmcall_integer_args.png)
 
