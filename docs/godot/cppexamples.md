@@ -89,7 +89,7 @@ Variant function_that_takes_string_node_input(String str, Node node, Object inpu
 }
 ```
 
-The unboxed arguments mode can be disabled in the project settings, in the Script section. Unticking "Native Types" and reloading the editor will make all arguments Variant, simplifying writing functions. In that case the function looks like this:
+The unboxed arguments mode can be disabled in the project settings, in the Script section. Unticking "Unboxed Types for Sandbox Arguments" and reloading the editor will make all arguments Variant, simplifying writing functions. In that case the function looks like this:
 
 ```cpp
 Variant function_that_takes_string_node_input(Variant str, Variant node, Variant input) {
@@ -100,7 +100,7 @@ Variant function_that_takes_string_node_input(Variant str, Variant node, Variant
 }
 ```
 
-Again, the above example function is for when "Native Types" are disabled in project settings.
+Again, the above example function is for when "Unboxed Types for Sandbox Arguments" are disabled in project settings.
 
 
 ### Primitive types
