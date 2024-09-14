@@ -67,6 +67,15 @@ get_tree().call_deferred("reload_current_scene");
 
 The Sandbox is by default in unboxed arguments mode, which means that it will prefer to pass primitive or performant arguments to the VM. As a result, incoming arguments are usually not a Variant. However, the return value is always a Variant.
 
+The simplest function is one that returns only a Variant.
+
+```cpp
+Variant my_function() {
+	return Nil;
+}
+```
+The C++ API has a shortcut for returning nothing: `Nil`. It's a default-constructed Variant.
+
 ### Example function
 
 Example:
@@ -102,7 +111,7 @@ Godot integers become `int64_t` or `long`, floats become `double` and booleans b
 
 ```cpp
 Variant function_with_int_float_and_bool(int x, double y, bool z) {
-	return {};
+	return Nil;
 }
 ```
 
@@ -118,7 +127,7 @@ The C++ API has wrappers for most types:
 
 ```cpp
 Variant function_that_takes_wrapped_types(String str, Array a, Dictionary d, Variant callable) {
-	return {};
+	return Nil;
 }
 ```
 As shown, `Callable` does not yet have a wrapper, but can still be used. Simply use `callable(x, y, z)`.
@@ -191,11 +200,11 @@ extern "C" Variant _on_body_entered(Node2D player_node) {
 	// This function is called when a body enters the coin
 	// Most likely it's the player, but we still check!
 	if (player_node.get_name() != "Player")
-		return {};
+		return Nil;
 
 	get_node().queue_free(); // Remove the current coin!
 	add_coin(player_node);
-	return {};
+	return Nil;
 }
 
 extern "C" Variant _ready() {
@@ -203,7 +212,7 @@ extern "C" Variant _ready() {
 		// Ignore inputs when in the Editor
 		get_node()("set_process_input", false);
 	}
-	return {};
+	return Nil;
 }
 
 extern "C" Variant _process(double delta) {
@@ -211,7 +220,7 @@ extern "C" Variant _process(double delta) {
 		// When in the Editor, play an animation
 		Node("AnimatedSprite2D")("play", "idle");
 	}
-	return {};
+	return Nil;
 }
 
 extern "C" Variant _input(Object event) {
@@ -222,7 +231,7 @@ extern "C" Variant _input(Object event) {
 	} else if (event("is_action_released", "jump")) {
 		get_node().set("modulate", 0xFFFFFFFF);
 	}
-	return {};
+	return Nil;
 }
 ```
 
@@ -266,7 +275,7 @@ SANDBOXED_PROPERTIES(3, {
 	.name = "player_name",
 	.type = Variant::STRING,
 	.getter = []() -> Variant { return "Slide Knight"; },
-	.setter = [](Variant value) -> Variant { return {}; },
+	.setter = [](Variant value) -> Variant { return Nil; },
 	.default_value = Variant{"Slight Knight"},
 });
 
@@ -309,9 +318,9 @@ extern "C" Variant _on_body_entered(Node2D body) {
 		Engine::get_singleton().set("time_scale", 1.0f);
 
 		get_tree().call_deferred("reload_current_scene");
-		return {};
+		return Nil;
 	});
-	return {};
+	return Nil;
 }
 ```
 
@@ -337,7 +346,7 @@ Capture storage allows us to bring some data with us into the callback:
 		timer.queue_free();
 
 		print("Float: ", somedata.some_float);
-		return {};
+		return Nil;
 	});
 ```
 
