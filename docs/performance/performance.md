@@ -12,9 +12,11 @@ _libriscv_ regularly out-performs other interpreters.
 
 ![alt text](/img/performance/CoreMark_1.0_Interpreted_wasm3_vs_interpreted_libriscv.png)
 
-![alt text](/img/performance/STREAM_memory_wasm3_vs_libriscv_(no_SIMD).png)
+![alt text](/img/performance/stream1.png)
 
-I benchmarked _libriscv_ vs wasm3 on two of my machines.
+![alt text](/img/performance/stream2.png)
+
+I benchmarked interpreted [libriscv](https://github.com/libriscv/libriscv) vs [wasm3](https://github.com/wasm3/wasm3) on two of my machines.
 
 [Others have also benchmarked](https://github.com/sysprog21/rv32emu/issues/288) _libriscv_, and found it to be fast. Although likely with C-extension enabled, which is not the fastest interpreter mode in _libriscv_.
 
