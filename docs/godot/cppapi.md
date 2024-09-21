@@ -6,6 +6,8 @@ sidebar_position: 8
 
 The current C++ API is likely to change over time. Feel free to contribute improvements to the API.
 
+You can find the [source of the API here](https://github.com/libriscv/godot-sandbox/blob/main/program/cpp/api/api.hpp).
+
 
 ## General
 
@@ -81,25 +83,6 @@ inline void halt();
 /// @brief Check if the program is running in the Godot editor.
 /// @return True if running in the editor, false otherwise.
 inline bool is_editor();
-
-struct Engine {
-	/// @brief Check if the program is running in the Godot editor.
-	/// @return True if running in the editor, false otherwise.
-	static bool is_editor_hint();
-
-	/// @brief Get the singleton instance of the Engine.
-	/// @return The Engine singleton.
-	static Object get_singleton();
-};
-
-/// @brief The class database for instantiating Godot objects.
-struct ClassDB {
-	/// @brief Instantiate a new object of the given class.
-	/// @param class_name The name of the class to instantiate.
-	/// @param name The name of the object, if it's a Node. Otherwise, this is ignored.
-	/// @return The new object.
-	static Object instantiate(std::string_view class_name, std::string_view name = "");
-};
 ```
 
 
@@ -118,10 +101,19 @@ struct Variant {
 
 	Variant(const Array&);
 	Variant(const Dictionary&);
+	Variant(const String&);
 	Variant(const Object&);
 	Variant(const Node&);
 	Variant(const Node2D&);
 	Variant(const Node3D&);
+	Variant(const PackedArray<uint8_t>&);
+	Variant(const PackedArray<float>&);
+	Variant(const PackedArray<double>&);
+	Variant(const PackedArray<int32_t>&);
+	Variant(const PackedArray<int64_t>&);
+	Variant(const PackedArray<Vector2>&);
+	Variant(const PackedArray<Vector3>&);
+	Variant(const PackedArray<Color>&);
 
 	// Constructor specifically the STRING_NAME type
 	static Variant string_name(const std::string &name);
@@ -148,6 +140,8 @@ struct Variant {
 	operator std::string() const; // String for STRING and PACKED_BYTE_ARRAY
 	operator std::u32string() const; // u32string for STRING, STRING_NAME
 	operator String() const;
+	operator Array() const;
+	operator Dictionary() const;
 
 	Object as_object() const;
 	Node as_node() const;
@@ -166,31 +160,34 @@ struct Variant {
 	std::vector<Vector2> as_vector2_array() const;
 	std::vector<Vector3> as_vector3_array() const;
 
-	const Vector2& v2() const;
-	Vector2& v2();
-	const Vector2i& v2i() const;
-	Vector2i& v2i();
-	const Vector3& v3() const;
-	Vector3& v3();
-	const Vector3i& v3i() const;
-	Vector3i& v3i();
-	const Vector4& v4() const;
-	Vector4& v4();
-	const Vector4i& v4i() const;
-	Vector4i& v4i();
-	const Rect2& r2() const;
-	Rect2& r2();
-	const Rect2i& r2i() const;
-	Rect2i& r2i();
+	const Vector2 &v2() const;
+	Vector2 &v2();
+	const Vector2i &v2i() const;
+	Vector2i &v2i();
+	const Vector3 &v3() const;
+	Vector3 &v3();
+	const Vector3i &v3i() const;
+	Vector3i &v3i();
+	const Vector4 &v4() const;
+	Vector4 &v4();
+	const Vector4i &v4i() const;
+	Vector4i &v4i();
+	const Rect2 &r2() const;
+	Rect2 &r2();
+	const Rect2i &r2i() const;
+	Rect2i &r2i();
+	const Color &color() const;
+	Color &color();
 
-	operator Vector2() const { return v2(); }
-	operator Vector2i() const { return v2i(); }
-	operator Vector3() const { return v3(); }
-	operator Vector3i() const { return v3i(); }
-	operator Vector4() const { return v4(); }
-	operator Vector4i() const { return v4i(); }
-	operator Rect2() const { return r2(); }
-	operator Rect2i() const { return r2i(); }
+	operator Vector2() const;
+	operator Vector2i() const;
+	operator Vector3() const;
+	operator Vector3i() const;
+	operator Vector4() const;
+	operator Vector4i() const;
+	operator Rect2() const;
+	operator Rect2i() const;
+	operator Color() const;
 
 	void callp(const std::string &method, const Variant *args, int argcount, Variant &r_ret, int &r_error);
 
@@ -207,6 +204,8 @@ struct Variant {
 	bool operator==(const Variant &other) const;
 	bool operator!=(const Variant &other) const;
 	bool operator<(const Variant &other) const;
+
+	Variant duplicate() const;
 
 	Type get_type() const noexcept { return m_type; }
 };
@@ -322,7 +321,7 @@ struct Object {
 
 	/// @brief Construct an Object object from an existing in-scope Object object.
 	/// @param addr The address of the Object object.
-	Object(uint64_t addr) : m_address{addr} {}
+	Object(uint64_t addr);
 
 	// Call a method on the node.
 	// @param method The method to call.
@@ -577,5 +576,205 @@ struct Vector3 {
 	Vector3& operator -= (const Vector3& other);
 	Vector3& operator *= (const Vector3& other);
 	Vector3& operator /= (const Vector3& other);
+};
+```
+
+## Color
+
+```cpp
+struct Color {
+	float r;
+	float g;
+	float b;
+	float a;
+
+	// TODO: More to come here
+
+	Color& operator += (const Color& other);
+	Color& operator -= (const Color& other);
+	Color& operator *= (const Color& other);
+	Color& operator /= (const Color& other);
+
+	Color& operator += (float other);
+	Color& operator -= (float other);
+	Color& operator *= (float other);
+	Color& operator /= (float other);
+};
+```
+
+## Packed Arrays
+
+```cpp
+/**
+ * @brief A reference to a host-side Packed Array.
+ * Supported:
+ * - PackedByteArray
+ * - PackedInt32Array
+ * - PackedInt64Array
+ * - PackedFloat32Array
+ * - PackedFloat64Array
+ * - PackedVector2Array
+ * - PackedVector3Array
+ * - PackedColorArray
+ * 
+ * @tparam T uint8_t, int32_t, int64_t, float, double, Vector2, Vector3 or Color.
+ **/
+template <typename T>
+struct PackedArray {
+	constexpr PackedArray() {}
+
+	/// @brief Create a PackedArray from a vector of data.
+	/// @param data The initial data.
+	PackedArray(const std::vector<T> &data);
+
+	/// @brief Retrieve the host-side array data.
+	/// @return std::vector<T> The host-side array data.
+	std::vector<T> fetch() const;
+
+	/// @brief Store a vector of data into the host-side array.
+	/// @param data The data to store.
+	void store(const std::vector<T> &data);
+
+	/// @brief Store an array of data into the host-side array.
+	/// @param data The data to store.
+	void store(const T *data, size_t size);
+};
+```
+
+## ClassDB
+
+```cpp
+/// @brief The class database for instantiating Godot objects.
+struct ClassDB {
+	/// @brief Instantiate a new object of the given class.
+	/// @param class_name The name of the class to instantiate.
+	/// @param name The name of the object, if it's a Node. Otherwise, this is ignored.
+	/// @return The new object.
+	static Object instantiate(std::string_view class_name, std::string_view name = "");
+};
+```
+
+## Engine
+
+```cpp
+struct Engine {
+	/// @brief Check if the program is running in the Godot editor.
+	/// @return True if running in the editor, false otherwise.
+	static bool is_editor_hint();
+
+	/// @brief Get the current time scale.
+	/// @return The current time scale.
+	static double get_time_scale();
+
+	/// @brief Set a new time scale.
+	/// @param scale The new time scale.
+	static void set_time_scale(double scale);
+
+	/// @brief Get the singleton instance of the Engine.
+	/// @return The Engine singleton.
+	static Object get_singleton();
+};
+```
+
+## Input
+
+```cpp
+struct Input {
+	/// @brief Check if an action is currently pressed.
+	/// @param action The name of the action.
+	/// @return True if the action is pressed, false otherwise.
+	static bool is_action_pressed(const std::string &action);
+
+	/// @brief Check if an action is released.
+	/// @param action The name of the action.
+	/// @return True if the action is released, false otherwise.
+	static bool is_action_released(const std::string &action);
+
+	/// @brief Check if an action is just pressed.
+	/// @param action The name of the action.
+	/// @return True if the action is just pressed, false otherwise.
+	static bool is_action_just_pressed(const std::string &action);
+
+	/// @brief Check if an action is just released.
+	/// @param action The name of the action.
+	/// @return True if the action is just released, false otherwise.
+	static bool is_action_just_released(const std::string &action);
+
+	/// @brief Get the singleton instance of the Input class.
+	/// @return The Input singleton.
+	static Object get_singleton();
+};
+```
+
+## Time
+
+```cpp
+struct Time {
+	/// @brief Get the current time in milliseconds.
+	/// @return The current time in milliseconds.
+	static int64_t get_ticks_msec();
+
+	/// @brief Get the current time in microseconds.
+	/// @return The current time in microseconds.
+	static int64_t get_ticks_usec();
+
+	/// @brief Get the singleton instance of the Time class.
+	/// @return The Time singleton.
+	static Object get_singleton();
+};
+```
+
+## Math functions
+
+```cpp
+/// @brief Math and interpolation operations.
+struct Math {
+	/// @brief The available 64-bit FP math operations.
+	static double sin(double x);
+	static double cos(double x);
+	static double tan(double x);
+	static double asin(double x);
+	static double acos(double x);
+	static double atan(double x);
+	static double atan2(double y, double x);
+	static double pow(double x, double y);
+
+	/// @brief The available 32-bit FP math operations.
+	static float sinf(float x);
+	static float cosf(float x);
+	static float tanf(float x);
+	static float asinf(float x);
+	static float acosf(float x);
+	static float atanf(float x);
+	static float atan2f(float y, float x);
+	static float powf(float x, float y);
+
+	/// @brief Linearly interpolate between two values.
+	/// @param a The start value.
+	/// @param b The end value.
+	/// @param t The interpolation factor (between 0 and 1).
+	static double lerp(double a, double b, double t);
+	static float lerpf(float a, float b, float t);
+
+	/// @brief Smoothly interpolate between two values.
+	/// @param from The start value.
+	/// @param to The end value.
+	/// @param t The interpolation factor (between 0 and 1).
+	static double smoothstep(double from, double to, double t);
+	static float smoothstepf(float from, float to, float t);
+
+	/// @brief Clamp a value between two bounds.
+	/// @param x The value to clamp.
+	/// @param min The minimum value.
+	/// @param max The maximum value.
+	static double clamp(double x, double min, double max);
+	static float clampf(float x, float min, float max);
+
+	/// @brief Spherical linear interpolation between two values.
+	/// @param a The start value in radians.
+	/// @param b The end value in radians.
+	/// @param t The interpolation factor (between 0 and 1).
+	static double slerp(double a, double b, double t);
+	static float slerpf(float a, float b, float t);
 };
 ```
