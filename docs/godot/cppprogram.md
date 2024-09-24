@@ -39,6 +39,10 @@ Also, after each update you will need to `docker pull` the container in order to
 
 :::
 
+## The C++ API
+
+The C++ API tries to mimick godot-cpp when it makes sense to do so. You can find [the C++ API implementation here](https://github.com/libriscv/godot-sandbox/tree/main/program/cpp/api), and [the C++ API reference here](cppapi.md).
+
 ## ELF Script
 
 Once you compiled the source code to a binary, you can investigate it. To do this, click on the `.elf` file and you should see all the functions that are exported and available to call from Godot. These functions are exported normally and can even be used as targets for signals.

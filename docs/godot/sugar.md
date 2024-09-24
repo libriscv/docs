@@ -52,6 +52,33 @@ struct AnimatedSprite2D : public Node2D {
 We changed the `play()` function to use `voidcall` instead, making it slightly faster.
 
 
-## Native performance operations
+## Using methods on other types
 
-In the case where we do need extra oomph, we can make dedicated classes with system calls so that those operations have native performance. We can also make dedicated system calls for ultra-specific and narrow tasks. The reason we can do that is because _libriscv_ has footgun-free APIs and low-latency with practically no limit on the number of system calls supported.
+Arrays, dictionaries, strings and other types have many methods, not all of which are currently exposed in the APIs. The methods are, however, available for use.
+
+As an example, if we wanted to append an array to an array, and the function was missing, we can still access it through its name:
+
+```c++
+inline void append_array(Array& a, Array& b) {
+	a("append_array", b);
+}
+```
+
+And we could also add it as a member function in Array:
+
+```c++
+	void append_array(const Array &array) {
+		this->operator() ("append_array", array);
+	}
+```
+
+Either way, both will accomplish the same thing. This works for vectors, dictionaries and so on.
+
+Finally, there is a helper macro to add a method without needing to specify arguments.
+
+```c++
+	CREATE_METHOD(append_array);
+	CREATE_METHOD(find);
+```
+
+Adding them in the Array class will make do the right thing. They're variadic, but they will work just fine.
