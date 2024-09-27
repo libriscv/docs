@@ -172,6 +172,54 @@ Variant current_animation = mysprite.get("animation");
 With access to methods, properties, objects, nodes and node-operations, globals and Variants, we can say that the Godot Sandbox has the entire Godot engine available to it.
 
 
+## Variant Lifetimes
+
+The sandbox has to maintain integrity, and so any Variant created during a call without outside backing will be lost. You can think of the sandbox as becoming forgetful after initialization is complete. You can think of initialization as anything happening during `int main()` or in global constructors.
+
+```cpp
+static std::vector<int> vec;
+Variant myfunction() {
+	Dictionary d = Dictionary::Create();
+	d["123"] = "456";
+	vec.push_back(123);
+	return Nil;
+}
+```
+The above dictionary will disappear unless returned by the call. The vector is modified as expected.
+
+```cpp
+static std::vector<int> vec;
+Variant myfunction(Dictionary d) {
+	d["123"] = "456";
+	vec.push_back(123);
+	return Nil;
+}
+```
+All modifications to the Dictionary and vector above will be permanent.
+
+```cpp
+Variant myfunction() {
+	Dictionary d = Dictionary::Create();
+	d["123"] = "456";
+	return d;
+}
+```
+The returned Dictionary can be used by the caller.
+
+The sandbox has storage too, of course. You can use the sandbox any way you like, with exception to non-trivial Variants that lack backing.
+
+However, during initialization we can create Variants with backing:
+
+```cpp
+static Dictionary d = Dictionary::Create();
+Variant myfunction() {
+	d["123"] = "456";
+	return Nil;
+}
+```
+Since the Dictionary was created during initialization, it can be used by future calls into the VM. Since we know that modifications to dictionaries are also permanent, it becomes a fully usable Dictionary.
+
+
 ## Coin pickup example
 
 The sandbox is a node, and so the usual functions like `_process`, `_ready` and `_input` will get called in the Sandbox. If the program running inside the sandbox implements any of these functions, the sandbox will forward the call to the program inside the sandbox.
