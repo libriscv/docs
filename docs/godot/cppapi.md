@@ -553,7 +553,11 @@ struct Vector2 {
 	float distance_to(const Vector2& other) const noexcept;
 	Vector2 direction_to(const Vector2& other) const noexcept;
 	float dot(const Vector2& other) const noexcept;
+	static Vector2 sincos(float angle) noexcept;
 	static Vector2 from_angle(float angle) noexcept;
+
+	template <typename... Args>
+	Variant operator () (std::string_view method, Args&&... args);
 
 	Vector2& operator += (const Vector2& other);
 	Vector2& operator -= (const Vector2& other);
@@ -570,7 +574,16 @@ struct Vector3 {
 	float y;
 	float z;
 
-	// TODO: More to come here
+	float length() const noexcept;
+	Vector3 normalized() const noexcept;
+	float dot(const Vector3& other) const noexcept;
+	Vector3 cross(const Vector3& other) const noexcept;
+	float distance_to(const Vector3& other) const noexcept;
+	float distance_squared_to(const Vector3& other) const noexcept;
+	Vector3 direction_to(const Vector3& other) const noexcept;
+
+	template <typename... Args>
+	Variant operator () (std::string_view method, Args&&... args);
 
 	Vector3& operator += (const Vector3& other);
 	Vector3& operator -= (const Vector3& other);
@@ -588,7 +601,8 @@ struct Color {
 	float b;
 	float a;
 
-	// TODO: More to come here
+	template <typename... Args>
+	Variant operator () (std::string_view method, Args&&... args);
 
 	Color& operator += (const Color& other);
 	Color& operator -= (const Color& other);
@@ -638,6 +652,11 @@ struct PackedArray {
 	/// @brief Store an array of data into the host-side array.
 	/// @param data The data to store.
 	void store(const T *data, size_t size);
+
+	/// @brief Call a method on the packed array.
+	/// @tparam Args The method arguments.
+	template <typename... Args>
+	Variant operator () (std::string_view method, Args&&... args);
 };
 ```
 
@@ -721,6 +740,26 @@ struct Time {
 	/// @brief Get the singleton instance of the Time class.
 	/// @return The Time singleton.
 	static Object get_singleton();
+};
+```
+
+## Timer
+
+```cpp
+struct Timer {
+	using period_t = double;
+	using TimerCallback = Function<Variant(Variant)>;
+	using TimerNativeCallback = Function<Variant(Object)>;
+
+	// For when all arguments are Variants
+	static Variant oneshot(period_t secs, TimerCallback callback);
+
+	static Variant periodic(period_t period, TimerCallback callback);
+
+	// For when unboxed argument types are enabled
+	static Variant native_oneshot(period_t secs, TimerNativeCallback callback);
+
+	static Variant native_periodic(period_t period, TimerNativeCallback callback);
 };
 ```
 
