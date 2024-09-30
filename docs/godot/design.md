@@ -20,9 +20,27 @@ Anyone can implement support for other languages, as long as those languages tra
 
 The Sandbox is designed to be safe and is therefore very forgetful.
 
-When you pass arguments to the Sandbox, complex arguments will only be remembered until the function call ends. After the function completes, regardless of reason, Variants that need storage are forgotten. This design avoids all kinds of scary lifetime issues.
+When you pass arguments to the Sandbox, complex arguments will only be remembered until the function call ends. After the function completes, temporarily created Variants that need storage are forgotten. This design avoids all kinds of scary lifetime issues.
 
 Data can be remembered by passing arrays or dictionaries to and from the VMs. The VMs can also store their own data in their native language formats. What the VM forgets is only related to complex Variant arguments. For example, you can remember a Variant `Vector2` but not a Variant `String`. You can convert the `String` to a `std::string` and store that instead.
+
+Further, any Variant created during initialization is permanent:
+
+```cpp
+// This works: it's being created during initialization
+static Dictionary d = Dictionary::Create();
+
+extern "C" Variant test_static_storage(Variant key, Variant val) {
+	d[key] = val;
+	return d;
+}
+extern "C" Variant test_failing_static_storage(Variant key, Variant val) {
+	// This won't work: it's being created after initialization
+	static Dictionary fd = Dictionary::Create();
+	fd[key] = val;
+	return fd;
+}
+```
 
 ## Runs only when needed
 
