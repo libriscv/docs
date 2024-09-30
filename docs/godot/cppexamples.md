@@ -16,13 +16,6 @@ The current node can be accessed using `.`:
 Node current_node(".");
 ```
 
-:::note
-
-Getting the parent of the current node can be used to access the tree of the current scene, even when the current node is in its own tree. Eg. `../Texts/CoinLabel` accesses a coin label in another scene.
-
-:::
-
-
 There's also the global helper function:
 
 ```cpp
@@ -49,6 +42,12 @@ You can also retrieve a node relative to a node:
 Node2D n("MyAnimatedSprite2D");
 Node2D n2 = n.get_node("../Texts/CoinLabel");
 ```
+
+:::note
+
+Getting the parent of the current node (`".."`) can be used to access the tree of the current scene, even when the current node is in its own tree. Eg. `../Texts/CoinLabel` could access a coin label in another scene.
+
+:::
 
 The current scene tree is also accessible through a global helper:
 
