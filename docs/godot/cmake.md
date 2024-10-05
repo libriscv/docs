@@ -10,15 +10,17 @@ This method requires a local RISC-V compiler installed on your system. If you do
 
 ## Installation
 
-On Linux and Windows WSL2 we can install a C++ RISC-V compiler like so:
+On Linux and Windows WSL2 we can install a C++ RISC-V compiler, ccache and mold like so:
 
 ```sh
-sudo apt install g++-14-riscv64-linux-gnu
+sudo apt install g++-14-riscv64-linux-gnu ccache mold
 ```
 
 On some system you may only have access to version 12 or 13. Modify the `build.sh` below accordingly.
 
 On macOS there are RISC-V toolchains in brew. Let us know which ones worked for you.
+
+Both ccache and mold are optional.
 
 ## Usage
 
@@ -65,7 +67,7 @@ chmod +x build.sh
 
 ## Auto-completion in editor
 
-Auto-completion should automatically work if you symlink the `cmake` to your project. If not, you can always add this path to your editor:
+Auto-completion should automatically work if you symlink the `cmake` folder from Godot Sandbox to your project. If not, you can always add this path to your editor:
 
 https://github.com/libriscv/godot-sandbox/tree/main/program/cpp/api
 
