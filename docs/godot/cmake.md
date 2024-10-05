@@ -63,7 +63,19 @@ Remember to make the script executable:
 chmod +x build.sh
 ```
 
-And, if we want to automatically build every time we change a file:
+## Auto-completion in editor
+
+Auto-completion should automatically work if you symlink the `cmake` to your project. If not, you can always add this path to your editor:
+
+https://github.com/libriscv/godot-sandbox/tree/main/program/cpp/api
+
+Adding the API path to your workspace should give you access to the C++ API.
+
+## Automatic building
+
+Similar to hot-reloading, automatic builds will rebuild programs as-needed when they are changed by eg. saving in VSCode.
+
+If we want to automatically build every time we change a file:
 
 ```sh
 #!/bin/sh
