@@ -77,8 +77,8 @@ Either way, both will accomplish the same thing. This works for vectors, diction
 Finally, there is a helper macro to add a method without needing to specify arguments.
 
 ```c++
-	CREATE_METHOD(append_array);
-	CREATE_METHOD(find);
+	METHOD(append_array);
+	METHOD(find);
 ```
 
 Adding them in the Array class will make do the right thing. They're variadic, but they will work just fine.
