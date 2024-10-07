@@ -50,9 +50,13 @@ There is a second mode of operation for sandboxes: Attached directly to a node a
 
 ![use scripts directly](/img/sandbox/embed_direct.png)
 
-This mode is super useful when it's attached to objects that are numerous and have very dynamic lifetimes. It is thus possible to use sandboxing on eg. 10'000 monsters, as the memory usage remains the same. All monsters will share the same instance, but can still modify different state inside it.
+This mode is super useful when it's attached to objects that are numerous or have very dynamic lifetimes. It is thus possible to use sandboxing on eg. 10'000 monsters, as the memory usage remains the same. All monsters will share the same instance, but can still modify different state inside it.
 
-Care must be taken to reset state manually as scene reloads do not affect these instances.
+:::note
+
+Care must be taken to reset state manually as scene reloads do not affect these instances. They are never freed.
+
+:::
 
 Advantages:
 - Entities with high instance counts.
@@ -64,16 +68,3 @@ Advantages:
 ![attach signal](/img/sandbox/attach_signal.png)
 
 It's possible to attach signals directly to a Node like you usually would do with GDScript when the script is directly embedded.
-
-## Guarantees
-
-A sandbox currently gives these guarantees:
-
-- Execution will eventually time out
-	- This prevents infinite loops
-- Memory and resource usage is restricted
-	- A sandbox instance is limited from creating too many resources during a function call
-- Memory safety
-	- The host game client or server is protected from misbehaving programs
-
-These limits can be configured in the Editors inspector.
