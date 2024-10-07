@@ -25,7 +25,7 @@ In order to reach good performance with the interpreter mode, [follow these guid
 
 ## Binary translation performance
 
-The binary translator can be up to 20x faster than the interpreter mode.
+The binary translator can be up to 30x faster than the interpreter mode.
 
 
 ## Godot Sandbox performance
