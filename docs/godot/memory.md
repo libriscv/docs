@@ -145,3 +145,12 @@ s.references_max = 100
 ```
 
 There are a finite amount of permanent slots, controlled by you. Keep in mind that sometimes you don't know what a program does, as you didn't write it. Making storage explicit is intentional.
+
+
+## Memory safety and use-after-free
+
+Nodes are heavily manipulated to create interesting games in Godot. A sandbox is responsible for avoiding access to freed nodes, or worse, objects that were once freed and are now pointing to other objects.
+
+In order to guarantee safety, heavy-handed approaches have to be taken. The current approach where most Variants are release after a call ensures that modders have re-grab access to nodes in future calls, which goes a long way towards ensuring safety.
+
+Whether or not it holds up only time can tell.
