@@ -146,6 +146,9 @@ s.references_max = 100
 
 There are a finite amount of permanent slots, controlled by you. Keep in mind that sometimes you don't know what a program does, as you didn't write it. Making storage explicit is intentional.
 
+## Disabling permanent slots
+
+You can disable permanent slots by setting `max_references` to 0 before initialization. After initialization you can set it back again, as it is now used for maximum temporary Variants.
 
 ## Memory safety and use-after-free
 
