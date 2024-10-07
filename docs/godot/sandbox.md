@@ -61,10 +61,50 @@ Care must be taken to reset state manually as scene reloads do not affect these 
 Advantages:
 - Entities with high instance counts.
 - Entities with high churn.
-- Global statistics, save state.
 - Call functions on the object directly
 - Attach signals directly
+- Shared state between all instances.
+
+Disadvantages:
+- Shared state between all instances requires per-object structures internally to manage individual object state
+- No control over lifetime of Sandbox
+- All limits and restrictions are shared
 
 ![attach signal](/img/sandbox/attach_signal.png)
 
 It's possible to attach signals directly to a Node like you usually would do with GDScript when the script is directly embedded.
+
+## Dedicated Sandbox nodes
+
+When a dedicated Sandbox node is created, the program inside has the same lifetime as the node. Like the first paragraph we create a new Sandbox using the listed Sandbox nodes that show up as ELF programs are scanned. So, a typical node name can `Sandbox_TestTest` if the ELF is stored in `test/test.elf`.
+
+It's not a shared instance. If you create 100 dedicated Sandbox nodes, they will all have separate memory, state and lifetime.
+
+Internally, many things that cannot be seen are shared (that is safe to share), eg. read-only memory, in order to reduce memory pressure. But that is an implementation detail.
+
+Even though each Sandbox has allocated a lot of memory, if it's not written to it will not consume memory. So it may be possible to have many nodes and end up using less memory than expected.
+
+Signals can be attached to Sandbox nodes by using `sandbox.vmcallable("my_function")` to get a Callable that will make a VM function call.
+
+Advantages:
+- Separate memory and state for each Sandbox
+- Lifetime managed by you (same as node)
+- Individual restrictions and limits for each Sandbox
+- No shared memory between objects in the VM (less state-keeping)
+
+Disadvantages:
+- Uses more memory than shared instances
+- Requires creating and managing a node
+
+## Creating a Sandbox from memory
+
+It's possible to create a Sandbox using a PackedByteArray:
+
+```cpp
+	var buffer : PackedByteArray = ...
+
+    var s : Sandbox = Sandbox.new()
+    s.load_buffer(buffer)
+```
+
+You can now add the Sandbox as a child to another node. This way avoids using ELF resources, and can be used to load programs downloaded from memory or compressed on disk.
