@@ -76,11 +76,11 @@ It's possible to attach signals directly to a Node like you usually would do wit
 
 ## Dedicated Sandbox nodes
 
-When a dedicated Sandbox node is created, the program inside has the same lifetime as the node. Like the first paragraph we create a new Sandbox using the listed Sandbox nodes that show up as ELF programs are scanned. So, a typical node name can `Sandbox_TestTest` if the ELF is stored in `test/test.elf`.
+When a dedicated Sandbox node is created, the program inside has the same lifetime as the node. Like the first paragraph we create a new Sandbox using the listed Sandbox nodes that show up as ELF programs are scanned. So, a typical node name can be `Sandbox_TestTest` if the ELF is stored in `test/test.elf`.
 
 It's not a shared instance. If you create 100 dedicated Sandbox nodes, they will all have separate memory, state and lifetime.
 
-Internally, many things that cannot be seen are shared (that is safe to share), eg. read-only memory, in order to reduce memory pressure. But that is an implementation detail.
+Internally, many things that cannot be seen are shared (that is safe to share, like read-only memory), in order to reduce memory pressure. But that is an implementation detail.
 
 Even though each Sandbox has allocated a lot of memory, if it's not written to it will not consume memory. So it may be possible to have many nodes and end up using less memory than expected.
 
@@ -107,4 +107,4 @@ It's possible to create a Sandbox using a PackedByteArray:
     s.load_buffer(buffer)
 ```
 
-You can now add the Sandbox as a child to another node. This way avoids using ELF resources, and can be used to load programs downloaded from memory or compressed on disk.
+You can now add the Sandbox as a child to another node. This way avoids using ELF resources, and can be used to load programs downloaded remotely or compressed on disk.
