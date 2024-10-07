@@ -4,6 +4,11 @@ sidebar_position: 8
 
 # Binary Translation
 
+![alt text](/img/bintr/luajit.png)
+
+*Binary translated LuaJit in the browser*
+
+
 ## High performance
 
 Binary translations are high-performance versions of the programs running inside Sandbox instances.
