@@ -4,7 +4,7 @@ sidebar_position: 6
 
 # Memory
 
-Memory in the Sandbox works just as anyone would expect. If you store something in memory, it will be there when you come back. All language-native code will work just you expect, until the Sandbox is freed.
+Memory in the Sandbox works just as anyone would expect. If you store something in memory, it will be there when you come back. All language-native code will work like normal, until the Sandbox is freed.
 
 An exception to this rule is temporary Variants and object references. The reason behind this is that they represent data with unclear lifetimes that may be passed to Godot. In order to avoid architectural blunders, the Sandbox has been designed to account for lifetimes in a brutal way from the start:
 
