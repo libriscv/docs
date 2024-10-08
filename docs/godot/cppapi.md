@@ -207,6 +207,10 @@ struct Variant {
 
 	Variant duplicate() const;
 
+	/// @brief Make the Variant permanent, by moving it to permanent storage.
+	/// @return Updates the Variant to the new permanent Variant and returns it.
+	Variant &make_permanent();
+
 	Type get_type() const noexcept { return m_type; }
 };
 ```
@@ -630,9 +634,10 @@ struct Color {
  * - PackedVector2Array
  * - PackedVector3Array
  * - PackedColorArray
+ * - PackedStringArray
  * 
- * @tparam T uint8_t, int32_t, int64_t, float, double, Vector2, Vector3 or Color.
- **/
+ * @tparam T uint8_t, int32_t, int64_t, float, double, Vector2, Vector3, Color or std::string.
+**/
 template <typename T>
 struct PackedArray {
 	constexpr PackedArray() {}
@@ -640,6 +645,11 @@ struct PackedArray {
 	/// @brief Create a PackedArray from a vector of data.
 	/// @param data The initial data.
 	PackedArray(const std::vector<T> &data);
+
+	/// @brief Create a PackedArray from an array of data.
+	/// @param data The initial data.
+	/// @param size The size of the data in elements.
+	PackedArray(const T *data, size_t size);
 
 	/// @brief Retrieve the host-side array data.
 	/// @return std::vector<T> The host-side array data.
