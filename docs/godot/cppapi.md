@@ -106,6 +106,9 @@ struct Variant {
 	Variant(const Node&);
 	Variant(const Node2D&);
 	Variant(const Node3D&);
+	Variant(const Basis&);
+	Variant(const Transform2D&);
+	Variant(const Transform3D&);
 	Variant(const PackedArray<uint8_t>&);
 	Variant(const PackedArray<float>&);
 	Variant(const PackedArray<double>&);
@@ -143,6 +146,9 @@ struct Variant {
 	operator Array() const;
 	operator Dictionary() const;
 
+	Basis as_basis() const;
+	Transform2D as_transform2d() const;
+	Transform3D as_transform3d() const;
 	Object as_object() const;
 	Node as_node() const;
 	Node2D as_node2d() const;
@@ -150,15 +156,18 @@ struct Variant {
 	Array as_array() const;
 	Dictionary as_dictionary() const;
 	String as_string() const;
+	Callable as_callable() const;
 	std::string as_std_string() const;
 	std::u32string as_std_u32string() const;
-	std::vector<uint8_t> as_byte_array() const;
-	std::vector<float> as_float32_array() const;
-	std::vector<double> as_float64_array() const;
-	std::vector<int32_t> as_int32_array() const;
-	std::vector<int64_t> as_int64_array() const;
-	std::vector<Vector2> as_vector2_array() const;
-	std::vector<Vector3> as_vector3_array() const;
+	PackedArray<uint8_t> as_byte_array() const;
+	PackedArray<float> as_float32_array() const;
+	PackedArray<double> as_float64_array() const;
+	PackedArray<int32_t> as_int32_array() const;
+	PackedArray<int64_t> as_int64_array() const;
+	PackedArray<Vector2> as_vector2_array() const;
+	PackedArray<Vector3> as_vector3_array() const;
+	PackedArray<Color> as_color_array() const;
+	PackedArray<std::string> as_string_array() const;
 
 	const Vector2 &v2() const;
 	Vector2 &v2();
@@ -189,13 +198,24 @@ struct Variant {
 	operator Rect2i() const;
 	operator Color() const;
 
-	void callp(const std::string &method, const Variant *args, int argcount, Variant &r_ret, int &r_error);
+	void callp(std::string_view method, const Variant *args, int argcount, Variant &r_ret);
+	void voidcallp(std::string_view method, const Variant *args, int argcount);
 
 	template <typename... Args>
-	Variant method_call(const std::string &method, Args... args);
+	Variant method_call(std::string_view method, Args&&... args);
+
+	template <typename... Args>
+	void void_method(std::string_view method, Args&&... args);
 
 	template <typename... Args>
 	Variant call(Args... args);
+
+	template <typename... Args>
+	Variant operator ()(std::string_view method, Args... args);
+
+	/// @brief Check if the Variant is nil.
+	/// @return true if the Variant is nil, false otherwise.
+	bool is_nil() const noexcept { return m_type == NIL; }
 
 	static void evaluate(const Operator &op, const Variant &a, const Variant &b, Variant &r_ret, bool &r_valid);
 
@@ -617,6 +637,164 @@ struct Color {
 	Color& operator -= (float other);
 	Color& operator *= (float other);
 	Color& operator /= (float other);
+};
+```
+
+
+## Basis
+
+```cpp
+/**
+ * @brief Basis wrapper for godot-cpp Basis.
+ * Implemented by referencing and mutating a host-side Basis Variant.
+ */
+struct Basis {
+	constexpr Basis() {} // DON'T TOUCH
+
+	/// @brief Create a new identity basis.
+	/// @return The identity basis.
+	static Basis identity();
+
+	/// @brief Create a new basis from three axes.
+	/// @param x  The x-axis of the basis.
+	/// @param y  The y-axis of the basis.
+	/// @param z  The z-axis of the basis.
+	Basis(const Vector3 &x, const Vector3 &y, const Vector3 &z);
+
+	Basis &operator =(const Basis &basis);
+	void assign(const Basis &basis);
+
+	// Basis operations
+	void invert();
+	void transpose();
+	Basis inverse() const;
+	Basis transposed() const;
+	double determinant() const;
+
+	Basis rotated(const Vector3 &axis, double angle) const;
+	Basis lerp(const Basis &to, double t) const;
+	Basis slerp(const Basis &to, double t) const;
+
+	// Basis access
+	Vector3 operator[](int idx) const { return get_row(idx); }
+
+	void set_row(int idx, const Vector3 &axis);
+	Vector3 get_row(int idx) const;
+	void set_column(int idx, const Vector3 &axis);
+	Vector3 get_column(int idx) const;
+
+	// Basis size
+	static constexpr int size() { return 3; }
+
+	// Call operator
+	template <typename... Args>
+	Variant operator () (std::string_view method, Args&&... args);
+
+	static Basis from_variant_index(unsigned idx) { Basis a {}; a.m_idx = idx; return a; }
+	unsigned get_variant_index() const noexcept { return m_idx; }
+};
+```
+
+## Transform2D
+
+```cpp
+/**
+ * @brief Transform2D wrapper for godot-cpp Transform2D.
+ * Implemented by referencing and mutating a host-side Transform2D Variant.
+**/
+struct Transform2D {
+	constexpr Transform2D() {} // DON'T TOUCH
+
+	/// @brief Create a new identity transform.
+	/// @return The identity transform.
+	static Transform2D identity();
+
+	/// @brief Create a new transform from two axes and an origin.
+	/// @param x  The x-axis of the transform.
+	/// @param y  The y-axis of the transform.
+	/// @param origin The origin of the transform.
+	Transform2D(const Vector2 &x, const Vector2 &y, const Vector2 &origin);
+
+	Transform2D &operator =(const Transform2D &transform);
+	void assign(const Transform2D &transform);
+
+	// Transform2D operations
+	void invert();
+	void affine_invert();
+	void rotate(const double angle);
+	void scale(const Vector2 &scale);
+	void translate(const Vector2 &offset);
+	void interpolate_with(const Transform2D &transform, double weight);
+
+	Transform2D inverse() const;
+	Transform2D orthonormalized() const;
+	Transform2D rotated(double angle) const;
+	Transform2D scaled(const Vector2 &scale) const;
+	Transform2D translated(const Vector2 &offset) const;
+	Transform2D interpolate_with(const Transform2D &p_transform, double weight) const;
+
+	// Transform2D access
+	Vector2 get_column(int idx) const;
+	void set_column(int idx, const Vector2 &axis);
+	Vector2 operator[](int idx) const { return get_column(idx); }
+
+	// Call operator
+	template <typename... Args>
+	Variant operator () (std::string_view method, Args&&... args);
+
+	static Transform2D from_variant_index(unsigned idx) { Transform2D a {}; a.m_idx = idx; return a; }
+	unsigned get_variant_index() const noexcept { return m_idx; }
+};
+```
+
+## Transform3D
+
+```cpp
+struct Transform3D {
+	constexpr Transform3D() {}
+
+	/// @brief Create a new identity transform.
+	/// @return The identity transform.
+	static Transform3D identity();
+
+	/// @brief Create a new transform from a basis and origin.
+	/// @param origin The origin of the transform.
+	/// @param basis The basis of the transform.
+	Transform3D(const Vector3 &origin, const Basis &basis);
+
+	Transform3D &operator =(const Transform3D &transform);
+	void assign(const Transform3D &transform);
+
+	// Transform3D operations
+	void invert();
+	void affine_invert();
+	void translate(const Vector3 &offset);
+	void rotate(const Vector3 &axis, double angle);
+	void scale(const Vector3 &scale);
+
+	Transform3D inverse() const;
+	Transform3D orthonormalized() const;
+	Transform3D rotated(const Vector3 &axis, double angle) const;
+	Transform3D rotated_local(const Vector3 &axis, double angle) const;
+	Transform3D scaled(const Vector3 &scale) const;
+	Transform3D scaled_local(const Vector3 &scale) const;
+	Transform3D translated(const Vector3 &offset) const;
+	Transform3D translated_local(const Vector3 &offset) const;
+	Transform3D looking_at(const Vector3 &target, const Vector3 &up) const;
+	Transform3D interpolate_with(const Transform3D &to, double weight) const;
+
+	// Transform3D access
+	Vector3 get_origin() const;
+	void set_origin(const Vector3 &origin);
+	Basis get_basis() const;
+	void set_basis(const Basis &basis);
+
+	// Call operator
+	template <typename... Args>
+	Variant operator () (std::string_view method, Args&&... args);
+
+	static Transform3D from_variant_index(unsigned idx) { Transform3D a {}; a.m_idx = idx; return a; }
+	unsigned get_variant_index() const noexcept { return m_idx; }
 };
 ```
 
