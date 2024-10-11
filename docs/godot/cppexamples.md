@@ -331,12 +331,6 @@ SANDBOXED_PROPERTIES(3, {
 
 Properties in the Sandbox are supported. They are stored in the global scope, and each one has a custom getter and setter function.
 
-:::note
-
-Reloading the editor is required to make the changes visible after changing embedded properties in the programs. Go to the Editor menu and select Reload Current Project.
-
-:::
-
 ![alt text](/img/cppexamples/properties.png)
 
 Properties can be edited in the Godot inspector and is a powerful and simple way to expose data from the script. The values of these properties are saved in the Godot project and restored on reopening the project.
@@ -347,6 +341,46 @@ Properties can be edited in the Godot inspector and is a powerful and simple way
 In this example, the players name cannot be changed in the editor, as the property will just keep returning the same value, _effectively making it read-only_. That is, the getter for the `player_name` property only returns `"Slide Knight"`.
 
 :::
+
+### Per-instance Sandboxed Properties
+
+Sometimes we want properties per instance, even if we have several. In that case, we can access the property based on the value of `get_node()`. A `std::unordered_map` on the `get_node().address()` can be used to achieve this:
+
+```cpp
+// If we need per-node properties in shared sandboxes, we will
+// need to use the PER_OBJECT macro to distinguish between them.
+struct PlayerState {
+	float jump_velocity = -300.0f;
+	float player_speed = 150.0f;
+	std::string player_name = "Slide Knight";
+};
+PER_OBJECT(PlayerState);
+static PlayerState &get_player_state() {
+	return GetPlayerState(get_node());
+}
+
+SANDBOXED_PROPERTIES(3, {
+	.name = "player_speed",
+	.type = Variant::FLOAT,
+	.getter = []() -> Variant { return get_player_state().player_speed; },
+	.setter = [](Variant value) -> Variant { return get_player_state().player_speed = value; },
+	.default_value = Variant{get_player_state().player_speed},
+}, {
+	.name = "player_jump_vel",
+	.type = Variant::FLOAT,
+	.getter = []() -> Variant { return get_player_state().jump_velocity; },
+	.setter = [](Variant value) -> Variant { return get_player_state().jump_velocity = value; },
+	.default_value = Variant{get_player_state().jump_velocity},
+}, {
+	.name = "player_name",
+	.type = Variant::STRING,
+	.getter = []() -> Variant { return get_player_state().player_name; },
+	.setter = [](Variant value) -> Variant { return get_player_state().player_name = value.as_std_string(); },
+	.default_value = Variant{"Slide Knight"},
+});
+```
+
+In this program, each instance will have their own separate properties.
 
 ## Timers
 
