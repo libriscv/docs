@@ -63,6 +63,7 @@ Advantages:
 - Entities with high churn.
 - Call functions on the object directly
 - Attach signals directly
+- Expose sandboxed properties
 - Shared state between all instances.
 
 Disadvantages:
@@ -95,6 +96,7 @@ Advantages:
 Disadvantages:
 - Uses more memory than shared instances
 - Requires creating and managing a node
+- Cannot manage sandboxed properties, unlike a script
 
 ## Creating a Sandbox from memory
 
