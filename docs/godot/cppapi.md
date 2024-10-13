@@ -298,10 +298,6 @@ struct Dictionary {
 ## String
 
 ```cpp
-/**
- * @brief String wrapper for Godot String.
- * Implemented by referencing and mutating a host-side String Variant.
- */
 struct String {
 	constexpr String();
 	String(std::string_view value);
@@ -644,10 +640,6 @@ struct Color {
 ## Basis
 
 ```cpp
-/**
- * @brief Basis wrapper for godot-cpp Basis.
- * Implemented by referencing and mutating a host-side Basis Variant.
- */
 struct Basis {
 	constexpr Basis() {} // DON'T TOUCH
 
@@ -689,19 +681,12 @@ struct Basis {
 	// Call operator
 	template <typename... Args>
 	Variant operator () (std::string_view method, Args&&... args);
-
-	static Basis from_variant_index(unsigned idx) { Basis a {}; a.m_idx = idx; return a; }
-	unsigned get_variant_index() const noexcept { return m_idx; }
 };
 ```
 
 ## Transform2D
 
 ```cpp
-/**
- * @brief Transform2D wrapper for godot-cpp Transform2D.
- * Implemented by referencing and mutating a host-side Transform2D Variant.
-**/
 struct Transform2D {
 	constexpr Transform2D() {} // DON'T TOUCH
 
@@ -741,9 +726,6 @@ struct Transform2D {
 	// Call operator
 	template <typename... Args>
 	Variant operator () (std::string_view method, Args&&... args);
-
-	static Transform2D from_variant_index(unsigned idx) { Transform2D a {}; a.m_idx = idx; return a; }
-	unsigned get_variant_index() const noexcept { return m_idx; }
 };
 ```
 
@@ -792,9 +774,53 @@ struct Transform3D {
 	// Call operator
 	template <typename... Args>
 	Variant operator () (std::string_view method, Args&&... args);
+};
+```
 
-	static Transform3D from_variant_index(unsigned idx) { Transform3D a {}; a.m_idx = idx; return a; }
-	unsigned get_variant_index() const noexcept { return m_idx; }
+## Quaternion
+
+```cpp
+struct Quaternion {
+	constexpr Quaternion() {}
+
+	static Quaternion identity();
+	Quaternion(double p_x, double p_y, double p_z, double p_w);
+	Quaternion(const Vector3 &axis, double angle);
+	Quaternion(const Vector3 &euler);
+
+	Quaternion &operator =(const Quaternion &quat);
+	void assign(const Quaternion &quat);
+
+	// Quaternion operations
+	double dot(const Quaternion &q) const;
+	double length_squared() const;
+	double length() const;
+	void normalize();
+	Quaternion normalized() const;
+	bool is_normalized() const;
+	Quaternion inverse() const;
+	Quaternion log() const;
+	Quaternion exp() const;
+	double angle_to(const Quaternion &to) const;
+
+	Quaternion slerp(const Quaternion &to, double t) const;
+	Quaternion slerpni(const Quaternion &to, double t) const;
+	Quaternion cubic_interpolate(const Quaternion &b, const Quaternion &pre_a, const Quaternion &post_b, double t) const;
+	Quaternion cubic_interpolate_in_time(const Quaternion &b, const Quaternion &pre_a, const Quaternion &post_b, double t, double b_t, double pre_a_t, double post_b_t) const;
+
+	Vector3 get_axis() const;
+	double get_angle() const;
+
+	void operator*=(const Quaternion &q);
+	Quaternion operator*(const Quaternion &q) const;
+
+	// Quaternion access
+	static constexpr int size() { return 4; }
+	double operator[](int idx) const;
+
+	// Call operator
+	template <typename... Args>
+	Variant operator () (std::string_view method, Args&&... args);
 };
 ```
 
