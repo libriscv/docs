@@ -31,13 +31,15 @@ The above example will only allow `Node` to be instantiated.
 
 ### Object access
 
-We can add an object to the list of allowed objects using `add_allowed_object`:
+We can modify the list of objects accessible in the Sandbox instance:
 
 ```py
 sandbox.add_allowed_object(player)
+sandbox.remove_allowed_object(player)
+sandbox.clear_allowed_objects()
 ```
 
-With the above, the player instance will be accessible in the Sandbox.
+If a large change has been made in the game, like removing a whole tree, clearing the allowed objects may be a good idea.
 
 
 We can intercept attempts to access objects using `set_object_allowed_callback`:
@@ -47,6 +49,12 @@ sandbox.set_object_allowed_callback(func(sandbox, obj): return obj.get_name() ==
 ```
 
 The above example will only allow access to an object named `Player`. The callback is only used if the list of allowed objects does not already have the object in it.
+
+:::note
+
+If performance is a concern for accessing a particular object, add it to the list of allowed objects during the callable. If the player is never destroyed and it should be accessible, add it early.
+
+:::
 
 ### Method access
 
