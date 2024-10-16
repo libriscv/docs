@@ -111,4 +111,11 @@ func my_resource_allowed_callback(sandbox, path):
 	return true
 ```
 
-Then, when you are happy with the lists of each type, you can start returning false and deny access.
+Then, when you are happy with the lists of each type, you can start returning false and deny access:
+
+```py
+var resource_list : Array
+
+func my_resource_allowed_callback(sandbox, path):
+	return resource_list.has(path)
+```
