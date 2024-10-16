@@ -13,7 +13,15 @@ var s : Sandbox
 s.restrictions = true
 ```
 
-Once enabled, the Sandbox will no longer allow any external access. In order to make the program work again, we must allow some things. Setting the property to true will set each Callable to a function that returns false, but only for the callables that haven't been set before. Setting the property to false will set all callables to an empty (invalid) callable.
+Once enabled, the Sandbox will no longer allow any external access. In order to make the program work again, we must allow some things.
+
+:::note
+
+When passing objects as arguments to function calls into the Sandbox, those objects will be accessible regardless of restrictions.
+
+:::
+
+Setting the property to true will set each Callable to a function that returns false, but only for the callables that haven't been set before. Setting the property to false will set all callables to an empty (invalid) callable, disabling restrictions.
 
 ## Fine-tuning restrictions
 
