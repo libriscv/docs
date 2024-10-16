@@ -21,7 +21,7 @@ When passing objects as arguments to function calls into the Sandbox, those obje
 
 :::
 
-Setting the property to true will set each Callable to a function that returns false, but only for the callables that haven't been set before. Setting the property to false will set all callables to an empty (invalid) callable, disabling restrictions.
+The act of setting the `restrictions` property to true will set each Callable (mentioned below) to a function that always returns false, resulting in every interaction with anything external failing. However, it only sets the callables that haven't been set before. In other words, if you have set a custom callable, it will not get overwritten. Setting the property to false will set all callables to an empty (invalid) callable, disabling restrictions. This currently includes your own set callables.
 
 ## Fine-tuning restrictions
 
