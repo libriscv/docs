@@ -253,17 +253,53 @@ struct Array {
 	void pop_back();
 	void pop_front();
 	void insert(int idx, const Variant &value);
-	void erase(int idx);
+	void erase(const Variant &value);
 	void resize(int size);
 	void clear();
 	void sort();
 
 	// Array access
 	Variant operator[](int idx) const;
-	Variant at(int idx) const;
+	Variant at(int idx) const { return (*this)[idx]; }
+	Variant front() const { return (*this)[0]; }
+	Variant back() const { return (*this)[size() - 1]; }
+	bool has(const Variant &value) const;
+
+	std::vector<Variant> to_vector() const;
 
 	// Array size
 	int size() const;
+	bool is_empty() const { return size() == 0; }
+
+	// Vararg methods
+	METHOD(all);
+	METHOD(any);
+	METHOD(append_array);
+	METHOD(assign);
+	METHOD(bsearch_custom);
+	METHOD(bsearch);
+	METHOD(count);
+	METHOD(duplicate);
+	METHOD(fill);
+	METHOD(filter);
+	METHOD(find);
+	METHOD(hash);
+	METHOD(is_read_only);
+	METHOD(is_same_typed);
+	METHOD(is_typed);
+	METHOD(make_read_only);
+	METHOD(map);
+	METHOD(max);
+	METHOD(min);
+	METHOD(pick_random);
+	METHOD(reduce);
+	METHOD(remove_at);
+	METHOD(reverse);
+	METHOD(rfind);
+	METHOD(shuffle);
+	METHOD(slice_array);
+	METHOD(slice);
+	METHOD(sort_custom);
 
 	auto begin();
 	auto end();
@@ -281,17 +317,29 @@ struct Dictionary {
 
 	operator Variant() const;
 
+	DictAccessor operator[](const Variant &key);
+	Variant get(const Variant &key) const;
+	void set(const Variant &key, const Variant &value);
+	Variant get_or_add(const Variant &key, const Variant &default_value = Variant());
+
+	int size() const;
+	bool is_empty() const { return size() == 0; }
+
 	void clear();
 	void erase(const Variant &key);
 	bool has(const Variant &key) const;
 	void merge(const Dictionary &other);
-	bool is_empty() const;
-	int size() const;
-
-	Variant get(const Variant &key) const;
-	void set(const Variant &key, const Variant &value);
-
-	DictAccessor operator[](const Variant &key);
+	Dictionary duplicate(bool deep = false) const;
+	Variant find_key(const Variant &key) const;
+	bool has_all(const Array &keys) const;
+	int hash() const;
+	bool is_read_only() const;
+	Variant keys() const;
+	void make_read_only();
+	void merge(const Dictionary &dictionary, bool overwrite = false);
+	Dictionary merged(const Dictionary &dictionary, bool overwrite = false) const;
+	bool recursive_equal(const Dictionary &dictionary, int recursion_count) const;
+	Variant values() const;
 };
 ```
 
@@ -329,6 +377,111 @@ struct String {
 
 	// String size
 	int size() const;
+	bool is_empty() const { return size() == 0; }
+
+	// Vararg methods
+	METHOD(begins_with);
+	METHOD(bigrams);
+	METHOD(bin_to_int);
+	METHOD(c_escape);
+	METHOD(c_unescape);
+	METHOD(capitalize);
+	METHOD(casecmp_to);
+	METHOD(chr);
+	METHOD(containsn);
+	METHOD(count);
+	METHOD(countn);
+	METHOD(dedent);
+	METHOD(ends_with);
+	METHOD(filecasecmp_to);
+	METHOD(filenocasecmp_to);
+	METHOD(findn);
+	METHOD(format);
+	METHOD(get_base_dir);
+	METHOD(get_basename);
+	METHOD(get_extension);
+	METHOD(get_file);
+	METHOD(get_slice);
+	METHOD(get_slice_count);
+	METHOD(get_slicec);
+	METHOD(hash);
+	METHOD(hex_decode);
+	METHOD(hex_to_int);
+	METHOD(humanize_size);
+	METHOD(indent);
+	METHOD(is_absolute_path);
+	METHOD(is_relative_path);
+	METHOD(is_subsequence_of);
+	METHOD(is_subsequence_ofn);
+	METHOD(is_valid_filename);
+	METHOD(is_valid_float);
+	METHOD(is_valid_hex_number);
+	METHOD(is_valid_html_color);
+	METHOD(is_valid_identifier);
+	METHOD(is_valid_int);
+	METHOD(is_valid_ip_address);
+	METHOD(join);
+	METHOD(json_escape);
+	METHOD(left);
+	METHOD(length);
+	METHOD(lpad);
+	METHOD(lstrip);
+	METHOD(match);
+	METHOD(matchn);
+	METHOD(md5_buffer);
+	METHOD(md5_text);
+	METHOD(naturalcasecmp_to);
+	METHOD(naturalnocasecmp_to);
+	METHOD(nocasecmp_to);
+	METHOD(num);
+	METHOD(num_int64);
+	METHOD(num_scientific);
+	METHOD(num_uint64);
+	METHOD(pad_decimals);
+	METHOD(pad_zeros);
+	METHOD(path_join);
+	METHOD(repeat);
+	METHOD(replace);
+	METHOD(replacen);
+	METHOD(reverse);
+	METHOD(rfind);
+	METHOD(rfindn);
+	METHOD(right);
+	METHOD(rpad);
+	METHOD(rsplit);
+	METHOD(rstrip);
+	METHOD(sha1_buffer);
+	METHOD(sha1_text);
+	METHOD(sha256_buffer);
+	METHOD(sha256_text);
+	METHOD(similarity);
+	METHOD(simplify_path);
+	METHOD(split);
+	METHOD(split_floats);
+	METHOD(strip_edges);
+	METHOD(strip_escapes);
+	METHOD(substr);
+	METHOD(to_ascii_buffer);
+	METHOD(to_camel_case);
+	METHOD(to_float);
+	METHOD(to_int);
+	METHOD(to_lower);
+	METHOD(to_pascal_case);
+	METHOD(to_snake_case);
+	METHOD(to_upper);
+	METHOD(to_utf8_buffer);
+	METHOD(to_utf16_buffer);
+	METHOD(to_utf32_buffer);
+	METHOD(to_wchar_buffer);
+	METHOD(trim_prefix);
+	METHOD(trim_suffix);
+	METHOD(unicode_at);
+	METHOD(uri_decode);
+	METHOD(uri_encode);
+	METHOD(validate_filename);
+	METHOD(validate_node_name);
+	METHOD(xml_escape);
+	METHOD(xml_unescape);
 };
 ```
 
