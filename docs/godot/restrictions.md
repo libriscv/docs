@@ -6,7 +6,7 @@ sidebar_position: 11
 
 ## Enabling restrictions
 
-There is a property called `restrictions`, that will enable all restrictions on the Sandbox.
+There is a property called `restrictions`, that will enable all restrictions on the Sandbox:
 
 ```py
 var s : Sandbox
@@ -33,6 +33,7 @@ We can intercept attempts to instantiate using `set_class_allowed_callback`:
 
 ```py
 sandbox.set_class_allowed_callback(func(sandbox, name): return name == "Node")
+assert(sandbox.is_allowed_class("Node"))
 ```
 
 The above example will only allow `Node` to be instantiated.
@@ -90,6 +91,7 @@ We can intercept attempts to load resources using `set_resource_allowed_callback
 
 ```py
 sandbox.set_resource_allowed_callback(func(sandbox, path): return path == "res://my.res")
+assert(sandbox.is_allowed_resource("res://my.res"))
 ```
 
 The above example will only allow loading a resource from the path `res://my.res`.
