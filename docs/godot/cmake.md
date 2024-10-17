@@ -70,6 +70,10 @@ Remember to make the script executable:
 chmod +x build.sh
 ```
 
+## Disable Docker
+
+Go to Project -> Project Settings and enable Advanced settings on the right. Scroll to Editor -> Script and disable Docker Enabled. You should no longer see any attempts at using Docker in this project.
+
 ## Auto-completion in editor
 
 Auto-completion should automatically work if you symlink the `cmake` folder from Godot Sandbox to your project. If not, you can always add this path to your editor:
