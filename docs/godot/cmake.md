@@ -20,7 +20,12 @@ On some system you may only have access to version 12 or 13. Modify the `build.s
 
 On macOS there are RISC-V toolchains in brew. Let us know which ones worked for you.
 
+
+:::note
+
 Both ccache and mold are optional.
+
+:::
 
 ## Usage
 
@@ -73,7 +78,7 @@ https://github.com/libriscv/godot-sandbox/tree/main/program/cpp/api
 
 Adding the API path to your workspace should give you access to the C++ API.
 
-## Automatic building
+## Automatic building (Linux)
 
 Similar to hot-reloading, automatic builds will rebuild programs as-needed when they are changed by eg. saving in VSCode.
 
@@ -93,3 +98,9 @@ inotifywait -q --format '%f' -m -r -e close_write $FPATH \
 ```
 
 If we now run `autobuild.sh` in a terminal window, it will automatically build our programs every time we change a file.
+
+:::note
+
+Let us know if you have an autobuilder script for another platform!
+
+:::
