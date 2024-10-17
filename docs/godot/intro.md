@@ -8,7 +8,7 @@ sidebar_position: 1
 
 ## What you'll need
 
-- [Godot](https://godotengine.org/download/) version 4.2 or above.
+- [Godot](https://godotengine.org/download/) version 4.3 or above.
 - **Godot Sandbox** plugin from the Godot Asset Library.
 
 ## Install the plugin
