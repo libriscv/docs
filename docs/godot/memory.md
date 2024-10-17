@@ -4,14 +4,14 @@ sidebar_position: 6
 
 # Memory
 
-Memory in the Sandbox works just as anyone would expect. If you store something in memory, it will be there when you come back. All language-native code will work like normal, until the Sandbox is freed.
+Memory in the Sandbox works just as you would expect. If you store something in memory, it will be there when you come back. All language-native code will work like normal, until the Sandbox is freed.
 
-An exception to this rule is temporary Variants and object references. The reason behind this is that they represent data with unclear lifetimes that may be passed to Godot. In order to avoid architectural blunders, the Sandbox has been designed to account for lifetimes in a brutal way from the start:
+An exception to this rule is temporary Variants and object references, which are not stored in the Sandbox. The reason behind this is that they represent data with unclear lifetimes that may be changed outside of the Sandbox. In order to avoid architectural blunders, the Sandbox has been designed to account for lifetimes in a brutal way from the start:
 
 It does so by keeping track of and terminating all Variants that are created during a function call. This also makes it possible to place a limit, if desirable. In order to use Variants not just during calls they have to be:
 
 - Created during initialization, or
-- Stored into another (eg. Array, Dictionary, Callable), or
+- Stored into another Variant (eg. Array, Dictionary, Callable), or
 - Returned from the function
 
 Let's go through this example by example.
@@ -37,7 +37,7 @@ struct MyStuff {
 static std::vector<MyStuff> mystuff;
 ```
 
-Any interaction with mystuff is destined to fail. Variants created after initialization can only be remembered after the call if they are attached to something outside of the Sandbox or something created during initialization.
+Any interaction with mystuff is destined to fail. Variants created after initialization can only be remembered after the call if they are attached to something outside of the Sandbox, created during initialization or explicitly made permanent.
 
 ```cpp
 static Array array = Array::Create();
@@ -56,36 +56,21 @@ Variant function_call_after_init() {
 }
 ```
 
-As shown above: Because the Array has storage, we can assign temporary Variants to it and they will become copied into it, receiving storage too.
+As shown above: Because the Array has permanent storage, we can assign temporary Variants to it and they will become copied into it, receiving storage too and will be accessible later.
 
-The same rule applies to Dictionary. Strings are immutable and creating a new String in order to assign it to a global String _will not work_:
+The same rule applies to Dictionary and String:
 
 ```cpp
 static String str = "123";
 
 Variant function_call_after_init() {
-    str = "456";
-    // After returning, the new string evaporates.
+    str = "456"; // Overwriting a permanent is OK
     return Nil;
 }
 ```
 
-As shown above, the Variant of type STRING is permanent, but overwriting it with a new temporary string will not work after the call ends.
+As shown above, the destination String is permanent, and overwriting it with a new string works.
 
-The rule is that temporary Variants evaporate after the call ends, as they don't have "real" storage.
-
-```cpp
-static String str1 = "123";
-static String str2 = "456";
-
-Variant function_call_after_init() {
-    static Array array = Array::Create();
-    str1 = str2;
-    return Nil;
-}
-```
-
-Assigning one global to another works. The array is created the first time the function gets called which is after initialization, and it is freed after the call.
 
 ## Variants without storage
 
