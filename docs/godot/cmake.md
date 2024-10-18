@@ -70,6 +70,15 @@ Remember to make the script executable:
 chmod +x build.sh
 ```
 
+## CMake from Godot editor
+
+If there is a `CMakeLists.txt` in the project root or in a `cmake` folder, when saving C++ code in the editor, `cmake --build` will be executed instead as if the CMake build folder was `.build`. Docker is ignored.
+
+If the CMake script is in project root, the build folder is also in project root: `./.build`, and if the CMake script is in `./cmake`, the build folder is in `./cmake/.build`. The CMake invocation is verbose, so pay attention to it in the Godot console.
+
+This feature allows you to use your own CMake project and RISC-V toolchain to build all the programs with. The editor will assume that any C++ in the editor is built in CMake.
+
+
 ## Disable Docker
 
 Go to Project -> Project Settings and enable Advanced settings on the right. Scroll to Editor -> Script and disable Docker Enabled. You should no longer see any attempts at using Docker in this project.
