@@ -2,7 +2,7 @@
 sidebar_position: 2
 ---
 
-# C++ Code
+# C++ Code Compilation
 
 The Sandbox can run C++ code inside it in isolation, but first you need to build the C++ code.
 

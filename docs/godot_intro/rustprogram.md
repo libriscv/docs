@@ -2,7 +2,7 @@
 sidebar_position: 3
 ---
 
-# Rust Code
+# Rust Code Compilation
 
 The Sandbox can run Rust code inside it in isolation, but first you need to build Rust source code.
 

@@ -11,10 +11,6 @@ sidebar_position: 1
 - It runs on **all platforms** without requiring the sandbox code to be recompiled.
 - It has bindings for the **Godot Game Engine**
 
-## Godot Sandbox
-
-If you are starting out using the Godot Sandbox, [have a look here](godot/intro.md).
-
 
 ## Real-world Usage example
 

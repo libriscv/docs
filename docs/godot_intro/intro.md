@@ -2,7 +2,7 @@
 sidebar_position: 1
 ---
 
-# Getting Started
+# Installation
 
 **Godot Sandbox** is a sandbox plugin written for Godot. If you want to share code between clients or make modding safe for your game, this is the plugin for you!  Get started by **installing the plugin**.
 
@@ -40,6 +40,8 @@ When exporting for web, you have to enable a few settings, otherwise the whole b
 Next, you can also enable the **Runnable** option and then click **Run in browser**:
 
 ![run-web](/img/intro/run-web.png)
+
+## Demo
 
 The demo project for this extension [runs in the browser here](https://gonzerelli.itch.io/demo).
 
