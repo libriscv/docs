@@ -6,7 +6,7 @@ sidebar_position: 5
 
 In order to run your code in isolation, you need to create a **Sandbox** node first. 
 
-## Create a Sandbox
+## Creating a Sandbox
 
 Create a new **Scene**. The Root Node can be anything, even a **Node**. Next click **Add Child Node** and add a node of type **Sandbox_SrcSrc** (the name is based on the ELF script that was created and the folder it's in):
 
@@ -112,7 +112,9 @@ It's possible to create a Sandbox using a PackedByteArray:
 You can now add the Sandbox as a child to another node. This way avoids using ELF resources, and can be used to load programs downloaded remotely or compressed on disk.
 
 
-# Sandbox API reference
+## Sandbox API reference
+
+The public API of the Sandbox node, which [originates from here](https://github.com/libriscv/godot-sandbox/blob/main/src/sandbox.h).
 
 ```cpp
 class Sandbox : public Node {
