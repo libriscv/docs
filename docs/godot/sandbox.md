@@ -127,11 +127,14 @@ class Sandbox : public Node {
 	/// @param error The error code, if any.
 	/// @return The return value of the function call.
 	Variant vmcall(const Variant **args, GDExtensionInt arg_count, GDExtensionCallError &error);
-	/// @brief Make a function call to a function in the guest by its name. Always use Variant values for arguments.
+
+	/// @brief Make a function call to a function in the guest by its name. Always use Variant values for arguments, regardless of the Unboxed Arguments property value.
 	/// @param args The arguments to pass to the function, where the first argument is the name of the function.
 	/// @param arg_count The number of arguments.
 	/// @param error The error code, if any.
 	/// @return The return value of the function call.
+	/// @note Every function argument is treated as a Variant in the Sandbox programs,
+	/// even when it's a simple type like an integer or float.
 	Variant vmcallv(const Variant **args, GDExtensionInt arg_count, GDExtensionCallError &error);
 
 	/// @brief Make a function call to a function in the guest by its name.
