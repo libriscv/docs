@@ -110,3 +110,227 @@ It's possible to create a Sandbox using a PackedByteArray:
 ```
 
 You can now add the Sandbox as a child to another node. This way avoids using ELF resources, and can be used to load programs downloaded remotely or compressed on disk.
+
+
+# Sandbox API reference
+
+```cpp
+class Sandbox : public Node {
+
+	// -= VM function calls =-
+
+	/// @brief Make a function call to a function in the guest by its name.
+	/// @param args The arguments to pass to the function, where the first argument is the name of the function.
+	/// @param arg_count The number of arguments.
+	/// @param error The error code, if any.
+	/// @return The return value of the function call.
+	Variant vmcall(const Variant **args, GDExtensionInt arg_count, GDExtensionCallError &error);
+	/// @brief Make a function call to a function in the guest by its name. Always use Variant values for arguments.
+	/// @param args The arguments to pass to the function, where the first argument is the name of the function.
+	/// @param arg_count The number of arguments.
+	/// @param error The error code, if any.
+	/// @return The return value of the function call.
+	Variant vmcallv(const Variant **args, GDExtensionInt arg_count, GDExtensionCallError &error);
+
+	/// @brief Make a function call to a function in the guest by its name.
+	/// @param function The name of the function to call.
+	/// @param args The arguments to pass to the function.
+	/// @return The return value of the function call.
+	/// @note The extra arguments are saved in the callable object, and will be passed to the function when it is called
+	/// in front of the arguments passed to the call() method. So, as an example, if you have a function that takes 3 arguments,
+	/// and you call it with 2 arguments, you can later call the callable object with one argument, which turns into the 3rd argument.
+	Variant vmcallable(String function, Array args);
+	Variant vmcallable_address(uint64_t address, Array args);
+
+	/// @brief Set whether to prefer register values for VM function calls.
+	/// @param use_unboxed_arguments True to prefer register values, false to prefer Variant values.
+	void set_use_unboxed_arguments(bool use_unboxed_arguments);
+
+	/// @brief Get whether to prefer register values for VM function calls.
+	/// @return True if register values are preferred, false if Variant values are preferred.
+	bool get_use_unboxed_arguments() const;
+
+	/// @brief Set whether to use precise simulation for VM execution.
+	/// @param use_precise_simulation True to use precise simulation, false to use fast simulation.
+	void set_use_precise_simulation(bool use_precise_simulation);
+
+	/// @brief Get whether to use precise simulation for VM execution.
+	/// @return True if precise simulation is used, false otherwise.
+	bool get_use_precise_simulation() const { return m_precise_simulation; }
+
+	// -= Sandbox Properties =-
+
+	uint32_t get_max_refs() const { return m_max_refs; }
+	void set_max_refs(uint32_t max);
+	void set_memory_max(uint32_t max) { m_memory_max = max; }
+	uint32_t get_memory_max() const { return m_memory_max; }
+	void set_instructions_max(int64_t max) { m_insn_max = max; }
+	int64_t get_instructions_max() const { return m_insn_max; }
+	void set_heap_usage(int64_t) {} // Do nothing (it's a read-only property)
+	int64_t get_heap_usage() const;
+	void set_exceptions(unsigned exceptions) {} // Do nothing (it's a read-only property)
+	unsigned get_exceptions() const { return m_exceptions; }
+	void set_timeouts(unsigned budget) {} // Do nothing (it's a read-only property)
+	unsigned get_timeouts() const { return m_timeouts; }
+	void set_calls_made(unsigned calls) {} // Do nothing (it's a read-only property)
+	unsigned get_calls_made() const { return m_calls_made; }
+
+	static uint64_t get_global_timeouts() { return m_global_timeouts; }
+	static uint64_t get_global_exceptions() { return m_global_exceptions; }
+	static uint64_t get_global_calls_made() { return m_global_calls_made; }
+
+	/// @brief Get the global instance count of all sandbox instances.
+	/// @return The global instance count.
+	static uint64_t get_global_instance_count() { return m_global_instance_count; }
+
+	/// @brief Get the globally accumulated startup time of all sandbox instantiations.
+	/// @return The accumulated startup time.
+	static double get_accumulated_startup_time() { return m_accumulated_startup_time; }
+
+	/// @brief Check if a function exists in the guest program.
+	/// @param p_function The name of the function to check.
+	/// @return True if the function exists, false otherwise.
+	bool has_function(const StringName &p_function) const;
+
+	// -= Sandbox Restrictions =-
+
+	/// @brief Enable *all* restrictions on the sandbox, restricting access to
+	/// external classes, objects, object methods, object properties, and resources.
+	/// In effect, all external access is disabled.
+	void set_restrictions(bool enabled);
+
+	/// @brief Check if restrictions are enabled on the sandbox.
+	/// @return True if *all* restrictions are enabled, false otherwise.
+	bool get_restrictions() const;
+
+	/// @brief Add an object to the list of allowed objects.
+	/// @param obj The object to add.
+	void add_allowed_object(godot::Object *obj);
+
+	/// @brief Remove an object from the list of allowed objects.
+	/// @param obj The object to remove.
+	/// @note If the list becomes empty, all objects are allowed.
+	void remove_allowed_object(godot::Object *obj);
+
+	/// @brief Clear the list of allowed objects.
+	void clear_allowed_objects();
+
+	/// @brief Check if an object is allowed in the sandbox.
+	bool is_allowed_object(godot::Object *obj) const;
+
+	/// @brief Set a callback to check if an object is allowed in the sandbox.
+	/// @param callback The callable to check if an object is allowed.
+	void set_object_allowed_callback(const Callable &callback);
+
+	/// @brief Check if a class name is allowed in the sandbox.
+	bool is_allowed_class(const String &name) const;
+
+	/// @brief Set a callback to check if a class is allowed in the sandbox.
+	/// @param callback The callable to check if a class is allowed.
+	void set_class_allowed_callback(const Callable &callback);
+
+	/// @brief Check if a resource is allowed in the sandbox.
+	bool is_allowed_resource(const String &path) const;
+
+	/// @brief Set a callback to check if a resource is allowed in the sandbox.
+	/// @param callback The callable to check if a resource is allowed.
+	void set_resource_allowed_callback(const Callable &callback);
+
+	/// @brief Check if accessing a method on an object is allowed in the sandbox.
+	/// @param method The name of the method to check.
+	/// @return True if the method is allowed, false otherwise.
+	bool is_allowed_method(godot::Object *obj, const Variant &method) const;
+
+	/// @brief Set a callback to check if a method is allowed in the sandbox.
+	/// @param callback The callable to check if a method is allowed.
+	void set_method_allowed_callback(const Callable &callback);
+
+	/// @brief Check if accessing a property on an object is allowed in the sandbox.
+	/// @param obj The object to check.
+	/// @param property The name of the property to check.
+	/// @return True if the property is allowed, false otherwise.
+	bool is_allowed_property(godot::Object *obj, const Variant &property) const;
+
+	/// @brief Set a callback to check if a property is allowed in the sandbox.
+	/// @param callback The callable to check if a property is allowed.
+	void set_property_allowed_callback(const Callable &callback);
+
+	/// @brief A falsy function used when restrictions are enabled.
+	/// @return Always returns false.
+	static bool restrictive_callback_function(Variant) { return false; }
+
+	// -= Sandboxed Properties =-
+	// These are properties that are exposed to the Godot editor, provided by the guest program.
+
+	/// @brief Get a property from the sandbox.
+	/// @param name The name of the property.
+	/// @return The current value of the property.
+	Variant get(const StringName &name);
+
+	/// @brief Set a property in the sandbox.
+	/// @param name The name of the property.
+	/// @param value The new value to set.
+	void set(const StringName &name, const Variant &value);
+
+	/// @brief Get a list of properties.
+	/// @return The list of properties.
+	Array get_property_list() const;
+
+	// -= Program management & public functions =-
+
+	/// @brief Check if a program has been loaded into the sandbox.
+	/// @return True if a program has been loaded, false otherwise.
+	bool has_program_loaded() const;
+	/// @brief Set the program to run in the sandbox.
+	/// @param program The program to load and run.
+	void set_program(Ref<ELFScript> program);
+	/// @brief Get the program loaded into the sandbox.
+	/// @return The program loaded into the sandbox.
+	Ref<ELFScript> get_program();
+
+	/// @brief Load a program from a buffer into the sandbox.
+	/// @param buffer The buffer containing the program.
+	void load_buffer(const PackedByteArray &buffer);
+
+	/// @brief Get the public functions available to call in the guest program.
+	/// @return Array of public callable functions.
+	PackedStringArray get_functions() const;
+
+	// -= Self-testing, inspection and internal functions =-
+
+	/// @brief Get the 32 integer registers of the RISC-V machine.
+	/// @return An array of 32 registers.
+	Array get_general_registers() const;
+
+	/// @brief Get the 32 floating-point registers of the RISC-V machine.
+	/// @return An array of 32 registers.
+	Array get_floating_point_registers() const;
+
+	/// @brief Set the 8 argument registers of the RISC-V machine, A0-A7.
+	/// @param args The arguments to set.
+	void set_argument_registers(Array args);
+
+	/// @brief Get the current instruction being executed, as a string.
+	/// @return The current instruction.
+	String get_current_instruction() const;
+
+	/// @brief Enable resuming the program execution after a timeout.
+	/// @note Must be called before the program is run. Not available for VM calls.
+	void make_resumable();
+
+	/// @brief Resume execution of the program. Loses the current call state.
+	bool resume(uint64_t max_instructions);
+
+	/// @brief Binary translate the program and produce embeddable code
+	/// @param ignore_instruction_limit If true, ignore the instruction limit. Infinite loops are possible.
+	/// @param automatic_nbit_as If true, use and-masking on all memory accesses based on the rounded-down Po2 arena size.
+	/// @return The binary translation code.
+	/// @note This is only available if the RISCV_BINARY_TRANSLATION flag is set.
+	/// @warning Do *NOT* enable automatic_nbit_as unless you are sure the program is compatible with it.
+	String emit_binary_translation(bool ignore_instruction_limit = true, bool automatic_nbit_as = false) const;
+
+	/// @brief  Check if the program has found and loaded binary translation.
+	/// @return True if binary translation is loaded, false otherwise.
+	bool is_binary_translated() const;
+};
+```
