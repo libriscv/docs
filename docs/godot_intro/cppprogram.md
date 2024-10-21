@@ -41,7 +41,7 @@ Also, after each update you will need to `docker pull` the container in order to
 
 ## The C++ API
 
-The C++ API tries to mimick godot-cpp when it makes sense to do so. You can find [the C++ API implementation here](https://github.com/libriscv/godot-sandbox/tree/main/program/cpp/api), and [the C++ API reference here](cppapi.md).
+The C++ API tries to mimick godot-cpp when it makes sense to do so. You can find [the C++ API implementation here](https://github.com/libriscv/godot-sandbox/tree/main/program/cpp/api), and [the C++ API reference here](../godot_docs/cppapi.md).
 
 ## ELF Script
 

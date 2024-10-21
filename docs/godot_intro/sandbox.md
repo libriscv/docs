@@ -286,9 +286,11 @@ class Sandbox : public Node {
 	/// @brief Check if a program has been loaded into the sandbox.
 	/// @return True if a program has been loaded, false otherwise.
 	bool has_program_loaded() const;
+
 	/// @brief Set the program to run in the sandbox.
 	/// @param program The program to load and run.
 	void set_program(Ref<ELFScript> program);
+
 	/// @brief Get the program loaded into the sandbox.
 	/// @return The program loaded into the sandbox.
 	Ref<ELFScript> get_program();
@@ -302,6 +304,14 @@ class Sandbox : public Node {
 	PackedStringArray get_functions() const;
 
 	// -= Self-testing, inspection and internal functions =-
+
+	/// @brief Get the current Callable set for redirecting stdout.
+	/// @return The current Callable set for redirecting stdout.
+	const Callable &get_redirect_stdout() const;
+
+	/// @brief Set a Callable to redirect stdout from the guest program to.
+	/// @param callback The callable to redirect stdout.
+	void set_redirect_stdout(const Callable &callback);
 
 	/// @brief Get the 32 integer registers of the RISC-V machine.
 	/// @return An array of 32 registers.
