@@ -24,7 +24,7 @@ When making a function call into a Sandbox program, `sandbox.vmcall("my_function
 | TRANSFORM2D |  Transform2D(...)         | Transform2D    |
 | VECTOR4    |  Vector4(1, 2, 3, 4)       | Vector4        |
 | VECTOR4i   |  Vector4i(1, 2, 3, 4)      | Vector4i       |
-| PLANE      |  Plane(...)                | Variant        |
+| PLANE      |  Plane(...)                | Plane          |
 | QUATERNION |  Quaternion(...)           | Quaternion     |
 | AABB       |  AABB(...)                 | Variant        |
 | BASIS      |  Basis(...)                | Basis          |
@@ -53,17 +53,24 @@ When making a function call into a Sandbox program, `sandbox.vmcall("my_function
 | PACKED_VECTOR3_ARRAY  | PackedVector3Array(...)  | PackedArray\<Vector3\>  |
 | PACKED_COLOR_ARRAY    | PackedColorArray(...)    | PackedArray\<Color\>    |
 
-An astute reader will notice that whenever a wrapper class is not yet implemented, the Variant type is passed unchanged, as a Variant. Variants can use calls, and so even though (for example) Plane is not yet implemented as a wrapper class, it can still be used:
+An astute reader will notice that whenever a wrapper class is not yet implemented, the Variant type is passed unchanged, as a Variant. Variants can use calls, and so even though many are already implemented as wrapper classes, here is an example of how to use *any class* through a Variant:
 
 ```cpp
-Variant plane;
+Variant plane = ...;
 float distance = plane("distance_to", Vector3(1, 2, 3));
+
+Variant quaternion = ...;
+quaternion = quaternion("inverse");
 ```
 
 And when there is a wrapper, it's designed to be passed by value as a function argument:
 
 ```cpp
-Variant my_function(Quaternion q) {
+Variant my_plane(Plane p) {
+	return p.distance_to(Vector3(1, 2, 3));
+}
+
+Variant my_quaternion(Quaternion q) {
 	return q.inverse();
 }
 ```
@@ -71,7 +78,7 @@ Variant my_function(Quaternion q) {
 
 :::note
 
-Sandboxed properties does *NOT* use unboxed arguments. All arguments and the return type are Variants.
+Sandboxed properties does *NOT* use unboxed arguments. All arguments and the return type are Variants. Function return values are always Variant.
 
 :::
 
