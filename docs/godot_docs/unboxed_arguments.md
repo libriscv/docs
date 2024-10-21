@@ -12,7 +12,7 @@ When making a function call into a Sandbox program, `sandbox.vmcall("my_function
 
 |  Variant   |      GDScript func argument      |  Unboxed type  |
 |------------|:--------------------------:|:--------------:|
-| NIL        |  null                      | *ignored*      |
+| NIL        |  null                      | N/A            |
 | BOOL       |  true / false              | bool           |
 | INT        |  1234                      | int, long      |
 | FLOAT      |  5678.0                    | double         |
@@ -33,7 +33,7 @@ When making a function call into a Sandbox program, `sandbox.vmcall("my_function
 | COLOR      |  Color(...)                | Color          |
 | STRING_NAME |  StringName(...)          | String         |
 | NODE_PATH  |  NodePath(...)             | String         |
-| RID        |                            | Variant        |
+| RID        |  RID()                     | RID            |
 | OBJECT     |                            | Object         |
 | CALLABLE   |                            | Callable       |
 | SIGNAL     |                            | Variant        |
