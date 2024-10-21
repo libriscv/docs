@@ -60,6 +60,15 @@ Variant plane;
 float distance = plane("distance_to", Vector3(1, 2, 3));
 ```
 
+And when there is a wrapper, it's designed to be passed by value as a function argument:
+
+```cpp
+Variant my_function(Quaternion q) {
+	return q.inverse();
+}
+```
+
+
 :::note
 
 Sandboxed properties does *NOT* use unboxed arguments. All arguments and the return type are Variants.
@@ -79,3 +88,64 @@ Sandboxed properties does *NOT* use unboxed arguments. All arguments and the ret
 Nodes inherit from Object.
 
 See the [API sugaring](sugar.md) documentation to see how to add your own wrapper classes.
+
+
+## Example function calls
+
+
+### A player node
+
+```py
+func gdscript():
+	sandbox.vmcall("handle_player", get_node("Player"))
+```
+
+Which we can choose to receive as a Node2D (or Node or Object) in the Sandbox program:
+
+```cpp
+extern "C" Variant handle_player(Node2D player, double delta) {
+
+	Object input = Input::get_singleton();
+
+	// Handle jump.
+	Vector2 velocity = player.get("velocity");
+	if (input("is_action_just_pressed", "jump") && player("is_on_floor"))
+		velocity.y = jump_velocity;
+
+	// Get the input direction and handle the movement/deceleration.
+	float direction = input("get_axis", "move_left", "move_right");
+	if (direction != 0)
+		velocity.x = direction * player_speed;
+	else
+		velocity.x = fmin(velocity.x, player_speed);
+	player.set("velocity", velocity);
+
+	return player("move_and_slide");
+}
+```
+
+Since the `Player` node is a [CharacterBody2D](https://docs.godotengine.org/en/stable/tutorials/physics/using_character_body_2d.html), we can use functions from it.
+
+### Inputs
+
+We can handle inputs with `_input` directly, which passes an Object of some kind of Input-derivative as the first argument:
+
+```cpp
+extern "C" Variant _input(Object input) {
+	if (event("is_action_pressed", "jump")) {
+		get_node().set("modulate", 0xFF6060FF);
+	} else if (event("is_action_released", "jump")) {
+		get_node().set("modulate", 0xFFFFFFFF);
+	}
+	return Nil;
+}
+```
+
+The above example modulates the current node based on the `jump` action. We know the functions provided by Input from reading the [Godot documentation on Input](https://docs.godotengine.org/en/stable/classes/class_input.html).
+
+
+:::note
+
+All Sandbox functions must return a Variant.
+
+:::
