@@ -76,16 +76,24 @@ If there is a `CMakeLists.txt` in the project root or in a `cmake` folder, when 
 
 If the CMake script is in project root, the build folder is also in project root: `./.build`, and if the CMake script is in `./cmake`, the build folder is in `./cmake/.build`. The CMake invocation is verbose, so pay attention to it in the Godot console.
 
-This feature allows you to use your own CMake project and RISC-V toolchain to build all the programs with. The editor will assume that any C++ in the editor is built in CMake.
+This feature allows you to use your own CMake project and RISC-V toolchain to build all the programs with.
+
+:::note
+
+The presence of CMakeLists.txt disables all Docker usage, and any C++ source in the project is assumed to be built with CMake. Saving in a CPPScript window in the Godot editor will *only* invoke cmake.
+
+:::
 
 
 ## Disable Docker
+
+Docker can be disabled per project.
 
 Go to Project -> Project Settings and enable Advanced settings on the right. Scroll to Editor -> Script and disable Docker Enabled. You should no longer see any attempts at using Docker in this project.
 
 ## Auto-completion in editor
 
-Auto-completion should automatically work if you symlink the `cmake` folder from Godot Sandbox to your project. If not, you can always add this path to your editor:
+Auto-completion should automatically work if you symlink the `cmake` folder from Godot Sandbox to your project. If not, you can always add this path to your editor workspace:
 
 https://github.com/libriscv/godot-sandbox/tree/main/program/cpp/api
 
