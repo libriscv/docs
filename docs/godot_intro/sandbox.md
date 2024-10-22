@@ -111,6 +111,24 @@ It's possible to create a Sandbox using a PackedByteArray:
 
 You can now add the Sandbox as a child to another node. This way avoids using ELF resources, and can be used to load programs downloaded remotely or compressed on disk.
 
+```cpp
+	var elf : ELFScript = load("res://scenes/mod/mod.elf")
+
+    var s : Sandbox = Sandbox.new()
+    s.load_buffer(elf.get_content())
+```
+
+You can also load an ELF resource and use its content as a program. And, finally:
+
+```cpp
+	var elf : ELFScript = load("res://scenes/mod/mod.elf")
+
+    var s : Sandbox = Sandbox.new()
+    s.set_script(elf)
+```
+
+If you want to create a program shared with many nodes, use `set_script(elf_resource)` which sets the ELF resource directly and references it. This method enables sandboxed properties.
+
 
 ## Sandbox API reference
 
