@@ -103,7 +103,7 @@ Disadvantages:
 It's possible to create a Sandbox using a PackedByteArray:
 
 ```cpp
-	var buffer : PackedByteArray = ...
+    var buffer : PackedByteArray = ...
 
     var s : Sandbox = Sandbox.new()
     s.load_buffer(buffer)
@@ -112,7 +112,7 @@ It's possible to create a Sandbox using a PackedByteArray:
 You can now add the Sandbox as a child to another node. This way avoids using ELF resources, and can be used to load programs downloaded remotely or compressed on disk.
 
 ```cpp
-	var elf : ELFScript = load("res://scenes/mod/mod.elf")
+    var elf : ELFScript = load("res://scenes/mod/mod.elf")
 
     var s : Sandbox = Sandbox.new()
     s.load_buffer(elf.get_content())
@@ -121,7 +121,7 @@ You can now add the Sandbox as a child to another node. This way avoids using EL
 You can also load an ELF resource and use its content as a program. And, finally:
 
 ```cpp
-	var elf : ELFScript = load("res://scenes/mod/mod.elf")
+    var elf : ELFScript = load("res://scenes/mod/mod.elf")
 
     var s : Sandbox = Sandbox.new()
     s.set_script(elf)
