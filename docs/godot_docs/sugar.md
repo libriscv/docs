@@ -52,13 +52,13 @@ struct AnimatedSprite2D : public Node2D {
 We changed the `play()` function to use `voidcall` instead, making it slightly faster.
 
 
-## Using methods on other types
+## Adding methods
 
-Arrays, dictionaries, strings and other types have many methods, not all of which are currently exposed in the APIs. The methods are, however, available for use.
+Arrays, dictionaries, strings and other types have many methods, not all of which are currently exposed in the APIs. The methods are, however, accessible through method calls.
 
-As an example, if we wanted to append an array to an array, and the function was missing, we can still access it through its name:
+As an example: If we wanted to use the `append_array()` method of Array, and the function was missing, we could still access it through its name:
 
-```c++
+```cpp
 inline void append_array(Array& a, Array& b) {
 	a("append_array", b);
 }
@@ -66,7 +66,7 @@ inline void append_array(Array& a, Array& b) {
 
 And we could also add it as a member function in Array:
 
-```c++
+```cpp
 	void append_array(const Array &array) {
 		this->operator() ("append_array", array);
 	}
@@ -76,9 +76,32 @@ Either way, both will accomplish the same thing. This works for vectors, diction
 
 Finally, there is a helper macro to add a method without needing to specify arguments.
 
-```c++
+```cpp
 	METHOD(append_array);
 	METHOD(find);
 ```
 
 Adding them in the Array class will make do the right thing. They're variadic, but they will work just fine.
+
+## Adding properties
+
+Similar to methods, there is a `PROPERTY(name)` macro that can be used on Objects:
+
+```cpp
+struct AnimatedSprite2D : public Node2D {
+	...
+	PROPERTY(animation);
+};
+```
+
+Now this class can access the property `animation` in 3 ways:
+
+```cpp
+AnimatedSprite2D mysprite("MyAnimatedSprite2D");
+
+mysprite.animation() = "died";
+mysprite.set_animation("died");
+String animation = mysprite.get_animation();
+```
+
+If you don't want the `set_` and `get_` methods, the `PROPERTY1(name)` macro will only add the single method.
