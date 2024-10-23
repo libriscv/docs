@@ -102,6 +102,8 @@ struct Variant {
 	Variant(const Array&);
 	Variant(const Dictionary&);
 	Variant(const String&);
+	Variant(const Callable&);
+	Variant(const ::RID&);
 	Variant(const Object&);
 	Variant(const Node&);
 	Variant(const Node2D&);
@@ -109,6 +111,7 @@ struct Variant {
 	Variant(const Basis&);
 	Variant(const Transform2D&);
 	Variant(const Transform3D&);
+	Variant(const Quaternion&);
 	Variant(const PackedArray<uint8_t>&);
 	Variant(const PackedArray<float>&);
 	Variant(const PackedArray<double>&);
@@ -117,6 +120,7 @@ struct Variant {
 	Variant(const PackedArray<Vector2>&);
 	Variant(const PackedArray<Vector3>&);
 	Variant(const PackedArray<Color>&);
+	Variant(const PackedArray<std::string>&);
 
 	// Constructor specifically the STRING_NAME type
 	static Variant string_name(const std::string &name);
@@ -140,15 +144,21 @@ struct Variant {
 	operator uint8_t() const;
 	operator double() const;
 	operator float() const;
+	operator Basis() const;
+	operator Transform2D() const;
+	operator Transform3D() const;
+	operator Quaternion() const;
 	operator std::string() const; // String for STRING and PACKED_BYTE_ARRAY
 	operator std::u32string() const; // u32string for STRING, STRING_NAME
 	operator String() const;
 	operator Array() const;
 	operator Dictionary() const;
+	operator Callable() const;
 
 	Basis as_basis() const;
 	Transform2D as_transform2d() const;
 	Transform3D as_transform3d() const;
+	Quaternion as_quaternion() const;
 	Object as_object() const;
 	Node as_node() const;
 	Node2D as_node2d() const;
@@ -187,6 +197,8 @@ struct Variant {
 	Rect2i &r2i();
 	const Color &color() const;
 	Color &color();
+	const Plane &plane() const;
+	Plane &plane();
 
 	operator Vector2() const;
 	operator Vector2i() const;
@@ -197,6 +209,7 @@ struct Variant {
 	operator Rect2() const;
 	operator Rect2i() const;
 	operator Color() const;
+	operator Plane() const;
 
 	void callp(std::string_view method, const Variant *args, int argcount, Variant &r_ret);
 	void voidcallp(std::string_view method, const Variant *args, int argcount);
@@ -213,23 +226,24 @@ struct Variant {
 	template <typename... Args>
 	Variant operator ()(std::string_view method, Args... args);
 
-	/// @brief Check if the Variant is nil.
-	/// @return true if the Variant is nil, false otherwise.
-	bool is_nil() const noexcept { return m_type == NIL; }
-
-	static void evaluate(const Operator &op, const Variant &a, const Variant &b, Variant &r_ret, bool &r_valid);
-
 	Variant &operator=(const Variant &other);
 	Variant &operator=(Variant &&other);
 	bool operator==(const Variant &other) const;
 	bool operator!=(const Variant &other) const;
 	bool operator<(const Variant &other) const;
 
+	/// @brief Check if the Variant is nil.
+	/// @return true if the Variant is nil, false otherwise.
+	bool is_nil() const noexcept { return m_type == NIL; }
+
+	static void evaluate(const Operator &op, const Variant &a, const Variant &b, Variant &r_ret, bool &r_valid);
+
 	Variant duplicate() const;
 
 	/// @brief Make the Variant permanent, by moving it to permanent storage.
 	/// @return Updates the Variant to the new permanent Variant and returns it.
 	Variant &make_permanent();
+	bool is_permanent() const noexcept;
 
 	Type get_type() const noexcept { return m_type; }
 };
@@ -259,7 +273,7 @@ struct Array {
 	void sort();
 
 	// Array access
-	Variant operator[](int idx) const;
+	Variant &operator[](int idx) const;
 	Variant at(int idx) const { return (*this)[idx]; }
 	Variant front() const { return (*this)[0]; }
 	Variant back() const { return (*this)[size() - 1]; }
@@ -317,7 +331,7 @@ struct Dictionary {
 
 	operator Variant() const;
 
-	DictAccessor operator[](const Variant &key);
+	Variant &operator[](const Variant &key);
 	Variant get(const Variant &key) const;
 	void set(const Variant &key, const Variant &value);
 	Variant get_or_add(const Variant &key, const Variant &default_value = Variant());
@@ -519,12 +533,12 @@ struct Object {
 	// Get a property of the node.
 	// @param name The name of the property.
 	// @return The value of the property.
-	Variant get(const std::string &name) const;
+	Variant get(std::string_view name) const;
 
 	// Set a property of the node.
 	// @param name The name of the property.
 	// @param value The value to set the property to.
-	void set(const std::string &name, const Variant &value);
+	void set(std::string_view name, const Variant &value);
 
 	// Get a list of properties available on the object.
 	// @return A list of property names.
@@ -548,6 +562,21 @@ struct Object {
 	// @return A list of signal names.
 	std::vector<std::string> get_signal_list() const;
 
+	// Other member functions
+	String get_class() const;
+	bool is_class(const String &name) const;
+	String to_string() const;
+
+	METHOD(get_meta_list);
+	METHOD(has_meta);
+	METHOD(set_meta);
+	METHOD(remove_meta);
+	METHOD(set_script);
+	METHOD(get_script);
+	METHOD(has_method);
+	METHOD(has_signal);
+	METHOD(has_user_signal);
+
 	// Get the object identifier.
 	uint64_t address() const { return m_address; }
 
@@ -566,15 +595,19 @@ struct Node : public Object {
 
 	/// @brief Construct a Node object from a path.
 	/// @param path The path to the Node object.
-	Node(const std::string& path);
+	Node(std::string_view path);
 
 	/// @brief Get the name of the node.
 	/// @return The name of the node.
-	std::string get_name() const;
+	Variant get_name() const;
+
+	/// @brief Set the name of the node.
+	/// @param name The new name of the node.
+	void set_name(Variant name);
 
 	/// @brief Get the path of the node, relative to the root node.
 	/// @return The path of the node.
-	std::string get_path() const;
+	Variant get_path() const;
 
 	/// @brief Get the parent of the node.
 	/// @return The parent node.
@@ -625,6 +658,15 @@ struct Node : public Object {
 	/// @brief  Duplicate the node.
 	/// @return A new Node object with the same properties and children.
 	Node duplicate() const;
+
+	//- Properties -//
+	PROPERTY1(name);
+	PROPERTY(owner);
+	PROPERTY(unique_name_in_owner);
+	PROPERTY(editor_description);
+	PROPERTY(physics_interpolation_mode);
+	PROPERTY(process_mode);
+	PROPERTY(process_priority);
 };
 ```
 
@@ -634,32 +676,34 @@ struct Node : public Object {
 struct Node2D : public Node {
 	/// @brief Construct a Node2D object from an existing in-scope Node object.
 	/// @param addr The address of the Node2D object.
-	Node2D(uint64_t addr) : Node(addr) {}
+	constexpr Node2D(uint64_t addr) : Node(addr) {}
+	Node2D(Object obj) : Node(obj) {}
+	Node2D(Node node) : Node(node) {}
 
 	/// @brief Construct a Node2D object from a path.
 	/// @param path The path to the Node2D object.
-	Node2D(const std::string& path) : Node(path) {}
+	Node2D(std::string_view path) : Node(path) {}
 
 	/// @brief Get the position of the node.
 	/// @return The position of the node.
 	Vector2 get_position() const;
 	/// @brief Set the position of the node.
 	/// @param value The new position of the node.
-	void set_position(const Variant &value);
+	void set_position(const Vector2 &value);
 
 	/// @brief Get the rotation of the node.
 	/// @return The rotation of the node.
-	float get_rotation() const;
+	real_t get_rotation() const;
 	/// @brief Set the rotation of the node.
 	/// @param value The new rotation of the node.
-	void set_rotation(const Variant &value);
+	void set_rotation(real_t value);
 
 	/// @brief Get the scale of the node.
 	/// @return The scale of the node.
 	Vector2 get_scale() const;
 	/// @brief Set the scale of the node.
 	/// @param value The new scale of the node.
-	void set_scale(const Variant &value);
+	void set_scale(const Vector2 &value);
 
 	/// @brief Get the skew of the node.
 	/// @return The skew of the node.
@@ -668,9 +712,22 @@ struct Node2D : public Node {
 	/// @param value The new skew of the node.
 	void set_skew(const Variant &value);
 
+	/// @brief Set the 2D transform of the node.
+	/// @param value The new 2D transform of the node.
+	void set_transform(const Transform2D &value);
+
+	/// @brief Get the 2D transform of the node.
+	/// @return The 2D transform of the node.
+	Transform2D get_transform() const;
+
 	/// @brief  Duplicate the node.
 	/// @return A new Node2D object with the same properties and children.
 	Node2D duplicate() const;
+
+	/// @brief Create a new Node2D object.
+	/// @param path The path to the Node2D object.
+	/// @return The Node2D object.
+	static Node2D Create(std::string_view path);
 };
 ```
 
@@ -680,11 +737,13 @@ struct Node2D : public Node {
 struct Node3D : public Node {
 	/// @brief Construct a Node3D object from an existing in-scope Node object.
 	/// @param addr The address of the Node3D object.
-	Node3D(uint64_t addr) : Node(addr) {}
+	constexpr Node3D(uint64_t addr) : Node(addr) {}
+	Node3D(Object obj) : Node(obj) {}
+	Node3D(Node node) : Node(node) {}
 
 	/// @brief Construct a Node3D object from a path.
 	/// @param path The path to the Node3D object.
-	Node3D(const std::string& path) : Node(path) {}
+	Node3D(std::string_view path) : Node(path) {}
 
 	/// @brief Get the position of the node.
 	/// @return The position of the node.
@@ -707,9 +766,26 @@ struct Node3D : public Node {
 	/// @param value The new scale of the node.
 	void set_scale(const Variant &value);
 
+	/// @brief Set the 3D transform of the node.
+	/// @param value The new 3D transform of the node.
+	void set_transform(const Transform3D &value);
+
+	/// @brief Get the 3D transform of the node.
+	/// @return The 3D transform of the node.
+	Transform3D get_transform() const;
+
+	// TODO:
+	// void set_quaternion(const Quaternion &value);
+	// Quaternion get_quaternion() const;
+
 	/// @brief  Duplicate the node.
 	/// @return A new Node3D object with the same properties and children.
 	Node3D duplicate() const;
+
+	/// @brief Create a new Node3D node.
+	/// @param path The path to the Node3D node.
+	/// @return The Node3D node.
+	static Node3D Create(std::string_view path);
 };
 ```
 
@@ -717,17 +793,38 @@ struct Node3D : public Node {
 
 ```cpp
 struct Vector2 {
-	float x;
-	float y;
+	real_t x;
+	real_t y;
 
 	float length() const noexcept;
+	float length_squared() const noexcept;
+	Vector2 limit_length(double length) const noexcept;
+
+	void normalize();
 	Vector2 normalized() const noexcept;
-	Vector2 rotated(float angle) const noexcept;
 	float distance_to(const Vector2& other) const noexcept;
 	Vector2 direction_to(const Vector2& other) const noexcept;
 	float dot(const Vector2& other) const noexcept;
 	static Vector2 sincos(float angle) noexcept;
 	static Vector2 from_angle(float angle) noexcept;
+
+	Vector2 lerp(const Vector2& to, double weight) const noexcept;
+	Vector2 cubic_interpolate(const Vector2& b, const Vector2& pre_a, const Vector2& post_b, double weight) const noexcept;
+	Vector2 slerp(const Vector2& to, double weight) const noexcept;
+
+	Vector2 slide(const Vector2& normal) const noexcept;
+	Vector2 bounce(const Vector2& normal) const noexcept;
+	Vector2 reflect(const Vector2& normal) const noexcept;
+
+	void rotate(real_t angle) noexcept { *this = rotated(angle); }
+	Vector2 rotated(real_t angle) const noexcept;
+
+	Vector2 project(const Vector2& vec) const noexcept;
+	Vector2 orthogonal() const noexcept { return {y, -x}; }
+	float aspect() const noexcept { return x / y; }
+
+	real_t operator [] (int index) const;
+	real_t& operator [] (int index);
 
 	template <typename... Args>
 	Variant operator () (std::string_view method, Args&&... args);
@@ -743,17 +840,21 @@ struct Vector2 {
 
 ```cpp
 struct Vector3 {
-	float x;
-	float y;
-	float z;
+	real_t x;
+	real_t y;
+	real_t z;
 
 	float length() const noexcept;
+	float length_squared() const noexcept { return this->dot(*this); }
+	void normalize() { *this = normalized(); }
 	Vector3 normalized() const noexcept;
 	float dot(const Vector3& other) const noexcept;
 	Vector3 cross(const Vector3& other) const noexcept;
 	float distance_to(const Vector3& other) const noexcept;
 	float distance_squared_to(const Vector3& other) const noexcept;
+	float angle_to(const Vector3& other) const noexcept;
 	Vector3 direction_to(const Vector3& other) const noexcept;
+	Vector3 floor() const noexcept;
 
 	template <typename... Args>
 	Variant operator () (std::string_view method, Args&&... args);
@@ -930,6 +1031,39 @@ struct Transform3D {
 };
 ```
 
+## Plane
+
+```cpp
+struct Plane {
+	Vector3 normal = Vector3(0, 1, 0);
+	real_t d = 0.0f;
+
+	void set_normal(const Vector3 &p_normal) { normal = p_normal; }
+	const Vector3 &get_normal() const { return normal; }
+
+	Vector3 center() const { return normal * d; }
+	Vector3 get_any_perpendicular_normal() const;
+
+	bool is_point_over(const Vector3 &p_point) const { return normal.dot(p_point) > d; }
+	real_t distance_to(const Vector3 &p_point) const { return normal.dot(p_point) - d; }
+	bool has_point(const Vector3 &p_point, real_t p_tolerance = 0.00001f) const;
+
+	Vector3 project(const Vector3 &p_point) const;
+
+	bool operator==(const Plane &p_plane) const;
+	bool operator!=(const Plane &p_plane) const;
+
+	template <typename... Args>
+	Variant operator () (std::string_view method, Args&&... args);
+
+	constexpr Plane() {}
+	constexpr Plane(real_t p_a, real_t p_b, real_t p_c, real_t p_d);
+	constexpr Plane(const Vector3 &p_normal, real_t p_d = 0.0);
+	Plane(const Vector3 &p_normal, const Vector3 &p_point);
+	Plane(const Vector3 &p_point1, const Vector3 &p_point2, const Vector3 &p_point3, ClockDirection p_dir = CLOCKWISE);
+};
+```
+
 ## Quaternion
 
 ```cpp
@@ -1025,6 +1159,15 @@ struct PackedArray {
 	template <typename... Args>
 	Variant operator () (std::string_view method, Args&&... args);
 };
+```
+
+## Resources
+
+```cpp
+/// @brief Load a resource (at run-time) from the given path. Can be denied.
+/// @param path The path to the resource.
+/// @return The loaded resource.
+extern Variant load(std::string_view path);
 ```
 
 ## ClassDB
