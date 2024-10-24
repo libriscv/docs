@@ -54,7 +54,13 @@ We changed the `play()` function to use `voidcall` instead, making it slightly f
 
 ## Adding methods
 
-Arrays, dictionaries, strings and other types have many methods, not all of which are currently exposed in the APIs. The methods are, however, accessible through method calls.
+Arrays, dictionaries, strings and any other type that you can put into a Variant has many methods, not all of which are currently exposed in the APIs. The methods are, however, accessible through method calls.
+
+:::note
+
+This method works on all Variant types, objects, nodes and other classes - as long as the method is also exposed to GDScript. If you can see the method in the public GDScript documentation for the class, then it can also be called using this method.
+
+:::
 
 As an example: If we wanted to use the `append_array()` method of Array, and the function was missing, we could still access it through its name:
 
@@ -72,16 +78,17 @@ And we could also add it as a member function in Array:
 	}
 ```
 
-Either way, both will accomplish the same thing. This works for vectors, dictionaries and so on.
+Either way, both will accomplish the same thing.
 
-Finally, there is a helper macro to add a method without needing to specify arguments.
+There is also a helper macro to add a method without needing to specify arguments:
 
 ```cpp
 	METHOD(append_array);
 	METHOD(find);
 ```
 
-Adding them in the Array class will make do the right thing. They're variadic, but they will work just fine.
+Adding these into any wrapper class will make do the right thing. They're variadic, but they will work just fine.
+
 
 ## Adding properties
 
@@ -105,3 +112,54 @@ String animation = mysprite.get_animation();
 ```
 
 If you don't want the `set_` and `get_` methods, the `PROPERTY1(name)` macro will only add the single method.
+
+Some properties in GDScript have a quirk that the getter often cannot be auto-generated, and for that we have the more verbose `NAMED_PROPERTY(name, type, getter, setter)` macro:
+
+```cpp
+struct AnimatedSprite2D : public Node2D {
+	...
+	PROPERTY(animation);
+	TYPED_PROPERTY(flip_h, bool, is_flipped_h, set_flip_h);
+	TYPED_PROPERTY(flip_v, bool, is_flipped_v, set_flip_v);
+};
+```
+
+Using the macro we can define the type as well as the name of the getter and setter methods.
+
+
+## Auto-generated APIs
+
+Using the `AnimatedSprite2D` class from before, the simplest way to implement it looks like this:
+
+```cpp
+struct AnimatedSprite2D : public Node2D {
+	// Inherit all constructors
+	using Node2D::Node2D;
+
+	//- Properties -//
+	PROPERTY(animation);
+	PROPERTY(autoplay);
+	TYPED_PROPERTY(centered, bool, is_centered, set_centered);
+	TYPED_PROPERTY(flip_h, bool, is_flipped_h, set_flip_h);
+	TYPED_PROPERTY(flip_v, bool, is_flipped_v, set_flip_v);
+	PROPERTY(frame);
+	PROPERTY(frame_progress);
+	PROPERTY(offset);
+	PROPERTY(speed_scale);
+	PROPERTY(sprite_frames);
+	PROPERTY(modulate); // CanvasItem, but also works here
+
+	//- Methods -//
+	METHOD(play);
+	METHOD(play_backwards);
+	METHOD(pause);
+	METHOD(is_playing);
+	METHOD(stop);
+	METHOD(get_playing_speed);
+	METHOD(set_frame_and_progress);
+};
+```
+
+This is a complete, working implementation of `AnimatedSprite2D`. It was made by reading the [official documentation on the class](https://docs.godotengine.org/en/stable/classes/class_animatedsprite2d.html), and then filling in properties and methods by name one by one. This is especially useful for auto-generated APIs.
+
+It will also work on custom classes, as long as they expose their methods and properties to GDScript.
