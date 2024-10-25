@@ -365,5 +365,9 @@ class Sandbox : public Node {
 	/// @brief  Check if the program has found and loaded binary translation.
 	/// @return True if binary translation is loaded, false otherwise.
 	bool is_binary_translated() const;
+
+	/// @brief  Generate the C++ API to a String, based on current Godot version and loaded extensions.
+	/// @return The generated C++ API.
+	static String generate_api(String language = "cpp", String header_extra = "");
 };
 ```

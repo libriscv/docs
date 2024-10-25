@@ -35,13 +35,11 @@ The name of the program is based on the folder name, hence if the folder is call
 
 If it is not working, you need to set the docker path manually by going to **Project** -> **Project Settings** -> `editor/script/docker` and modifying to the path where you have installed docker. If left blank it will use what it finds in the **PATH** variable.
 
-Also, after each update you will need to `docker pull` the container in order to keep it updated to the latest API.
-
 :::
 
 ## The C++ API
 
-The C++ API tries to mimick godot-cpp when it makes sense to do so. You can find [the C++ API implementation here](https://github.com/libriscv/godot-sandbox/tree/main/program/cpp/api), and [the C++ API reference here](../godot_docs/cppapi.md).
+The C++ API tries to mimick godot-cpp when it makes sense to do so, and it otherwise provides the entire GDScript API. You can find [the C++ API implementation here](https://github.com/libriscv/godot-sandbox/tree/main/program/cpp/api), and [the C++ API reference here](../godot_docs/cppapi.md). For everything else, you can refer to the official Godot documentation.
 
 ## ELF Script
 

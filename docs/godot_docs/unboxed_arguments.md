@@ -110,24 +110,24 @@ func gdscript():
 Which we can choose to receive as a Node2D (or Node or Object) in the Sandbox program:
 
 ```cpp
-extern "C" Variant handle_player(Node2D player, double delta) {
+extern "C" Variant handle_player_physics(CharacterBody2D player, double delta) {
 
-	Object input = Input::get_singleton();
+	Input input = Input::get_singleton();
 
 	// Handle jump.
-	Vector2 velocity = player.get("velocity");
-	if (input("is_action_just_pressed", "jump") && player("is_on_floor"))
+	Vector2 velocity = player.velocity();
+	if (input.is_action_just_pressed("jump") && player.is_on_floor())
 		velocity.y = jump_velocity;
 
 	// Get the input direction and handle the movement/deceleration.
-	float direction = input("get_axis", "move_left", "move_right");
+	float direction = input.get_axis("move_left", "move_right");
 	if (direction != 0)
 		velocity.x = direction * player_speed;
 	else
 		velocity.x = fmin(velocity.x, player_speed);
-	player.set("velocity", velocity);
+	player.set_velocity(velocity);
 
-	return player("move_and_slide");
+	return player.move_and_slide();
 }
 ```
 
@@ -138,17 +138,17 @@ Since the `Player` node is a [CharacterBody2D](https://docs.godotengine.org/en/s
 We can handle inputs with `_input` directly, which passes an Object of some kind of Input-derivative as the first argument:
 
 ```cpp
-extern "C" Variant _input(Object input) {
-	if (event("is_action_pressed", "jump")) {
+extern "C" Variant _input(InputEvent event) {
+	if (event.is_action_pressed("jump")) {
 		get_node().set("modulate", 0xFF6060FF);
-	} else if (event("is_action_released", "jump")) {
+	} else if (event.is_action_released("jump")) {
 		get_node().set("modulate", 0xFFFFFFFF);
 	}
 	return Nil;
 }
 ```
 
-The above example modulates the current node based on the `jump` action. We know the functions provided by Input from reading the [Godot documentation on Input](https://docs.godotengine.org/en/stable/classes/class_input.html).
+The above example modulates the current node based on the `jump` action. We know the functions provided by InputEvent from reading the [Godot documentation on InputEvent](https://docs.godotengine.org/en/stable/classes/class_inputevent.html). The current Node is our Node2D coin, and it can be modulated. We could cast it to a Node2D and do a `Node2D(get_node()).set_modulate(0xFF6060FF);`, but it was just easier to set the property using `.set()`.
 
 
 :::note
