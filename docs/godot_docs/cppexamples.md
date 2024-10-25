@@ -25,13 +25,13 @@ get_node()
 `get_node()` retrieves the current node. It also takes an optional node path:
 
 ```cpp
-Node2D n = get_node("MyAnimatedSprite2D");
+AnimatedSprite2D n = get_node("MyAnimatedSprite2D");
 ```
 
 which is equivalent to:
 
 ```cpp
-Node2D n("MyAnimatedSprite2D");
+AnimatedSprite2D n("MyAnimatedSprite2D");
 ```
 
 As written before, paths are relative to the owner of the sandbox. If the sandbox is attached as a script to a node, then the owner is that node.
@@ -134,7 +134,7 @@ As shown, `Callable` does not yet have a wrapper, but can still be used. Simply 
 
 ## Nodes, methods and properties
 
-Let's take an example: Playing animations using an AnimatedSprite2D.
+Let's take an example: Playing animations using an AnimatedSprite2D. First we will use generic calls and properties, and at the end we will use the actual class.
 
 ```cpp
 Node node("MyAnimatedSprite2D");
@@ -169,6 +169,19 @@ Variant current_animation = mysprite.get("animation");
 ```
 
 With access to methods, properties, objects, nodes and node-operations, globals and Variants, we can say that the Godot Sandbox has the entire Godot engine available to it.
+
+All classes are available, generated at run-time:
+
+```cpp
+AnimatedSprite2D mysprite("MyAnimatedSprite2D");
+mysprite.play("idle");
+```
+
+:::note
+
+In practice you can write code just like GDScript. Even classes loaded at run-time should be accessible with auto-complete.
+
+:::
 
 
 ## Variant Lifetimes
@@ -227,55 +240,52 @@ As an example, this C++ example program implements `_ready`, and so when the rea
 
 ```cpp
 #include "api.hpp"
-// We can store data in the script, just like a regular C++ program
 static int coins = 0;
 
-extern "C" void reset_game() {
+extern "C" Variant reset_game() {
 	coins = 0;
+	return Nil;
 }
 
 static void add_coin(const Node& player) {
 	coins ++;
 	// In our demo project we can access the coin label from the player
 	// using a node path: Player -> get_parent() -> Texts -> CoinLabel
-	Node coinlabel = player.get_node("../Texts/CoinLabel");
-	coinlabel.set("text", "You have collected "
-		+ std::to_string(coins) + ((coins == 1) ? " coin" : " coins"));
+	Label coinlabel = player.get_node("../Texts/CoinLabel");
+	coinlabel.set_text("You have collected "
+		+ std::to_string(coins) + ((coins == 1) ? " coinerino" : " coinerinos"));
 }
 
-extern "C" Variant _on_body_entered(Node2D player_node) {
+extern "C" Variant _on_body_entered(CharacterBody2D body) {
 	// This function is called when a body enters the coin
 	// Most likely it's the player, but we still check!
-	if (player_node.get_name() != "Player")
+	if (body.get_name() != "Player")
 		return Nil;
 
-	get_node().queue_free(); // Remove the current coin!
-	add_coin(player_node);
+	Node coin = get_node();
+	coin.queue_free(); // Remove the current coin!
+	add_coin(body);
 	return Nil;
 }
 
 extern "C" Variant _ready() {
-	if (is_editor()) {
-		// Ignore inputs when in the Editor
-		get_node()("set_process_input", false);
+	if (is_editor_hint()) {
+		get_node().set_process_input(false);
 	}
-	return Nil;
+	return Nil; //
 }
 
 extern "C" Variant _process(double delta) {
-	if (is_editor()) {
-		// When in the Editor, play an animation
-		Node("AnimatedSprite2D")("play", "idle");
+	if (is_editor_hint()) {
+		AnimatedSprite2D("AnimatedSprite2D").play("idle");
 	}
 	return Nil;
 }
 
-extern "C" Variant _input(Object event) {
-	// Event is the Input singleton
-	// Make the coins red whenever the player presses the jump key
-	if (event("is_action_pressed", "jump")) {
-		get_node().set("modulate", 0xFF6060FF);
-	} else if (event("is_action_released", "jump")) {
+extern "C" Variant _input(InputEvent event) {
+	if (event.is_action_pressed("jump")) {
+		Node2D(get_node()).set_modulate(0xFF6060FF);
+	} else if (event.is_action_released("jump")) {
 		get_node().set("modulate", 0xFFFFFFFF);
 	}
 	return Nil;
@@ -387,16 +397,16 @@ In this program, each instance will have their own separate properties.
 ```cpp
 #include "api.hpp"
 
-extern "C" Variant _on_body_entered(Node2D body) {
-	Engine::get_singleton().set("time_scale", 0.5f);
+extern "C" Variant _on_body_entered(CharacterBody2D body) {
+	Engine::get_singleton().set_time_scale(0.5f);
 
-	body.set("velocity", Vector2(0.0f, -120.0f));
+	body.set_velocity(Vector2(0.0f, -120.0f));
 	body.get_node("CollisionShape2D").queue_free();
 	body.get_node("AnimatedSprite2D")("play", "died");
 
-	Timer::oneshot(1.0f, [] (Node timer) -> Variant {
+	CallbackTimer::native_oneshot(1.0f, [] (Timer timer) -> Variant {
 		timer.queue_free();
-		Engine::get_singleton().set("time_scale", 1.0f);
+		Engine::get_singleton().set_time_scale(1.0f);
 
 		get_tree().call_deferred("reload_current_scene");
 		return Nil;
