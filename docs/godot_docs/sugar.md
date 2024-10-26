@@ -88,8 +88,8 @@ Either way, both will accomplish the same thing.
 There is also a helper macro to add a method without needing to specify arguments:
 
 ```cpp
-	METHOD(append_array);
-	METHOD(find);
+	METHOD(void, append_array);
+	METHOD(int64_t, find);
 ```
 
 Adding these into any wrapper class will make do the right thing. They're variadic, but they will work just fine.
@@ -102,7 +102,7 @@ Similar to methods, there is a `PROPERTY(name)` macro that can be used on Object
 ```cpp
 struct AnimatedSprite2D : public Node2D {
 	...
-    TYPED_PROPERTY(animation, String);
+    PROPERTY(animation, String);
 };
 ```
 
@@ -119,15 +119,15 @@ The auto-generated API is more comprehensive:
 ```cpp
 struct AnimatedSprite2D : public Node2D {
 	...
-    TYPED_PROPERTY(animation, String);
-    TYPED_PROPERTY(flip_h, bool);
-    TYPED_PROPERTY(flip_v, bool);
-    TYPED_METHOD(void, set_animation);
-    TYPED_METHOD(String, get_animation);
-    TYPED_METHOD(void, set_flip_h);
-    TYPED_METHOD(bool, is_flipped_h);
-    TYPED_METHOD(void, set_flip_v);
-    TYPED_METHOD(bool, is_flipped_v);
+    PROPERTY(animation, String);
+    PROPERTY(flip_h, bool);
+    PROPERTY(flip_v, bool);
+    METHOD(void, set_animation);
+    METHOD(String, get_animation);
+    METHOD(void, set_flip_h);
+    METHOD(bool, is_flipped_h);
+    METHOD(void, set_flip_v);
+    METHOD(bool, is_flipped_v);
 	...
 };
 ```
