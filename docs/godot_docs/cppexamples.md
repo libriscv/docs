@@ -10,19 +10,15 @@ Currently, the Godot Sandbox has access to all of Godot through calls, propertie
 
 All node paths are relative to the node that has the script program attached.
 
-The current node can be accessed using `.`:
+The current node can be accessed using `.` and `get_node()`:
 
 ```cpp
 Node current_node(".");
-```
 
-There's also the global helper function:
-
-```cpp
 get_node()
 ```
 
-`get_node()` retrieves the current node. It also takes an optional node path:
+`get_node()` also takes an optional node path:
 
 ```cpp
 AnimatedSprite2D n = get_node("MyAnimatedSprite2D");
@@ -32,6 +28,8 @@ which is equivalent to:
 
 ```cpp
 AnimatedSprite2D n("MyAnimatedSprite2D");
+
+AnimatedSprite2D n = get_node<AnimatedSprite2D>("MyAnimatedSprite2D");
 ```
 
 As written before, paths are relative to the owner of the sandbox. If the sandbox is attached as a script to a node, then the owner is that node.
@@ -40,7 +38,7 @@ You can also retrieve a node relative to a node:
 
 ```cpp
 Node2D n("MyAnimatedSprite2D");
-Node2D n2 = n.get_node("../Texts/CoinLabel");
+Label n2 = n.get_node<Label>("../Texts/CoinLabel");
 ```
 
 :::note
@@ -73,7 +71,7 @@ Variant my_function() {
 	return Nil;
 }
 ```
-The C++ API has a shortcut for returning nothing: `Nil`. It's a default-constructed Variant.
+Every function that is to be called from Godot must return a Variant. The C++ API has a shortcut for returning nothing: `Nil`. It's a default-constructed Variant.
 
 ### Example function
 
@@ -104,7 +102,7 @@ Again, the above example function is for when "Use Unboxed Arguments" are disabl
 
 ### Primitive types
 
-When primitive types and small structs are passed to the Sandbox, they get passed by value directly in registers, which is a big performance benefit.
+When primitive types and small structs are passed to the Sandbox, they get passed by value directly in registers, which is beneficial for performance.
 
 Godot integers become `int64_t` or `long`, floats become `double` and booleans become `bool`. 2-vectors become `Vector2` and `Vector2i`.
 
@@ -137,28 +135,26 @@ As shown, `Callable` does not yet have a wrapper, but can still be used. Simply 
 Let's take an example: Playing animations using an AnimatedSprite2D. First we will use generic calls and properties, and at the end we will use the actual class.
 
 ```cpp
-Node node("MyAnimatedSprite2D");
+AnimatedSprite2D mysprite = get_node<AnimatedSprite2D>("MyAnimatedSprite2D");
 ```
 
-Above: Accessing a node through its path relative to the script. However, what we get in return is a Node, not an AnimatedSprite2D and not even a Node2D. The API does have a wrapper for Node2D, so let's just make use of that now:
+or through the path constructor:
 
 ```cpp
-Node2D node("MyAnimatedSprite2D");
+AnimatedSprite2D mysprite("MyAnimatedSprite2D");
 ```
 
-Still, what if we want to play an animation? If we look at the [documentation for AnimatedSprite2D](https://docs.godotengine.org/en/stable/classes/class_animatedsprite2d.html) it has a [play method](https://docs.godotengine.org/en/stable/classes/class_animatedsprite2d.html#class-animatedsprite2d-method-play) used to start playing animations.
+And now, what if we want to play an animation? If we look at the [documentation for AnimatedSprite2D](https://docs.godotengine.org/en/stable/classes/class_animatedsprite2d.html) it has a [play method](https://docs.godotengine.org/en/stable/classes/class_animatedsprite2d.html#class-animatedsprite2d-method-play) used to start playing animations.
 
 In Godot, methods are callable functions on objects, including nodes. So, we can just call `play` as a function on our node object:
 
 ```cpp
-Node2D node("MyAnimatedSprite2D");
-node.call("play", "idle");
+mysprite.call("play", "idle");
 ```
 
 We don't actually need to "have" an AnimatedSprite2D to call any function that it has. Further, the call is such an important function that there is a dedicated `operator (...)` for it:
 
 ```cpp
-Node2D mysprite("MyAnimatedSprite2D");
 mysprite("play", "idle");
 ```
 
@@ -170,11 +166,17 @@ Variant current_animation = mysprite.get("animation");
 
 With access to methods, properties, objects, nodes and node-operations, globals and Variants, we can say that the Godot Sandbox has the entire Godot engine available to it.
 
+## The run-time API
+
 All classes are available, generated at run-time:
 
 ```cpp
 AnimatedSprite2D mysprite("MyAnimatedSprite2D");
 mysprite.play("idle");
+String animation = mysprite.animation();
+
+CharacterBody2D player("%Player");
+const bool f = player.is_on_floor();
 ```
 
 :::note
@@ -284,9 +286,9 @@ extern "C" Variant _process(double delta) {
 
 extern "C" Variant _input(InputEvent event) {
 	if (event.is_action_pressed("jump")) {
-		Node2D(get_node()).set_modulate(0xFF6060FF);
+		get_node<Node2D>().set_modulate(0xFF6060FF);
 	} else if (event.is_action_released("jump")) {
-		get_node().set("modulate", 0xFFFFFFFF);
+		get_node<Node2D>().set_modulate(0xFFFFFFFF);
 	}
 	return Nil;
 }
