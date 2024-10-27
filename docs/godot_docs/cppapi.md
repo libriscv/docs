@@ -19,7 +19,7 @@ inline void print(Args &&...vars);
 
 /// @brief Get the current scene tree.
 /// @return The root node of the scene tree.
-inline Object get_tree();
+inline SceneTree get_tree();
 
 /// @brief Check if the given Node is a part of the current scene tree. Not an instance of another scene.
 /// @param node The Node to check.
@@ -29,7 +29,13 @@ inline bool is_part_of_tree(Node node);
 /// @brief Get a node by its path. By default, this returns the current node.
 /// @param path The path to the node.
 /// @return The node at the given path.
-inline Node get_node(std::string_view path = ".");
+template <typename T = Node>
+inline T get_node(std::string_view path = ".");
+
+/// @brief Get the parent of the current node.
+/// @return The parent node.
+template <typename T>
+inline T get_parent();
 
 /// @brief A macro to define a static function that returns a custom state object
 /// tied to a Node object. For shared sandbox instances, this is the simplest way
@@ -618,6 +624,9 @@ struct Node : public Object {
 	/// @return The Node object.
 	Node get_node(const std::string &path) const;
 
+	template <typename T>
+	T get_node(std::string_view path) const;
+
 	/// @brief Get the number of children of the node.
 	/// @return The number of children.
 	unsigned get_child_count() const;
@@ -658,6 +667,11 @@ struct Node : public Object {
 	/// @brief  Duplicate the node.
 	/// @return A new Node object with the same properties and children.
 	Node duplicate() const;
+
+	/// @brief Create a new Node object.
+	/// @param path The path to the Node object.
+	/// @return The Node object.
+	static Node Create(std::string_view path);
 
 	//- Properties -//
 	PROPERTY1(name);
@@ -1167,7 +1181,8 @@ struct PackedArray {
 /// @brief Load a resource (at run-time) from the given path. Can be denied.
 /// @param path The path to the resource.
 /// @return The loaded resource.
-extern Variant load(std::string_view path);
+template <typename T = Resource>
+inline T load(std::string_view path);
 ```
 
 ## ClassDB
@@ -1180,76 +1195,9 @@ struct ClassDB {
 	/// @param name The name of the object, if it's a Node. Otherwise, this is ignored.
 	/// @return The new object.
 	static Object instantiate(std::string_view class_name, std::string_view name = "");
-};
-```
 
-## Engine
-
-```cpp
-struct Engine {
-	/// @brief Check if the program is running in the Godot editor.
-	/// @return True if running in the editor, false otherwise.
-	static bool is_editor_hint();
-
-	/// @brief Get the current time scale.
-	/// @return The current time scale.
-	static double get_time_scale();
-
-	/// @brief Set a new time scale.
-	/// @param scale The new time scale.
-	static void set_time_scale(double scale);
-
-	/// @brief Get the singleton instance of the Engine.
-	/// @return The Engine singleton.
-	static Object get_singleton();
-};
-```
-
-## Input
-
-```cpp
-struct Input {
-	/// @brief Check if an action is currently pressed.
-	/// @param action The name of the action.
-	/// @return True if the action is pressed, false otherwise.
-	static bool is_action_pressed(const std::string &action);
-
-	/// @brief Check if an action is released.
-	/// @param action The name of the action.
-	/// @return True if the action is released, false otherwise.
-	static bool is_action_released(const std::string &action);
-
-	/// @brief Check if an action is just pressed.
-	/// @param action The name of the action.
-	/// @return True if the action is just pressed, false otherwise.
-	static bool is_action_just_pressed(const std::string &action);
-
-	/// @brief Check if an action is just released.
-	/// @param action The name of the action.
-	/// @return True if the action is just released, false otherwise.
-	static bool is_action_just_released(const std::string &action);
-
-	/// @brief Get the singleton instance of the Input class.
-	/// @return The Input singleton.
-	static Object get_singleton();
-};
-```
-
-## Time
-
-```cpp
-struct Time {
-	/// @brief Get the current time in milliseconds.
-	/// @return The current time in milliseconds.
-	static int64_t get_ticks_msec();
-
-	/// @brief Get the current time in microseconds.
-	/// @return The current time in microseconds.
-	static int64_t get_ticks_usec();
-
-	/// @brief Get the singleton instance of the Time class.
-	/// @return The Time singleton.
-	static Object get_singleton();
+	template <typename T>
+	static T instantiate(std::string_view class_name, std::string_view name = "");
 };
 ```
 
@@ -1326,4 +1274,19 @@ struct Math {
 	static double slerp(double a, double b, double t);
 	static float slerpf(float a, float b, float t);
 };
+```
+
+## Godot classes
+
+Every Godot class not shown in this reference is auto-generated at run-time and will have every property, method and constant generated. Even classes from loaded extensions.
+
+The API is generated on first save, and if you open it you will see that it matches the official documentation, hence there is no need to document anything further here.
+
+The only thing worth mentioning is that all classes in the sandbox are references on host, but proxies in the guest. Pass them by value, `get_singleton()` returns a class directly etc:
+
+```cpp
+Time time = Time::get_singleton();
+
+static void my_function(CanvasItem item) {
+}
 ```
