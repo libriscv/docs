@@ -573,15 +573,48 @@ struct Object {
 	bool is_class(const String &name) const;
 	String to_string() const;
 
-	METHOD(get_meta_list);
-	METHOD(has_meta);
-	METHOD(set_meta);
-	METHOD(remove_meta);
-	METHOD(set_script);
-	METHOD(get_script);
-	METHOD(has_method);
-	METHOD(has_signal);
-	METHOD(has_user_signal);
+	METHOD(Variant, _get);
+	METHOD(Variant, _get_property_list);
+	METHOD(void, _init);
+	METHOD(void, _notification);
+	METHOD(bool, _property_can_revert);
+	METHOD(Variant, _property_get_revert);
+	METHOD(bool, _set);
+	METHOD(String, _to_string);
+	METHOD(void, _validate_property);
+	METHOD(void, add_user_signal);
+	METHOD(bool, can_translate_messages);
+	METHOD(void, cancel_free);
+	METHOD(Variant, emit_signal);
+	METHOD(void, free);
+	METHOD(Variant, get_incoming_connections);
+	METHOD(Variant, get_indexed);
+	METHOD(int, get_instance_id);
+	METHOD(Variant, get_meta);
+	METHOD(Variant, get_meta_list);
+	METHOD(int, get_method_argument_count);
+	METHOD(Variant, get_script);
+	METHOD(Variant, get_signal_connection_list);
+	METHOD(bool, has_meta);
+	METHOD(bool, has_method);
+	METHOD(bool, has_signal);
+	METHOD(bool, has_user_signal);
+	METHOD(bool, is_blocking_signals);
+	METHOD(bool, is_connected);
+	METHOD(bool, is_queued_for_deletion);
+	METHOD(void, notification);
+	METHOD(void, notify_property_list_changed);
+	METHOD(bool, property_can_revert);
+	METHOD(Variant, property_get_revert);
+	METHOD(void, remove_meta);
+	METHOD(void, remove_user_signal);
+	METHOD(void, set_block_signals);
+	METHOD(void, set_indexed);
+	METHOD(void, set_message_translation);
+	METHOD(void, set_meta);
+	METHOD(void, set_script);
+	METHOD(String, tr);
+	METHOD(String, tr_n);
 
 	// Get the object identifier.
 	uint64_t address() const { return m_address; }
@@ -660,13 +693,43 @@ struct Node : public Object {
 	/// @return A list of children nodes.
 	std::vector<Node> get_children() const;
 
+	/// @brief Add the node to a group.
+	/// @param group The group to add the node to.
+	void add_to_group(std::string_view group);
+
+	/// @brief Remove the node from a group.
+	/// @param group The group to remove the node from.
+	void remove_from_group(std::string_view group);
+
+	/// @brief Check if the node is in a group.
+	/// @param group The group to check.
+	/// @return True if the node is in the group, false otherwise.
+	bool is_in_group(std::string_view group) const;
+
+	/// @brief Check if the node is inside the scene tree.
+	/// @return True if the node is inside the scene tree, false otherwise.
+	bool is_inside_tree() const;
+
+	/// @brief Replace the node with another node.
+	/// @param node The node to replace this node with.
+	void replace_by(const Node &node, bool keep_groups = false);
+
+	/// @brief Changes the parent of this Node to the new_parent.
+	/// The node needs to already have a parent.
+	/// The node's owner is preserved if its owner is still reachable
+	/// from the new location (i.e., the node is still a descendant
+	/// of the new parent after the operation).
+	/// @param new_parent The new parent node.
+	/// @param keep_global_transform If true, the node's global transform is preserved.
+	void reparent(const Node &new_parent, bool keep_global_transform = true);
+
 	/// @brief Remove this node from its parent, freeing it.
 	/// @note This is a potentially deferred operation.
 	void queue_free();
 
 	/// @brief  Duplicate the node.
 	/// @return A new Node object with the same properties and children.
-	Node duplicate() const;
+	Node duplicate(int flags = 15) const;
 
 	/// @brief Create a new Node object.
 	/// @param path The path to the Node object.
@@ -674,13 +737,51 @@ struct Node : public Object {
 	static Node Create(std::string_view path);
 
 	//- Properties -//
-	PROPERTY1(name);
-	PROPERTY(owner);
-	PROPERTY(unique_name_in_owner);
-	PROPERTY(editor_description);
-	PROPERTY(physics_interpolation_mode);
-	PROPERTY(process_mode);
-	PROPERTY(process_priority);
+	PROPERTY(name, String);
+	PROPERTY(owner, Node);
+	PROPERTY(unique_name_in_owner, bool);
+	PROPERTY(editor_description, String);
+	PROPERTY(physics_interpolation_mode, int64_t);
+	PROPERTY(process_mode, int64_t);
+	PROPERTY(process_priority, int64_t);
+
+	//- Methods -//
+	METHOD(bool, can_process);
+	METHOD(Object, create_tween);
+	METHOD(Node, find_child);
+	METHOD(Variant, find_children);
+	METHOD(Node, find_parent);
+	METHOD(Node, get_viewport);
+	METHOD(Node, get_window);
+	METHOD(bool, has_node);
+	METHOD(bool, has_node_and_resource);
+	METHOD(bool, is_ancestor_of);
+	METHOD(void, set_physics_process);
+	METHOD(bool, is_physics_processing);
+	METHOD(void, set_physics_process_internal);
+	METHOD(bool, is_physics_processing_internal);
+	METHOD(void, set_process);
+	METHOD(bool, is_processing);
+	METHOD(void, set_process_input);
+	METHOD(bool, is_processing_input);
+	METHOD(void, set_process_internal);
+	METHOD(bool, is_processing_internal);
+	METHOD(void, set_process_unhandled_input);
+	METHOD(bool, is_processing_unhandled_input);
+	METHOD(void, set_process_unhandled_key_input);
+	METHOD(bool, is_processing_unhandled_key_input);
+	METHOD(void, set_process_shortcut_input);
+	METHOD(bool, is_processing_shortcut_input);
+	METHOD(bool, is_node_ready);
+	METHOD(void, set_thread_safe);
+	METHOD(void, set_owner);
+	METHOD(Node, get_owner);
+	METHOD(void, set_scene_file_path);
+	METHOD(String, get_scene_file_path);
+	METHOD(void, print_tree);
+	METHOD(void, print_tree_pretty);
+	METHOD(void, print_orphan_nodes);
+	METHOD(void, propagate_call);
 };
 ```
 
@@ -736,7 +837,7 @@ struct Node2D : public Node {
 
 	/// @brief  Duplicate the node.
 	/// @return A new Node2D object with the same properties and children.
-	Node2D duplicate() const;
+	Node2D duplicate(int flags = 15) const;
 
 	/// @brief Create a new Node2D object.
 	/// @param path The path to the Node2D object.
@@ -811,10 +912,10 @@ struct Vector2 {
 	real_t y;
 
 	float length() const noexcept;
-	float length_squared() const noexcept;
+	float length_squared() const noexcept { return x * x + y * y; }
 	Vector2 limit_length(double length) const noexcept;
 
-	void normalize();
+	void normalize() { *this = normalized(); }
 	Vector2 normalized() const noexcept;
 	float distance_to(const Vector2& other) const noexcept;
 	Vector2 direction_to(const Vector2& other) const noexcept;
@@ -839,6 +940,33 @@ struct Vector2 {
 
 	real_t operator [] (int index) const;
 	real_t& operator [] (int index);
+
+	METHOD(Vector2, abs);
+	METHOD(Vector2, bezier_derivative);
+	METHOD(Vector2, bezier_interpolate);
+	METHOD(Vector2, ceil);
+	METHOD(Vector2, clamp);
+	METHOD(Vector2, clampf);
+	METHOD(real_t,  cross);
+	METHOD(Vector2, cubic_interpolate_in_time);
+	METHOD(Vector2, floor);
+	METHOD(bool,    is_equal_approx);
+	METHOD(bool,    is_finite);
+	METHOD(bool,    is_normalized);
+	METHOD(bool,    is_zero_approx);
+	METHOD(Vector2, max);
+	METHOD(Vector2, maxf);
+	METHOD(int,     max_axis_index);
+	METHOD(Vector2, min);
+	METHOD(Vector2, minf);
+	METHOD(int,     min_axis_index);
+	METHOD(Vector2, move_toward);
+	METHOD(Vector2, posmod);
+	METHOD(Vector2, posmodv);
+	METHOD(Vector2, round);
+	METHOD(Vector2, sign);
+	METHOD(Vector2, snapped);
+	METHOD(Vector2, snappedf);
 
 	template <typename... Args>
 	Variant operator () (std::string_view method, Args&&... args);
@@ -873,10 +1001,125 @@ struct Vector3 {
 	template <typename... Args>
 	Variant operator () (std::string_view method, Args&&... args);
 
+	METHOD(Vector3, abs);
+	METHOD(Vector3, bezier_derivative);
+	METHOD(Vector3, bezier_interpolate);
+	METHOD(Vector3, bounce);
+	METHOD(Vector3, ceil);
+	METHOD(Vector3, clamp);
+	METHOD(Vector3, clampf);
+	METHOD(Vector3, cubic_interpolate);
+	METHOD(Vector3, cubic_interpolate_in_time);
+	METHOD(Vector3, inverse);
+	METHOD(bool,    is_equal_approx);
+	METHOD(bool,    is_finite);
+	METHOD(bool,    is_normalized);
+	METHOD(bool,    is_zero_approx);
+	METHOD(Vector3, lerp);
+	METHOD(Vector3, limit_length);
+	METHOD(Vector3, max);
+	METHOD(int,     max_axis_index);
+	METHOD(Vector3, maxf);
+	METHOD(Vector3, min);
+	METHOD(int,     min_axis_index);
+	METHOD(Vector3, minf);
+	METHOD(Vector3, move_toward);
+	METHOD(Vector3, octahedron_decode);
+	//METHOD(Vector2, octahedron_encode);
+	//METHOD(Basis,   outer);
+	METHOD(Vector3, posmod);
+	METHOD(Vector3, posmodv);
+	METHOD(Vector3, project);
+	METHOD(Vector3, reflect);
+	METHOD(Vector3, rotated);
+	METHOD(Vector3, round);
+	METHOD(Vector3, sign);
+	METHOD(real_t,  signed_angle_to);
+	METHOD(Vector3, slerp);
+	METHOD(Vector3, slide);
+	METHOD(Vector3, snapped);
+	METHOD(Vector3, snappedf);
+
 	Vector3& operator += (const Vector3& other);
 	Vector3& operator -= (const Vector3& other);
 	Vector3& operator *= (const Vector3& other);
 	Vector3& operator /= (const Vector3& other);
+
+	bool operator == (const Vector3& other) const;
+	bool operator != (const Vector3& other) const;
+
+	constexpr Vector3() : x(0), y(0), z(0) {}
+	constexpr Vector3(real_t val) : x(val), y(val), z(val) {}
+	constexpr Vector3(real_t x, real_t y, real_t z) : x(x), y(y), z(z) {}
+
+	static Vector3 const ZERO;
+	static Vector3 const ONE;
+	static Vector3 const LEFT;
+	static Vector3 const RIGHT;
+	static Vector3 const UP;
+	static Vector3 const DOWN;
+	static Vector3 const FORWARD;
+	static Vector3 const BACK;
+};
+```
+
+## Vector4
+
+```cpp
+struct Vector4 {
+	real_t x;
+	real_t y;
+	real_t z;
+	real_t w;
+
+	template <typename... Args>
+	Variant operator () (std::string_view method, Args&&... args);
+
+	METHOD(Vector4, abs);
+	METHOD(Vector4, ceil);
+	METHOD(Vector4, clamp);
+	METHOD(Vector4, clampf);
+	METHOD(Vector4, cubic_interpolate);
+	METHOD(Vector4, cubic_interpolate_in_time);
+	METHOD(Vector4, direction_to);
+	METHOD(real_t,  distance_squared_to);
+	METHOD(real_t,  distance_to);
+	METHOD(real_t,  dot);
+	METHOD(Vector4, floor);
+	METHOD(Vector4, inverse);
+	METHOD(bool,    is_equal_approx);
+	METHOD(bool,    is_finite);
+	METHOD(bool,    is_normalized);
+	METHOD(bool,    is_zero_approx);
+	METHOD(real_t,  length);
+	METHOD(real_t,  length_squared);
+	METHOD(Vector4, lerp);
+	METHOD(Vector4, max);
+	METHOD(int,     max_axis_index);
+	METHOD(Vector4, maxf);
+	METHOD(Vector4, min);
+	METHOD(int,     min_axis_index);
+	METHOD(Vector4, minf);
+	METHOD(Vector4, normalized);
+	METHOD(Vector4, posmod);
+	METHOD(Vector4, posmodv);
+	METHOD(Vector4, round);
+	METHOD(Vector4, sign);
+	METHOD(Vector4, snapped);
+	METHOD(Vector4, snappedf);
+
+	Vector4& operator += (const Vector4& other);
+	Vector4& operator -= (const Vector4& other);
+	Vector4& operator *= (const Vector4& other);
+	Vector4& operator /= (const Vector4& other);
+
+	bool operator == (const Vector4& other) const;
+	bool operator != (const Vector4& other) const;
+
+	constexpr Vector4() : x(0), y(0), z(0), w(0) {}
+	constexpr Vector4(real_t val) : x(val), y(val), z(val), w(val) {}
+	constexpr Vector4(real_t x, real_t y, real_t z, real_t w) : x(x), y(y), z(z), w(w) {}
+	constexpr Vector4(Vector3 v, real_t w) : x(v.x), y(v.y), z(v.z), w(w) {}
 };
 ```
 
@@ -892,6 +1135,32 @@ struct Color {
 	template <typename... Args>
 	Variant operator () (std::string_view method, Args&&... args);
 
+	METHOD(Color, blend);
+	METHOD(Color, clamp);
+	METHOD(Color, darkened);
+	METHOD(Color, from_hsv);
+	METHOD(Color, from_ok_hsl);
+	METHOD(Color, from_rgbe9995);
+	METHOD(Color, from_string);
+	METHOD(float, get_luminance);
+	METHOD(Color, hex);
+	METHOD(Color, hex64);
+	METHOD(Color, html);
+	METHOD(bool, html_is_valid);
+	METHOD(Color, inverted);
+	METHOD(bool, is_equal_approx);
+	METHOD(Color, lerp);
+	METHOD(Color, lightened);
+	METHOD(Color, linear_to_srgb);
+	METHOD(Color, srgb_to_linear);
+	METHOD(int, to_abgr32);
+	METHOD(int, to_abgr64);
+	METHOD(int, to_argb32);
+	METHOD(int, to_argb64);
+	//METHOD(String, to_html);
+	METHOD(int, to_rgba32);
+	METHOD(int, to_rgba64);
+
 	Color& operator += (const Color& other);
 	Color& operator -= (const Color& other);
 	Color& operator *= (const Color& other);
@@ -901,6 +1170,163 @@ struct Color {
 	Color& operator -= (float other);
 	Color& operator *= (float other);
 	Color& operator /= (float other);
+
+	bool operator == (const Color& other) const;
+	bool operator != (const Color& other) const;
+
+	constexpr Color() : r(0), g(0), b(0), a(0) {}
+	constexpr Color(float val) : r(val), g(val), b(val), a(val) {}
+	constexpr Color(float r, float g, float b) : r(r), g(g), b(b), a(1) {}
+	constexpr Color(float r, float g, float b, float a) : r(r), g(g), b(b), a(a) {}
+	Color(std::string_view code);
+	Color(std::string_view code, float a);
+
+	static const Color ALICE_BLUE;
+	static const Color ANTIQUE_WHITE;
+	static const Color AQUA;
+	static const Color AQUAMARINE;
+	static const Color AZURE;
+	static const Color BEIGE;
+	static const Color BISQUE;
+	static const Color BLACK;
+	static const Color BLANCHED_ALMOND;
+	static const Color BLUE;
+	static const Color BLUE_VIOLET;
+	static const Color BROWN;
+	static const Color BURLYWOOD;
+	static const Color CADET_BLUE;
+	static const Color CHARTREUSE;
+	static const Color CHOCOLATE;
+	static const Color CORAL;
+	static const Color CORNFLOWER_BLUE;
+	static const Color CORNSILK;
+	static const Color CRIMSON;
+	static const Color CYAN;
+	static const Color DARK_BLUE;
+	static const Color DARK_CYAN;
+	static const Color DARK_GOLDENROD;
+	static const Color DARK_GRAY;
+	static const Color DARK_GREEN;
+	static const Color DARK_KHAKI;
+	static const Color DARK_MAGENTA;
+	static const Color DARK_OLIVE_GREEN;
+	static const Color DARK_ORANGE;
+	static const Color DARK_ORCHID;
+	static const Color DARK_RED;
+	static const Color DARK_SALMON;
+	static const Color DARK_SEA_GREEN;
+	static const Color DARK_SLATE_BLUE;
+	static const Color DARK_SLATE_GRAY;
+	static const Color DARK_TURQUOISE;
+	static const Color DARK_VIOLET;
+	static const Color DEEP_PINK;
+	static const Color DEEP_SKY_BLUE;
+	static const Color DIM_GRAY;
+	static const Color DODGER_BLUE;
+	static const Color FIREBRICK;
+	static const Color FLORAL_WHITE;
+	static const Color FOREST_GREEN;
+	static const Color FUCHSIA;
+	static const Color GAINSBORO;
+	static const Color GHOST_WHITE;
+	static const Color GOLD;
+	static const Color GOLDENROD;
+	static const Color GRAY;
+	static const Color GREEN;
+	static const Color GREEN_YELLOW;
+	static const Color HONEYDEW;
+	static const Color HOT_PINK;
+	static const Color INDIAN_RED;
+	static const Color INDIGO;
+	static const Color IVORY;
+	static const Color KHAKI;
+	static const Color LAVENDER;
+	static const Color LAVENDER_BLUSH;
+	static const Color LAWN_GREEN;
+	static const Color LEMON_CHIFFON;
+	static const Color LIGHT_BLUE;
+	static const Color LIGHT_CORAL;
+	static const Color LIGHT_CYAN;
+	static const Color LIGHT_GOLDENROD;
+	static const Color LIGHT_GRAY;
+	static const Color LIGHT_GREEN;
+	static const Color LIGHT_PINK;
+	static const Color LIGHT_SALMON;
+	static const Color LIGHT_SEA_GREEN;
+	static const Color LIGHT_SKY_BLUE;
+	static const Color LIGHT_SLATE_GRAY;
+	static const Color LIGHT_STEEL_BLUE;
+	static const Color LIGHT_YELLOW;
+	static const Color LIME;
+	static const Color LIME_GREEN;
+	static const Color LINEN;
+	static const Color MAGENTA;
+	static const Color MAROON;
+	static const Color MEDIUM_AQUAMARINE;
+	static const Color MEDIUM_BLUE;
+	static const Color MEDIUM_ORCHID;
+	static const Color MEDIUM_PURPLE;
+	static const Color MEDIUM_SEA_GREEN;
+	static const Color MEDIUM_SLATE_BLUE;
+	static const Color MEDIUM_SPRING_GREEN;
+	static const Color MEDIUM_TURQUOISE;
+	static const Color MEDIUM_VIOLET_RED;
+	static const Color MIDNIGHT_BLUE;
+	static const Color MINT_CREAM;
+	static const Color MISTY_ROSE;
+	static const Color MOCCASIN;
+	static const Color NAVAJO_WHITE;
+	static const Color NAVY_BLUE;
+	static const Color OLD_LACE;
+	static const Color OLIVE;
+	static const Color OLIVE_DRAB;
+	static const Color ORANGE;
+	static const Color ORANGE_RED;
+	static const Color ORCHID;
+	static const Color PALE_GOLDENROD;
+	static const Color PALE_GREEN;
+	static const Color PALE_TURQUOISE;
+	static const Color PALE_VIOLET_RED;
+	static const Color PAPAYA_WHIP;
+	static const Color PEACH_PUFF;
+	static const Color PERU;
+	static const Color PINK;
+	static const Color PLUM;
+	static const Color POWDER_BLUE;
+	static const Color PURPLE;
+	static const Color REBECCA_PURPLE;
+	static const Color RED;
+	static const Color ROSY_BROWN;
+	static const Color ROYAL_BLUE;
+	static const Color SADDLE_BROWN;
+	static const Color SALMON;
+	static const Color SANDY_BROWN;
+	static const Color SEA_GREEN;
+	static const Color SEASHELL;
+	static const Color SIENNA;
+	static const Color SILVER;
+	static const Color SKY_BLUE;
+	static const Color SLATE_BLUE;
+	static const Color SLATE_GRAY;
+	static const Color SNOW;
+	static const Color SPRING_GREEN;
+	static const Color STEEL_BLUE;
+	static const Color TAN;
+	static const Color TEAL;
+	static const Color THISTLE;
+	static const Color TOMATO;
+	static const Color TRANSPARENT;
+	static const Color TURQUOISE;
+	static const Color VIOLET;
+	static const Color WEB_GRAY;
+	static const Color WEB_GREEN;
+	static const Color WEB_MAROON;
+	static const Color WEB_PURPLE;
+	static const Color WHEAT;
+	static const Color WHITE;
+	static const Color WHITE_SMOKE;
+	static const Color YELLOW;
+	static const Color YELLOW_GREEN;
 };
 ```
 
@@ -946,9 +1372,23 @@ struct Basis {
 	// Basis size
 	static constexpr int size() { return 3; }
 
-	// Call operator
 	template <typename... Args>
 	Variant operator () (std::string_view method, Args&&... args);
+
+	METHOD(Basis,  from_euler);
+	METHOD(Basis,  from_scale);
+	METHOD(Vector3, get_euler);
+	VMETHOD(get_rotation_quaternion);
+	METHOD(Vector3, get_scale);
+	METHOD(bool,   is_conformal);
+	METHOD(bool,   is_equal_approx);
+	METHOD(bool,   is_finite);
+	METHOD(Basis,  looking_at);
+	METHOD(Basis,  orthonormalized);
+	METHOD(Basis,  scaled);
+	METHOD(real_t, tdotx);
+	METHOD(real_t, tdoty);
+	METHOD(real_t, tdotz);
 };
 ```
 
@@ -991,9 +1431,24 @@ struct Transform2D {
 	void set_column(int idx, const Vector2 &axis);
 	Vector2 operator[](int idx) const { return get_column(idx); }
 
-	// Call operator
 	template <typename... Args>
 	Variant operator () (std::string_view method, Args&&... args);
+
+	METHOD(Transform2D, affine_inverse);
+	METHOD(Vector2, basis_xform);
+	METHOD(Vector2, basis_xform_inv);
+	METHOD(real_t,  determinant);
+	METHOD(Vector2, get_origin);
+	METHOD(real_t,  get_rotation);
+	METHOD(Vector2, get_scale);
+	METHOD(real_t,  get_skew);
+	METHOD(bool,    is_conformal);
+	METHOD(bool,    is_equal_approx);
+	METHOD(bool,    is_finite);
+	METHOD(Transform2D, looking_at);
+	METHOD(Transform2D, rotated_local);
+	METHOD(Transform2D, scaled_local);
+	METHOD(Transform2D, translated_local);
 };
 ```
 
@@ -1039,9 +1494,12 @@ struct Transform3D {
 	Basis get_basis() const;
 	void set_basis(const Basis &basis);
 
-	// Call operator
 	template <typename... Args>
 	Variant operator () (std::string_view method, Args&&... args);
+
+	METHOD(Transform3D, affine_inverse);
+	METHOD(bool, is_equal_approx);
+	METHOD(bool, is_finite);
 };
 ```
 
@@ -1119,9 +1577,15 @@ struct Quaternion {
 	static constexpr int size() { return 4; }
 	double operator[](int idx) const;
 
-	// Call operator
 	template <typename... Args>
 	Variant operator () (std::string_view method, Args&&... args);
+
+	METHOD(Quaternion, from_euler);
+	METHOD(Vector3,    get_euler);
+	METHOD(bool,       is_equal_approx);
+	METHOD(bool,       is_finite);
+	METHOD(Quaternion, spherical_cubic_interpolate);
+	METHOD(Quaternion, spherical_cubic_interpolate_in_time);
 };
 ```
 
@@ -1182,7 +1646,7 @@ struct PackedArray {
 /// @param path The path to the resource.
 /// @return The loaded resource.
 template <typename T = Resource>
-inline T load(std::string_view path);
+T load(std::string_view path);
 ```
 
 ## ClassDB
@@ -1204,7 +1668,7 @@ struct ClassDB {
 ## Timer
 
 ```cpp
-struct Timer {
+struct CallbackTimer {
 	using period_t = double;
 	using TimerCallback = Function<Variant(Variant)>;
 	using TimerNativeCallback = Function<Variant(Object)>;
