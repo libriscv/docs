@@ -10,11 +10,11 @@ _libriscv_ is no slouch when it comes to performance, even in interpreter mode.
 
 _libriscv_ regularly out-performs other interpreters.
 
-![alt text](/img/performance/CoreMark_1.0_Interpreted_wasm3_vs_interpreted_libriscv.png)
+![CoreMark 1.0](/img/performance/coremark.png)
 
-![alt text](/img/performance/stream1.png)
+![STREAM benchmark](/img/performance/stream1.png)
 
-![alt text](/img/performance/stream2.png)
+![STREAM benchmark](/img/performance/stream2.png)
 
 I benchmarked interpreted [libriscv](https://github.com/libriscv/libriscv) vs [wasm3](https://github.com/wasm3/wasm3) on two of my machines.
 
