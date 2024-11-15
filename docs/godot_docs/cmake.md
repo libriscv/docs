@@ -74,7 +74,7 @@ AR="riscv64-unknown-elf-ar" CXX="riscv64-unknown-elf-g++" CC="riscv64-unknown-el
 cmake --build .
 ```
 
-You can find a working [MSYS2 build example here](https://github.com/libriscv/godot-sandbox-demo/tree/cmake/json_diff_sample/json_diff).
+You can find a working [MSYS2 build example here](https://github.com/libriscv/godot-sandbox-demo/tree/master/json_diff_sample/json_diff).
 
 
 ### Arch Linux
