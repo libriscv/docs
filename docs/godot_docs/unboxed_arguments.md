@@ -104,10 +104,10 @@ See the [API sugaring](sugar.md) documentation to see how to add your own wrappe
 
 ```py
 func gdscript():
-	sandbox.vmcall("handle_player", get_node("Player"))
+	sandbox.vmcall("handle_player_physics", get_node("Player"), 1.0)
 ```
 
-Which we can choose to receive as a Node2D (or Node or Object) in the Sandbox program:
+Which we can choose to receive as a CharacterBody2D, Node2D, Node or even Object in the Sandbox program:
 
 ```cpp
 extern "C" Variant handle_player_physics(CharacterBody2D player, double delta) {
@@ -131,11 +131,11 @@ extern "C" Variant handle_player_physics(CharacterBody2D player, double delta) {
 }
 ```
 
-Since the `Player` node is a [CharacterBody2D](https://docs.godotengine.org/en/stable/tutorials/physics/using_character_body_2d.html), we can use functions from it.
+Since the `Player` node is a [CharacterBody2D](https://docs.godotengine.org/en/stable/tutorials/physics/using_character_body_2d.html), we should prefer using that, since it gives us access to the most functionality.
 
-### Inputs
+### Godot can call Sandbox functions
 
-We can handle inputs with `_input` directly, which passes an Object of some kind of Input-derivative as the first argument:
+We can for example handle inputs with `_input` directly, which passes an Object of some kind of Input-derivative as the first argument:
 
 ```cpp
 extern "C" Variant _input(InputEvent event) {
@@ -147,6 +147,8 @@ extern "C" Variant _input(InputEvent event) {
 	return Nil;
 }
 ```
+
+If we attach a Sandbox as a script to a Node that can receive inputs, Godot will directly call this function for us with an InputEvent as argument.
 
 The above example modulates the current node based on the `jump` action. We know the functions provided by InputEvent from reading the [Godot documentation on InputEvent](https://docs.godotengine.org/en/stable/classes/class_inputevent.html). The current Node is our Node2D coin, and it can be modulated. We could cast it to a Node2D and do a `Node2D(get_node()).set_modulate(0xFF6060FF);`, but it was just easier to set the property using `.set()`.
 
