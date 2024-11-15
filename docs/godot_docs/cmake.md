@@ -8,26 +8,7 @@ It's possible to use complex projects with dependencies while scripting with C++
 
 This method requires a local RISC-V compiler installed on your system. If you don't have that, you won't be able to use CMake locally.
 
-## Installation
-
-On Linux and Windows WSL2 we can install a C++ RISC-V compiler, ccache and mold like so:
-
-```sh
-sudo apt install g++-14-riscv64-linux-gnu ccache mold
-```
-
-On some system you may only have access to version 12 or 13. Modify the `build.sh` below accordingly.
-
-On macOS there are RISC-V toolchains in brew. Let us know which ones worked for you.
-
-
-:::note
-
-Both ccache and mold are optional.
-
-:::
-
-## Usage
+## Setup & Installation
 
 There is a [CMake project in the Godot Sandbox](https://github.com/libriscv/godot-sandbox/tree/main/program/cpp/cmake) repository that can be used to create ELFs with the API pre-included.
 
@@ -53,8 +34,8 @@ In order to build this project, we will use a simple build script:
 #!/bin/bash
 
 # Change this to reflect your RISC-V toolchain
-# ccache is optional, but recommended
-export CXX="ccache riscv64-linux-gnu-g++-14"
+export CC="riscv64-linux-gnu-gcc-14"
+export CXX="riscv64-linux-gnu-g++-14"
 
 # Create build directory
 mkdir -p .build
@@ -68,6 +49,42 @@ Remember to make the script executable:
 
 ```sh
 chmod +x build.sh
+```
+
+### Ubuntu and Windows WSL2
+
+On Linux and Windows WSL2 we can install a C++ RISC-V compiler, ccache and mold like so:
+
+```sh
+sudo apt install g++-14-riscv64-linux-gnu cmake ninja-build git
+```
+
+On some system you may only have access to version 12 or 13. Modify the `build.sh` below accordingly.
+
+On macOS there are RISC-V toolchains in brew. Let us know which ones worked for you.
+
+
+### Windows MSYS2
+
+```sh
+pacman -Sy mingw-w64-x86_64-riscv64-unknown-elf-gcc ninja cmake git
+mkdir -p build
+cd build
+AR="riscv64-unknown-elf-ar" CXX="riscv64-unknown-elf-g++" CC="riscv64-unknown-elf-gcc" cmake .. -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=../cmake/toolchain.cmake
+cmake --build .
+```
+
+You can find a working [MSYS2 build example here](https://github.com/libriscv/godot-sandbox-demo/tree/cmake/json_diff_sample/json_diff).
+
+
+### Arch Linux
+
+```sh
+pacman -S riscv64-linux-gnu-gcc cmake git ninja
+mkdir -p .build
+cd .build
+CXX=riscv64-linux-gnu-g++ CC=riscv64-linux-gnu-gcc cmake .. -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=../cmake/toolchain.cmake
+ninja
 ```
 
 ## CMake from Godot editor
@@ -98,6 +115,11 @@ Auto-completion should automatically work if you symlink the `cmake` folder from
 https://github.com/libriscv/godot-sandbox/tree/main/program/cpp/api
 
 Adding the API path to your workspace should give you access to the C++ API.
+
+The API has a run-time generated portion that is auto-created when saving in the editor. It can also be created manually from GDScript:
+
+
+
 
 ## Automatic building (Linux)
 
