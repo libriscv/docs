@@ -118,7 +118,19 @@ Adding the API path to your workspace should give you access to the C++ API.
 
 The API has a run-time generated portion that is auto-created when saving in the editor. It can also be created manually from GDScript:
 
+```py
+@tool
+extends EditorScript
 
+func _run():
+	var sandbox_scene = Sandbox.new()
+	var api: String = sandbox_scene.generate_api("cpp")
+	var file: FileAccess = FileAccess.open("res://path/to/cmake/generated_api.hpp", FileAccess.WRITE)
+	file.store_string(api)
+	file.close()
+```
+
+Once the `generated_api.hpp` is generated, add it to git ignore. VSCode should pick it up automatically and start completing your code, including for classes that aren't part of Godot, such as Sandbox.
 
 
 ## Automatic building (Linux)
