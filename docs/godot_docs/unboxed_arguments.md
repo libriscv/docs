@@ -52,6 +52,7 @@ When making a function call into a Sandbox program, `sandbox.vmcall("my_function
 | PACKED_VECTOR2_ARRAY  | PackedVector2Array(...)  | PackedArray\<Vector2\>  |
 | PACKED_VECTOR3_ARRAY  | PackedVector3Array(...)  | PackedArray\<Vector3\>  |
 | PACKED_COLOR_ARRAY    | PackedColorArray(...)    | PackedArray\<Color\>    |
+| PACKED_VECTOR4_ARRAY  | PackedVector4Array(...)  | PackedArray\<Vector4\>  |
 
 An astute reader will notice that whenever a wrapper class is not yet implemented, the Variant type is passed unchanged, as a Variant. Variants can use calls, and so even though many are already implemented as wrapper classes, here is an example of how to use *any class* through a Variant:
 
