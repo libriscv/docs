@@ -84,6 +84,13 @@ It's a static function in Sandbox that opens a shared library. After this, your 
 	print("The program is binary translated: ", my_program.is_binary_translated())
 ```
 
+:::note
+
+Shared libraries are only allowed to be loaded at the beginning, before any Sandboxes are created. This is a security feature.
+
+:::
+
+
 ## Differences from interpreted
 
 By default there is no difference from interpreted.
