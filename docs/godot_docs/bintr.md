@@ -11,11 +11,11 @@ sidebar_position: 7
 
 ## High performance
 
-Binary translations are high-performance versions of the programs running inside Sandbox instances.
+Binary translations are high-performance versions of the programs running inside Sandbox instances. It is a form of AOT-compilation.
 
-They are compiled from freestanding C code. The C code is produced by the Sandbox instance at run-time, so that the run-time environment and settings are reproducible.
+Binary translations are freestanding C code. The C code is produced by the Sandbox instance at run-time, so that the run-time environment and settings are reproducible.
 
-In order to make use of binary translations the freestanding C code must be embedded into a binary or DLL that is shipped as part of your game. We recommend [forking the godot-sandbox project](https://github.com/libriscv/godot-sandbox) repository itself, as it _automatically produces artifacts for all platforms_.
+In order to make use of binary translations the freestanding C code must be embedded into a binary or DLL that is shipped as part of your game. We recommend [forking the godot-sandbox project](https://github.com/libriscv/godot-sandbox) repository itself, as it _automatically produces artifacts for all platforms_. That said, anyone can compile C99 to a shared library/DLL and loading it before setting the Sandbox program. On platforms where one can open a shared library at run-time, it should be fairly straight-forward to do this without Godot Sandbox needing to hold anyones hand.
 
 ## Complete example
 
