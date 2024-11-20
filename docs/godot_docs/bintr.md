@@ -58,6 +58,8 @@ JIT-compilers are very popular because they give instant performance increases w
 
 A minority of platforms support loading shared libraries at run-time. Windows, Linux and macOS. If you want to quickly test binary translations or even ship them to players on those platforms at login time in a server-client architecture, you can do so.
 
+### Creating the translation source file from a program
+
 First create the binary translation source file:
 ```py
 var bintr = my_program.emit_binary_translation(true)
@@ -66,19 +68,29 @@ f.store_string(bintr)
 f.close()
 ```
 
-Then compile it like any other shared library:
+### Compiling on Linux
+
 ```sh
-gcc -shared -O2 -fvisibility=hidden my_program.c -Laddons/godot_sandbox/bin -lgodot-riscv.linux.release.x86_64 -o my_program.so
+gcc -shared -O2 -DCALLBACK_INIT my_program.c -o my_program.so
 ```
 
-We have to link against the godot sandbox shared library in order to be able to see the registration function. There is no practical difference between linking against debug or release. The shared library will self-register when it loads.
+### Compiling on MinGW/MSYS2
+
+```sh
+x86_64-w64-mingw32-gcc-win32 -shared -O2 -DCALLBACK_INIT my_program.c -o my_program.dll
+```
+
+The define `-DCALLBACK_INIT` allows Godot Sandbox to look for and use a callback init function which works even if the Godot Sandbox extension is stripped.
+
+
+### Loading the binary translation DLL
 
 Now we can load it from GDScript like so:
 ```py
-func _enter_tree() -> void:
+func _init() -> void:
 	Sandbox.load_binary_translation("/path/to/my_program.so")
 ```
-It's a static function in Sandbox that opens a shared library. After this, your program will now be binary translated. You can verify it:
+After this, your program will now be binary translated. You can verify it:
 
 ```py
 	print("The program is binary translated: ", my_program.is_binary_translated())
@@ -103,6 +115,6 @@ A process that is stuck looping forever does not really pose a danger to users. 
 
 ## Even more performance
 
-The highest performance setting is when automatic N-bit address space mode is enabled. The Sandbox should have a max memory that is a power-of-two, such as 8MB, 16MB, 32MB etc. It's the second argument to `emit_binary_translation(ignore_timeouts, enable_automatic_nbit_as)`. Enabling it will completely disable page protections, making the entire address space unsafe (for the Sandbox program only). This should not be enabled unless the program is somewhat trusted, and only if the program appears to work correctly with this mode. Enabling this setting can give a large boost to performance, especially on weaker CPUs: `mysandbox.emit_binary_translation(true, true)`.
+The highest performance setting is when automatic N-bit address space mode is enabled. The Sandbox should have a max memory that is a power-of-two, such as 8MB, 16MB, 32MB etc. It's the second argument to `emit_binary_translation(ignore_timeouts, enable_automatic_nbit_as)`. Enabling it will completely disable page protections, making the entire address space writable (inside the Sandbox). This should not be enabled unless the program is somewhat trusted, and only if the program appears to work correctly with this mode. Enabling this setting can give a large boost to performance, especially on weaker CPUs: `mysandbox.emit_binary_translation(true, true)`.
 
 Is is ultimately an experimental option that doesn't work reliably for all programs. However, it may be worth trying it just to see if the program is compatible.
