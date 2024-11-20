@@ -48,11 +48,41 @@ With the new `godot-sandbox.zip` you can now add that to your project again, ove
 
 That's it.
 
-## Reliable performance
+### Reliable performance
 
 This method of accelerating the performance of sandboxed programs is particularly attractive if you are targeting several (if not all) platforms that Godot can publish to. Every single platform will benefit from this feature in the same way, leaving no platform behind as a laggy mess.
 
 JIT-compilers are very popular because they give instant performance increases without much user interaction, but can only leave you with a laggy mess when you're publishing for platforms that don't allow JIT. Most mobile- and console-platforms don't allow JIT at all.
+
+## Loading binary translations at run-time
+
+A minority of platforms support loading shared libraries at run-time. Windows, Linux and macOS. If you want to quickly test binary translations or even ship them to players on those platforms at login time in a server-client architecture, you can do so.
+
+First create the binary translation source file:
+```py
+var bintr = my_program.emit_binary_translation(true)
+var f = FileAccess.open("res://my_program.c", FileAccess.WRITE)
+f.store_string(bintr)
+f.close()
+```
+
+Then compile it like any other shared library:
+```sh
+gcc -shared -O2 -fvisibility=hidden my_program.c -Laddons/godot_sandbox/bin -lgodot-riscv.linux.release.x86_64 -o my_program.so
+```
+
+We have to link against the godot sandbox shared library in order to be able to see the registration function. There is no practical difference between linking against debug or release. The shared library will self-register when it loads.
+
+Now we can load it from GDScript like so:
+```py
+func _enter_tree() -> void:
+	Sandbox.load_binary_translation("/path/to/my_program.so")
+```
+It's a static function in Sandbox that opens a shared library. After this, your program will now be binary translated. You can verify it:
+
+```py
+	print("The program is binary translated: ", my_program.is_binary_translated())
+```
 
 ## Differences from interpreted
 
