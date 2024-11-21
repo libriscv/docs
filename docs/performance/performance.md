@@ -34,7 +34,7 @@ The Godot Sandbox is an extension to the [Godot Engine](https://godotengine.org/
 
 ![alt text](/img/performance/100k-floats.png)
 
-We can see that the Godot Sandbox using libriscv is 7.5x faster than GDScript at processing floats in this benchmark. A C jit-compiler called Mir was 4x faster than GDScript after being embedded into the Sandbox. TinyCC, a fast C compiler, can also be embedded into the Sandbox, and was 2.7x faster than GDScript. However, when a Godot engine helper function is used (`fill(1.0)` in this instance), GDScript can have native performance.
+We can see that the Godot Sandbox using libriscv is 7.5x faster than GDScript at processing floats in this benchmark. 50x faster when using binary translation. A C jit-compiler called Mir was 4x faster than GDScript after being embedded into the Sandbox. TinyCC, a fast C compiler, can also be embedded into the Sandbox, and was 2.7x faster than GDScript. However, when a Godot engine helper function is used (`fill(1.0)` in this instance), GDScript can have native performance.
 
 I took that as a challenge, and wrote a `memset32` function that initializes the array with and then copies increasingly larger parts until done.
 ```cpp
