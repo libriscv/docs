@@ -321,6 +321,23 @@ class Sandbox : public Node {
 	/// @return Array of public callable functions.
 	PackedStringArray get_functions() const;
 
+	// -= Profiling & Hotspots =-
+
+	/// @brief Generate the top N hotspots from profiling recorded so far.
+	/// @param total The maximum number of hotspots to generate.
+	/// @param callable A callback that must resolve an address of an unknown program, given elf_hint and an address as arguments.
+	/// @return The top hotspots recorded globally so far, sorted by the number of hits.
+	static Array get_hotspots(unsigned total = 10, const Callable &callable = {});
+
+	/// @brief Clear all recorded hotspots.
+	static void clear_hotspots();
+
+	/// @brief Enable or disable profiling of the guest program.
+	/// @param enable True to enable profiling, false to disable it.
+	/// @param interval The interval in instructions between each profiling update. This interval
+	/// is accumulated so that even if a function returns early, the interval is still counted.
+	void enable_profiling(bool enable, uint32_t interval = 500);
+
 	// -= Self-testing, inspection and internal functions =-
 
 	/// @brief Get the current Callable set for redirecting stdout.
@@ -361,6 +378,12 @@ class Sandbox : public Node {
 	/// @note This is only available if the RISCV_BINARY_TRANSLATION flag is set.
 	/// @warning Do *NOT* enable automatic_nbit_as unless you are sure the program is compatible with it.
 	String emit_binary_translation(bool ignore_instruction_limit = true, bool automatic_nbit_as = false) const;
+
+	/// @brief Open a shared library, which should self-register its functions.
+	/// @param shared_library_path The path to the shared library.
+	/// @note This is not a general-purpose function for loading shared libraries. It is only a
+	/// convenience helper function for loading shared libraries that self-register their functions.
+	static bool load_binary_translation(const String &shared_library_path);
 
 	/// @brief  Check if the program has found and loaded binary translation.
 	/// @return True if binary translation is loaded, false otherwise.
