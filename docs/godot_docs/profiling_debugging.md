@@ -61,3 +61,31 @@ On the other hand, if you are performing heavy calculations in the Sandboxes the
 
 It's possible to live-debug Sandbox instances, however it hasn't been implemented yet. Come back later.
 
+Still, if you're having trouble with a program and unsure where it's crashing, try enabling Precise Simulation. Enabling it will make the emulator execute one instruction at a time, revealing exactly where the crash is. Also use `print()` and `printf()` liberally!
+
+
+### Exception guide
+
+Exceptions can be mysterious, so here are some explanations:
+
+1. `Too many arena chunks`: The program made too many heap allocations without freeing them. You can increase this maximum by setting a property on the Sandbox, however most likely there is a memory leak. Something is not getting freed.
+
+2. `Execution space protection fault`: The emulator jumped to a part of memory that doesn't contain executable code. Usually 0x0, which is NULL. The most common cause is trying to call a function in the Sandbox that doesn't exist. The `address_of()` function returns 0x0 when a function is not found. If it's not that, it could also be a function pointer that is NULL and is getting called.
+
+3. `Protection fault`: The emulator tried to read or write from memory that is not readable/writable. If the address is 0x0 (or very close, eg. 0x38) then it is for sure an attempt to read or write to NULL.
+
+4. `... is not known/scoped`: An attempt to use a Variant that wasn't created by us. For sure an invalid Variant, or an outdated Variant from a previous function call.
+
+5. `Failed to cast Variant to <type>`: Trying to cast a Variant to a specific type, such as `int` or `String` failed, as that was not the Variants type. This often happens with mismatched function arguments or when a function returns NIL instead of the expected type when it fails.
+
+Example:
+
+```cpp
+	Variant v = 1;
+	v.as_byte_array();
+```
+Gives us the error:
+```
+Failed to cast Variant to PackedByteArray for Variant of type 2 (Int) in function as_byte_array
+```
+It's saying that we tried to cast an Int variant to a PackedByteArray.
