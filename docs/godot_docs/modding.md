@@ -40,6 +40,7 @@ Using these methods we can create arbitrary Sandboxes from downloaded programs w
 ## Crafting a public API
 
 It's possible to create a custom public API for a sandbox program. The public API is meant to show how to use a program, providing a list of functions, their arguments and return value, and a description of how or why to use them. Here's a C++ example:
+
 ```cpp
 SANDBOX_API({
 	.name = "pba_operation",
@@ -51,17 +52,105 @@ SANDBOX_API({
 	.name = "function3",
 	.address = (void*)&function3,
 	.description = "Prints the arguments",
-	.return_type = "void",
+	.return_type = "int",
 	.arguments = "long x, long y, String text",
 });
 ```
 
-This API will expose exactly two functions to the Godot engine, and if you open the ELF resource (the program) in the editor, you will see something like this:
+This API will expose exactly two functions to the Godot engine, and if you open the ELF resource (double-click the program) in the editor, you will see something like this:
+
+```json
+[
+  {
+	"address": 68976,
+	"args": [
+	  {
+		"class_name": "Variant",
+		"name": "farr",
+		"type": 32,
+		"usage": 131072
+	  }
+	],
+	"description": "Sets each float in a PackedArray to 1.0f",
+	"flags": 1,
+	"name": "pba_operation",
+	"return": {
+	  "type": 0
+	}
+  },
+  {
+	"address": 70936,
+	"args": [
+	  {
+		"class_name": "Variant",
+		"name": "x",
+		"type": 2,
+		"usage": 131072
+	  },
+	  {
+		"class_name": "Variant",
+		"name": "y",
+		"type": 2,
+		"usage": 131072
+	  },
+	  {
+		"class_name": "Variant",
+		"name": "text",
+		"type": 4,
+		"usage": 131072
+	  }
+	],
+	"description": "Prints the arguments",
+	"flags": 1,
+	"name": "function3",
+	"return": {
+	  "type": 2
+	}
+  }
+]
+```
+
+It is method information about the public API. C++ types will be translated to Godot variant types. Eg. `long x` will be translated to `x: int` (type 2) in GDScript.
+
+
+Another example is a RISC-V assembler program:
 
 ![Image of the public API from above](/img/modding/public_api.png)
 
-In the future this will be used to create better auto-complete from GDScript. For example `long x` will be translated to `x: int`. For now, we will use the ELF view from the screenshot to understand the public API exposed by a program.
+It exposes a single function `assemble`, which is done like this in the C++ code:
 
+```cpp
+SANDBOX_API({
+	.name = "assemble",
+	.address = (void*)&assemble,
+	.description = "Assemble RISC-V assembly code and return a callable function",
+	.return_type = "Callable",
+	.arguments = "String assembly_code",
+});
+```
+
+When we go into the Godot editor and try to use the auto-generated Sandbox class from this program, called `Sandbox_TestAsmjit` in the test project, we can see that it auto-completes `assemble`:
+
+
+![Image of auto-completion in editor](/img/modding/auto_complete.png)
+
+
+Examples of C++ API types and their corresponding Godot variant types:
+
+|    C++ type    |  Variant   |
+|:---------------|:----------:|
+| void           | NIL        |
+| bool           | BOOL       |
+| int, long      | INT        |
+| float          | FLOAT      |
+| double         | FLOAT      |
+| String         | STRING     |
+| Callable       | CALLABLE   |
+| Signal         | SIGNAL     |
+| Vector4        | VECTOR4    |
+| PackedVector4Array | PACKED_VECTOR4_ARRAY    |
+
+Otherwise, every type in the API will convert to its Variant type cleanly. There is no support for custom classes yet, so use Object, Node or Variant instead.
 
 ## A simple modding API
 
