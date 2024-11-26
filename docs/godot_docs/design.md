@@ -1,5 +1,5 @@
 ---
-sidebar_position: 4
+sidebar_position: 1
 ---
 
 # Design
@@ -7,7 +7,6 @@ sidebar_position: 4
 Godot Sandbox is serious software. It requires knowledge about build systems, deep knowledge about C++ and does not have a design goal of being zero upfront effort. It's main task is to provide high-performance safely-sandboxed functionality to games intended for an audience. That said, it does have a goal of being low effort once it has been set up properly.
 
 Modern games with modding APIs constantly struggle with malware and security holes, especially C# and Java games that very often have unrestricted access to your computer, and would do better if they were sandboxed from the start. The reason is that they are easy to interface with and convenience is often the only consideration in town.
-
 
 ## Restrictive
 
