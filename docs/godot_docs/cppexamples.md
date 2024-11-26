@@ -394,6 +394,20 @@ SANDBOXED_PROPERTIES(3, {
 
 In this program, each instance will have their own separate properties.
 
+### Adding properties dynamically
+
+It's possible to add properties during `main()` using `add_property`:
+
+```cpp
+add_property("player_speed", Variant::FLOAT,
+	[]() -> Variant { return player_speed; },
+	[](Variant value) -> Variant { return player_speed = value; },
+	player_speed);
+```
+
+This feature is intended to make it easier to support languages with limited capability of instantiating an array of structs on the global scope.
+
+
 ## Timers
 
 ```cpp
