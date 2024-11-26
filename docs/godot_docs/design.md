@@ -4,6 +4,11 @@ sidebar_position: 4
 
 # Design
 
+Godot Sandbox is serious software. It requires knowledge about build systems, deep knowledge about C++ and does not have a design goal of being zero upfront effort. It's main task is to provide high-performance safely-sandboxed functionality to games intended for an audience. That said, it does have a goal of being low effort once it has been set up properly.
+
+Modern games with modding APIs constantly struggle with malware and security holes, especially C# and Java games that very often have unrestricted access to your computer, and would do better if they were sandboxed from the start. The reason is that they are easy to interface with and convenience is often the only consideration in town.
+
+
 ## Restrictive
 
 Godot Sandbox is a tools-not-policies approach to sandboxing. It gives you everything you need to successfully sandbox anything, with potentially access to everything that GDScript also has access to.
@@ -38,17 +43,19 @@ The Sandbox has implemented support for the C++ and Rust system languages curren
 
 Anyone can implement support for other languages, as long as those languages transpile to C or C++, or can emit RISC-V directly.
 
+All platforms present and future will work with Godot Sandbox. If Godot is ported to Switch 2, or Loongarch, then Godot Sandbox will automatically follow, high-performance binary translations included.
+
 ## Full API access
 
 The Sandbox has access to the entire public Godot API using a run-time generated API. The run-time generated API is written into the project root, or wherever CMakeLists.txt is if you are using CMake. Then, when building a program, the API will be discovered by the build system, and your external editor if you are using that, and provide the entire API.
 
-This run-time generated API also includes loaded extensions your project is using.
+This run-time generated API also includes loaded extensions your project is using. That means if you are using a GDExtension that creates new classes, those are also available in Godot Sandbox, with auto-completion.
 
 ## Temporary Arguments
 
 The Sandbox is designed to be safe and is therefore sometimes forgetful.
 
-When you pass arguments to the Sandbox, complex arguments will only be remembered until the function call ends. After the function completes, these temporary Variants that need storage are forgotten. This design avoids all kinds of scary lifetime issues.
+When you pass arguments to the Sandbox, arguments by reference will only be remembered until the function call ends. After the function completes, these temporary Variants are forgotten. This design avoids all kinds of scary lifetime issues.
 
 Data can be remembered by passing arrays or dictionaries to and from the VMs. The VMs can also store their own data in their native language formats. What the VM forgets is only related to complex Variant arguments. For example, you can remember a Variant `Vector2` but not a Variant `String`. You can convert the `String` to a `std::string` and store that instead.
 
@@ -63,7 +70,7 @@ extern "C" Variant test_static_storage(Variant key, Variant val) {
 	return d;
 }
 extern "C" Variant test_failing_static_storage(Variant key, Variant val) {
-	// This won't work twice: it's being created after initialization
+	// This won't work twice: it's being created only once
 	static Dictionary fd = Dictionary::Create();
 	fd[key] = val;
 	return fd;
@@ -82,4 +89,4 @@ Parallelism is possible, but make sure you are only calling into an instance fro
 
 If you pass an object to the VM, the VM will allow the sandboxed program to use it. Ordinarily, an object or node has to be retrieved using regular operations like `get_node()`. Many objects are also forbidden or out of reach. Passing an object as an argument to a function, will allow it to be used.
 
-Example: Passing a dictionary containing the OS singleton *DOES NOT* auto-permit access to OS. Every item in the dictionary has to go through the restrictions filter. Only the dictionary itself is auto-permitted, as it was a *direct argument* to the function.
+Example: Passing a dictionary containing the OS singleton *DOES NOT* automatically give access to OS. Every item in the dictionary has to go through the restrictions filter. Only the dictionary itself is auto-permitted, as it was a *direct argument* to the function.
