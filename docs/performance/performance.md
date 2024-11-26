@@ -34,7 +34,7 @@ The Godot Sandbox is an extension to the [Godot Engine](https://godotengine.org/
 
 ![alt text](/img/performance/100k-floats.png)
 
-We can see that the Godot Sandbox using libriscv is 7.5x faster than GDScript at processing floats in this benchmark. 50x faster when using binary translation. A C jit-compiler called Mir was 4x faster than GDScript after being embedded into the Sandbox. TinyCC, a fast C compiler, can also be embedded into the Sandbox, and was 2.7x faster than GDScript. However, when a Godot engine helper function is used (`fill(1.0)` in this instance), GDScript can have native performance.
+We can see that the Godot Sandbox using libriscv is 10x faster than GDScript at processing floats in this particular benchmark. 50x faster when using binary translation, and more when using memset32. A C jit-compiler called Mir was 4x faster than GDScript after being embedded into the Sandbox. TinyCC, a fast C compiler, can also be embedded into the Sandbox, and was 2.7x faster than GDScript. However, when a Godot engine helper function is used (`fill(1.0)` in this instance), GDScript can have native performance.
 
 I took that as a challenge, and wrote a `memset32` function that initializes the array with and then copies increasingly larger parts until done.
 ```cpp
@@ -51,4 +51,4 @@ static inline void memset_i32(int *ptr, int value, size_t num) {
 ```
 Using that helper, we could match the Godot native-performance `Array.fill()` helper function. The reason this works is that functions like `memcpy` and `memset` are native performance in Godot Sandbox.
 
-In any case, one should prefer to use the Godot native-performance helper functions when they are available. And if not, one can always outsource it to the Godot Sandbox.
+In any case, one should prefer to use the Godot native-performance helper functions when they are available. And if not, one can always outsource work to the Godot Sandbox.
