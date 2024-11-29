@@ -83,18 +83,35 @@ x86_64-w64-mingw32-gcc-win32 -shared -O2 -DCALLBACK_INIT my_program.c -o my_prog
 The define `-DCALLBACK_INIT` allows Godot Sandbox to look for and use a callback init function which works even if the Godot Sandbox extension is stripped.
 
 
+### Compiling from Editor
+
+The Sandbox has a function called `try_compile_binary_translation()` that will try to invoke the currently globally chosen (`$CC`) C-compiler. This method will work mostly on macOS and Linux systems. Also, remember that in order to load the binary translation DLL the game/editor has to be restarted.
+
+Example:
+```py
+my_program.try_compile_binary_translation("res://my_program", "clang-19", "", true, true)
+```
+
+This will try to produce a binary translation for `my_program` to `my_program` using `clang-19` as the C-compiler frontend. The final shared object will have the appropriate platform-specific extension appended:
+```sh
+$ ls -lah my_program.so 
+-rwxrwxr-x 1 user user 2,3M nov.  29 18:36 my_program.so
+```
+
 ### Loading the binary translation DLL
 
-Now we can load it from GDScript like so:
+Now we can load it during `_init` from GDScript like so:
 ```py
 func _init() -> void:
-	Sandbox.load_binary_translation("/path/to/my_program.so")
+	Sandbox.load_binary_translation("res://my_program.so")
 ```
 After this, your program will now be binary translated. You can verify it:
 
 ```py
 	print("The program is binary translated: ", my_program.is_binary_translated())
 ```
+
+The program should be running quite a bit faster now.
 
 :::note
 
