@@ -2,7 +2,7 @@
 sidebar_position: 8
 ---
 
-# Modding and APIs
+# Modding & APIs
 
 ## Loading programs at run-time
 

@@ -2,11 +2,15 @@
 sidebar_position: 1
 ---
 
-# Design
+# Overall Design
 
-Godot Sandbox is serious software. It requires knowledge about build systems, deep knowledge about C++ and does not have a design goal of being zero upfront effort. It's main task is to provide high-performance safely-sandboxed functionality to games intended for an audience. That said, it does have a goal of being low effort once it has been set up properly.
+Godot Sandbox is serious software. Knowledge about build systems, cross-compiler toolchains and deep knowledge about C++ is a plus. Godot Sandbox does not have a design goal of being zero upfront effort. It's main goal is to provide high-performance safely-sandboxed functionality to games intended for an audience, and it does so by providing all the tools needed for a wide variety of needs. In order to provide those guarantees we need to completely separate untrusted software from the main game, and that can only be achieved through proper sandboxing. Mod loaders, PCK-scanning and other high-convenience low-effort solutions will have a hard time giving those same guarantees, as untrusted scripts are often involved and access to general Godot classes is expected. Without scripts one can only add cosmetics to a game, sometimes not even that. With scripts one can extend the game with new and interesting game mechanics.
 
-Modern games with modding APIs constantly struggle with malware and security holes, especially C# and Java games that very often have unrestricted access to your computer, and would do better if they were sandboxed from the start. The reason is that they are easy to interface with and convenience is often the only consideration in town.
+Modern games with open modding struggle with malware and security holes, especially C# and Java games where unrestricted access to your computer is the status quo, and would do better if they were sandboxed from the start. It's a classic tradeoff between accessibility and safety. The games that are doing it right will have security issues every now and then, too. The difference is that when they fix those issues, they are again safe. As an example, the effort required to create a real exploit for Factorio was a long and laborious process relying on a bug in unused bytecode handling. Once fixed, finding the next one could take a long time. Finally, sandboxed modding APIs are harder to use, but are just as popular. If people like your game, there will be people making mods for it.
+
+Godot Sandbox is not just a sandbox, though. It also provides access to higher performance computation than GDScript, similar to extensions. The difference is that Godot Sandbox programs are built once, and then proceeds to run on every platform. If you build a sandbox program today and export to Web, VR, mobile and console you will see it works exactly the same as on desktop. If you embed high-performance binary translations of the program into your game, exporting it to Web, VR, mobile and console will automatically see that high-performance too.
+
+Since these programs can be loaded at run-time it's also possible to publish a game and then provide updates to the game through sandbox programs, avoiding the publishing process thereafter.
 
 ## Restrictive
 
@@ -32,17 +36,15 @@ If you need to change restrictions during a Sandbox call, wait until the call is
 
 ## Low-latency
 
-A major design goal is having the lowest latency between the Sandbox and the Godot engine. As a result, calling functions, and in general communicating things back and forth with the Godot engine, is fairly fast. Often an order of magnitude faster than other solutions.
+A major design goal is having the lowest latency between the Sandbox and the Godot engine. As a result, calling functions, and in general, communication forth with the Godot engine is fairly fast. Often an order of magnitude faster than other sandboxing solutions.
 
-As an example, to check if we are currently in the editor, we have to have ask Godot for `Engine::is_editor_hint()`. If the cost to leave the VM to ask for this is ~90ns then we have to ask ourselves if we shouldn't cache that value inside the VM instead, to avoid the overhead of having to ask. However, with _libriscv_ the system call overhead is ~2ns, and so asking Godot directly always makes sense. Check out the [latency benchmarks page](/performance/latency.md).
+As an example, to check if we are currently in the editor, we have to have ask Godot for `Engine::is_editor_hint()`. If the cost to leave the VM to ask for this is ~90ns then we have to ask ourselves if we shouldn't cache that value inside the VM instead, to avoid the overhead of having to ask. However, with _libriscv_ the system call overhead is ~2ns, and so asking Godot directly always makes sense. Check out the [latency benchmarks page](/performance/latency.md). You will see that Godot Sandbox is lower-latency and faster than even GDScript, which is not sandboxed.
 
 ## Maximum portability
 
-The Sandbox has implemented support for the C++ and Rust system languages currently. The extension supports all of Godots platforms, including future platforms like RISC-V.
+The Sandbox has implemented support for the C++ and Rust system languages currently. The extension supports all of Godots platforms, including future platforms like RISC-V, Loongarch, Switch 2, Quest 3 and any other platform where one would be able to compile standard C++ with no dependencies.
 
-Anyone can implement support for other languages, as long as those languages transpile to C or C++, or can emit RISC-V directly.
-
-All platforms present and future will work with Godot Sandbox. If Godot is ported to Switch 2, or Loongarch, then Godot Sandbox will automatically follow, high-performance binary translations included.
+Anyone can implement support for new languages, as long as those languages transpile to C or C++, or can emit RISC-V directly.
 
 ## Full API access
 
@@ -82,10 +84,13 @@ The Sandbox only runs when there is a function call to execute. If you are not c
 
 ## Thread unsafe
 
-Parallelism is possible, but make sure you are only calling into an instance from one thread at a time. The easiest way to avoid trouble is to have one instance per thread. Instances are tiny and share executable memory, which is sometimes the largest part of the programs.
+Parallelism is possible, but make sure you are only calling into an instance from one thread at a time. The easiest way to avoid trouble is to have one instance per thread. Instances are tiny and share all executable (and binary translation) memory, which is often the largest part of the programs.
 
 ## Passing is permitting
 
 If you pass an object to the VM, the VM will allow the sandboxed program to use it. Ordinarily, an object or node has to be retrieved using regular operations like `get_node()`. Many objects are also forbidden or out of reach. Passing an object as an argument to a function, will allow it to be used.
 
-Example: Passing a dictionary containing the OS singleton *DOES NOT* automatically give access to OS. Every item in the dictionary has to go through the restrictions filter. Only the dictionary itself is auto-permitted, as it was a *direct argument* to the function.
+Examples:
+
+- Passing a dictionary containing the OS singleton *DOES NOT* automatically give access to OS. Every item in the dictionary has to go through the restrictions filter. Only the dictionary itself is auto-permitted, as it was a *direct argument* to the function.
+- Passing an array containing trivial types will always give access to every element. Trivial types like integers, floats and strings do not need to pass any checks.
