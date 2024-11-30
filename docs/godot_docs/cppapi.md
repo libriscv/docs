@@ -4,9 +4,9 @@ sidebar_position: 11
 
 # C++ API Reference
 
-The current C++ API is likely to change over time. Feel free to contribute improvements to the API.
+The current C++ API is likely to change over time, however it is mostly complete. Feel free to contribute improvements to the API. The run-time generated API comes in addition to this API and covers the rest of Godot by adding all classes known at run-time, including loaded extensions.
 
-You can find the [source of the API here](https://github.com/libriscv/godot-sandbox/blob/main/program/cpp/api/api.hpp).
+You can find the [source of the API here](https://github.com/libriscv/godot-sandbox/tree/main/program/cpp/docker/api/api.hpp).
 
 
 ## General
@@ -89,6 +89,29 @@ inline void halt();
 /// @brief Check if the program is running in the Godot editor.
 /// @return True if running in the editor, false otherwise.
 inline bool is_editor();
+inline bool is_editor_hint(); // Alias
+
+/// @brief Create a public API for the program.
+/// @param ... The list of public API functions.
+/// @example
+/// SANDBOX_API({
+/// 	.name = "hello_world",
+/// 	.address = (void *)hello_world,
+/// 	.description = "Prints 'Hello, world!' to the console.",
+/// 	.return_type = "void",
+/// 	.arguments = "",
+/// });
+extern "C" struct PublicAPI {
+	const char * const name;
+	const void * const address;
+	const char * const description;
+	const char * const return_type;
+	// Simple comma-separated list of arguments: "int a, double b, String c"
+	const char * const arguments;
+};
+#define NUM_APIARGS(...)  (sizeof((PublicAPI[]){PublicAPI{}, ##__VA_ARGS__})/sizeof(PublicAPI))
+#define SANDBOX_API(...) \
+	extern "C" const PublicAPI public_api[NUM_APIARGS(__VA_ARGS__)] { __VA_ARGS__, {0} };
 ```
 
 

@@ -39,7 +39,7 @@ If it is not working, you need to set the docker path manually by going to **Pro
 
 ## The C++ API
 
-The C++ API tries to mimick godot-cpp when it makes sense to do so, and it otherwise provides the entire GDScript API. You can find [the C++ API implementation here](https://github.com/libriscv/godot-sandbox/tree/main/program/cpp/api), and [the C++ API reference here](../godot_docs/cppapi.md). For everything else, you can refer to the official Godot documentation.
+The C++ API tries to mimick godot-cpp when it makes sense to do so, and it otherwise provides the entire GDScript API. You can find [the C++ API implementation here](https://github.com/libriscv/godot-sandbox/tree/main/program/cpp/docker/api), and [the C++ API reference here](../godot_docs/cppapi.md). For everything else, you can refer to the official Godot documentation.
 
 ## ELF Script
 
