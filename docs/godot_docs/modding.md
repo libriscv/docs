@@ -150,7 +150,7 @@ Examples of C++ API types and their corresponding Godot variant types:
 | Vector4        | VECTOR4    |
 | PackedVector4Array | PACKED_VECTOR4_ARRAY    |
 
-Otherwise, every type in the API will convert to its Variant type cleanly. There is no support for custom classes yet, so use Object, Node or Variant instead.
+Otherwise, every type in the API will convert to its Variant type cleanly. If you write a class name instead like `Mesh`, that also works.
 
 ## A simple modding API
 
