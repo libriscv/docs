@@ -179,6 +179,16 @@ CharacterBody2D player("%Player");
 const bool f = player.is_on_floor();
 ```
 
+The API is generated from the static function [Sandbox.generate_api](../godot_intro/sandbox.md#sandbox-api-reference):
+```py
+	var api = Sandbox.generate_api("cpp")
+	var fa = FileAccess.open("generated_api.hpp", FileAccess.WRITE)
+	fa.store_string(api)
+	fa.close()
+```
+
+The C++ API will look for `generated_api.hpp`, and if found, will automatically include it.
+
 :::note
 
 In practice you can write code just like GDScript. Even classes loaded at run-time should be accessible with auto-complete.

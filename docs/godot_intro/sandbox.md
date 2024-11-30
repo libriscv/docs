@@ -389,8 +389,11 @@ class Sandbox : public Node {
 	/// @return True if binary translation is loaded, false otherwise.
 	bool is_binary_translated() const;
 
-	/// @brief  Generate the C++ API to a String, based on current Godot version and loaded extensions.
-	/// @return The generated C++ API.
-	static String generate_api(String language = "cpp", String header_extra = "");
+	/// @brief Generate the run-time API for the guest program, by iterating through all loaded classes.
+	/// @param language The language to generate the API for.
+	/// @param header_extra Extra header code to add to the generated API.
+	/// @param use_argument_names If true, use argument names with default values in the generated API. Increases the size of the generated API and the compilation time.
+	/// @return The generated API code as a string.
+	static String generate_api(String language = "cpp", String header_extra = "", bool use_argument_names = false);
 };
 ```
