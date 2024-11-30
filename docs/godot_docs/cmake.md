@@ -37,10 +37,10 @@ In order to build this project, we will use a simple build script:
 export CC="riscv64-linux-gnu-gcc-14"
 export CXX="riscv64-linux-gnu-g++-14"
 
-# Create build directory
+# Create build directory, configure and compile
 mkdir -p .build
 pushd .build
-cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=../toolchain.cmake
+cmake .. -DCMAKE_BUILD_TYPE=Release
 make -j4
 popd
 ```
@@ -132,6 +132,14 @@ func _run():
 
 Once the `generated_api.hpp` is generated, add it to git ignore. VSCode should pick it up automatically and start completing your code, including for classes that aren't part of Godot, such as Sandbox.
 
+If `generated_api.hpp` is in the include path of the CMake build target, for example, project root or the cmake folder, then it will be made available to sandbox programs automatically. The include is conditionally included:
+
+```cpp
+#if __has_include(<generated_api.hpp>)
+#include <generated_api.hpp>
+#endif
+```
+You only need to re-generate it if a new Godot version is released, or if you are building your own GDExtension and the outwards-facing APIs are changing.
 
 ## Automatic building (Linux)
 
