@@ -2,7 +2,7 @@
 sidebar_position: 1
 ---
 
-# Overall Design
+# Introduction
 
 ![Bird demo](image.png)
 
