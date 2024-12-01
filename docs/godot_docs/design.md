@@ -4,11 +4,45 @@ sidebar_position: 1
 
 # Overall Design
 
+![Bird demo](image.png)
+
+The [Godot Sandbox bird demo](https://gonzerelli.itch.io/bird-demo) showcases how to create controllable entities with custom properties and other features that makes Godot Sandbox integrate really well as if it was a scripting language. You can find the [repository here](https://github.com/V-Sekai-fire/godot_bird_plane).
+
+![alt text](image-1.png)
+
+The demo project showcases auto-completion in GDScript.
+
+![alt text](image-2.png)
+
+Godot Sandbox exposes access to all things Godot inside the protected sandbox programs, as well as a selection of godot-cpp-only features.
+
+![alt text](image-3.png)
+
+The scene has 3 sandbox programs each of which controls one aspect of the game.
+
+![alt text](image-4.png)
+
+Everything is controlled from a GDScript that handles `_process`.
+
+![alt text](image-5.png)
+
+Restrictions have been enabled, and we have to allow some methods. Recording the actual methods used would allow restricting it even more, however that is more useful when everything is closer to the finish line. There are many other types of restrictions not shown here, such as the ability to instantiate objects from classes.
+
+![alt text](image-6.png)
+
+Sandbox programs can expose their own properties that can be tweaked in the editor. Below that is the regular Sandbox properties that change the behavior and restrictions of the program running inside.
+
+![alt text](/img/bintr/luajit.png)
+
+Sandbox programs are compiled from regular programming languages, which allows them to support an enormous amount of existing software. The image shows that LuaJit has been embedded into a program which is running in the browser. It also has binary translation enabled, giving it near-native performance.
+
+## Introduction
+
 Godot Sandbox is serious software. Knowledge about build systems, cross-compiler toolchains and deep knowledge about C++ is a plus. Godot Sandbox does not have a design goal of being zero upfront effort. It's main goal is to provide high-performance safely-sandboxed functionality to games intended for an audience, and it does so by providing all the tools needed for a wide variety of needs. In order to provide those guarantees we need to completely separate untrusted software from the main game, and that can only be achieved through proper sandboxing. Mod loaders, PCK-scanning and other high-convenience low-effort solutions will have a hard time giving those same guarantees, as untrusted scripts are often involved and access to general Godot classes is expected. Without scripts one can only add cosmetics to a game, sometimes not even that. With scripts one can extend the game with new and interesting game mechanics.
 
 Modern games with open modding struggle with malware and security holes, especially C# and Java games where unrestricted access to your computer is the status quo, and would do better if they were sandboxed from the start. It's a classic tradeoff between accessibility and safety. The games that are doing it right will have security issues every now and then, too. The difference is that when they fix those issues, they are again safe. As an example, the effort required to create a real exploit for Factorio was a long and laborious process relying on a bug in unused bytecode handling. Once fixed, finding the next one could take a long time. Finally, sandboxed modding APIs are harder to use, but are just as popular. If people like your game, there will be people making mods for it.
 
-Godot Sandbox is not just a sandbox, though. It also provides access to higher performance computation than GDScript, similar to extensions. The difference is that Godot Sandbox programs are built once, and then proceeds to run on every platform. If you build a sandbox program today and export to Web, VR, mobile and console you will see it works exactly the same as on desktop. If you embed high-performance binary translations of the program into your game, exporting it to Web, VR, mobile and console will automatically see that high-performance too.
+Godot Sandbox is not just a sandbox, though. It also provides access to higher performance computation than GDScript, similar to extensions. The difference is that Godot Sandbox programs are built once, and then proceeds to run on every platform. If you build a sandbox program today and export to Web, VR, mobile and console you will see it works exactly the same as on desktop. If you embed high-performance binary translations of the program into your game, exporting it to Web, VR, mobile and console will automatically see that high-performance too. So, one could use Godot Sandbox without restrictions enabled just for the ability to easily support all of Godots platforms.
 
 Since these programs can be loaded at run-time it's also possible to publish a game and then provide updates to the game through sandbox programs, avoiding the publishing process thereafter.
 
