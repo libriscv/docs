@@ -4,9 +4,11 @@ sidebar_position: 3
 
 # CMake Projects
 
-It's possible to use complex projects with dependencies while scripting with C++ in Godot.
+It's possible to build complex programs with dependencies using CMake.
 
 This method requires a local RISC-V compiler installed on your system. If you don't have that, you won't be able to use CMake locally.
+
+CMake is completely optional. Normally, you can use Docker which compiles for you in the Godot editor.
 
 ## Setup & Installation
 
@@ -53,16 +55,13 @@ chmod +x build.sh
 
 ### Ubuntu and Windows WSL2
 
-On Linux and Windows WSL2 we can install a C++ RISC-V compiler, ccache and mold like so:
+On Linux and Windows WSL2 we can install a RISC-V compiler like so:
 
 ```sh
 sudo apt install g++-14-riscv64-linux-gnu cmake ninja-build git
 ```
 
-On some system you may only have access to version 12 or 13. Modify the `build.sh` below accordingly.
-
-On macOS there are RISC-V toolchains in brew. Let us know which ones worked for you.
-
+On some systems you may only have access to g++ version 12 or 13. Modify the `build.sh` below accordingly.
 
 ### Windows MSYS2
 
@@ -74,8 +73,12 @@ AR="riscv64-unknown-elf-ar" CXX="riscv64-unknown-elf-g++" CC="riscv64-unknown-el
 cmake --build .
 ```
 
-You can find a working [MSYS2 build example here](https://github.com/libriscv/godot-sandbox-demo/tree/master/json_diff_sample/json_diff).
+You can find a working [MSYS2 build example here](https://github.com/libriscv/godot-sandbox-demo/tree/master/json_diff_sample/json_diff). For `unknown-elf`-type toolchains a toolchain file is needed.
 
+
+### macOS
+
+On macOS there are RISC-V toolchains in brew. Let us know which ones worked for you.
 
 ### Arch Linux
 
