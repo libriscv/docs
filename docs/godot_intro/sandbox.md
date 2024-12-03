@@ -70,10 +70,40 @@ Disadvantages:
 - Shared state between all instances requires per-object structures internally to manage individual object state
 - No control over lifetime of Sandbox
 - All limits and restrictions are shared
+- Harder to debug instance shared by many entities
+
+![alt text](/img/intro/auto-complete.png)
+
+In this case, the scene root is just a regular Node2D with a Sandbox ELF program as the script. Auto-completion works from nodes lower on the hierarchy, but be careful about how you access the parent node: `get_parent()` will give GDScript the information needed to get the methods from the underlying Sandbox program instance. We can see that test is a `int test(a: int, b: int)` function.
+
+```py
+func _ready() -> void:
+	var n = get_parent()
+	n.execution_timeout = 0
+```
+
+You can also reach Sandbox properties from the node.
+
 
 ![attach signal](/img/sandbox/attach_signal.png)
 
 It's possible to attach signals directly to a Node like you usually would do with GDScript when the script is directly embedded.
+
+
+Reaching the underlying Sandbox is possible, but requires both the script instance and the owning Node to look up the Sandbox:
+```py
+func _ready() -> void:
+	var n = get_parent()
+	var script = n.get_script() as ELFScript
+	print(script.get_sandbox_for(n))
+```
+Which correctly prints the same Sandbox twice for two instantiations of the scene:
+```
+[ GDExtension::Sandbox <--> Instance ID:39678117514 ]
+[ GDExtension::Sandbox <--> Instance ID:39678117514 ]
+```
+Hence, it's shared by all instances of the current scene. Or more specifically, it's shared by all script instances which have the given Node as owner.
+
 
 ## Dedicated Sandbox nodes
 
