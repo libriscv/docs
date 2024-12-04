@@ -86,7 +86,7 @@ You can also reach Sandbox properties from the node.
 
 :::warning
 
-It is very tempting to assign an ELF program as the script to a Sandbox node. Don't do that. Calls you make to the Sandbox node will not go to the script first. The empty Sandbox will fail on random things and just appear confusing. Just make a regular Node and assign the ELF to that. You can use a Sandbox node, but don't set an ELF program as the script.
+It is very tempting to assign an ELF program as the script to a regular Sandbox node. Don't do that. Calls you make to the Sandbox node will not go through the script instance. A script instance has a loaded Sandbox inside it, but the Sandbox node won't _unless you load it_, and then you have 2 instances, one of which you aren't using. An empty Sandbox will fail on random things and just appear confusing. Make a regular Node and assign the ELF to that.
 
 :::
 
@@ -164,6 +164,56 @@ You can also load an ELF resource and use its content as a program. And, finally
 ```
 
 If you want to create a program shared with many nodes, use `set_script(elf_resource)` which sets the ELF resource directly and references it. This method enables sandboxed properties.
+
+
+## Sandbox creation summary
+
+So, let's summarize the different methods:
+
+1. Setting an ELF program as a script
+
+	The script method allows us to use other nodes, eg. a Node2D. Godot will call regular functions on the script, and so you can implement eg, `_process` in the program. Properties are exposed etc.
+
+```py
+var n = Node.new()
+n.set_script(Sandbox_HelloWorld)
+n.hello_world() # Public API methods work
+```
+
+2. Add a new Sandbox_HelloWorld using _Add Child Node_ in the editor
+
+	You should see the different types of available Sandbox-derivatives in the list under Sandbox. This is the most useful (and weirdest) form of Sandbox. It's automatically created from each ELF seen. It will give you auto-completion and generally easy access through GDScript.
+
+	Add a regular Node first and then add the custom sandbox under it. Then attach a GDScript to the node.
+
+```py
+var h = get_node("Sandbox_HelloWorld") as Sandbox_HelloWorld
+h.hello_world()
+```
+
+3. Setting an ELF program on a Sandbox node
+
+	Here you won't get auto-completion but you can still call any method as before.
+
+```py
+var s = Sandbox.new()
+s.set_program(Sandbox_HelloWorld)
+#s.hello_world() # Public API methods DON'T work
+s.vmcall("hello_world") # VMCall the function instead
+```
+
+4. Loading a program as a buffer on a Sandbox node
+
+	Same as above, you won't get auto-completion but you can still call any method as before.
+
+```py
+var s = Sandbox.new()
+s.load_buffer(buffer)
+#s.hello_world() # Public API methods DON'T work
+s.vmcall("hello_world") # VMCall the function instead
+```
+
+The last two methods are mostly intended for UGC and modding.
 
 
 ## Sandbox API reference
@@ -431,5 +481,10 @@ class Sandbox : public Node {
 	/// @param use_argument_names If true, use argument names with default values in the generated API. Increases the size of the generated API and the compilation time.
 	/// @return The generated API code as a string.
 	static String generate_api(String language = "cpp", String header_extra = "", bool use_argument_names = false);
+
+	/// @brief Download a named program from the Godot Sandbox programs repository.
+	/// @param program_name The name of the program to download. Must be a program built in the Godot Sandbox programs repository.
+	/// @return The downloaded program as a byte array.
+	static PackedByteArray download_program(const String &program_name);
 };
 ```
