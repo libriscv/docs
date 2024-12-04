@@ -84,6 +84,12 @@ func _ready() -> void:
 
 You can also reach Sandbox properties from the node.
 
+:::warning
+
+It is very tempting to assign an ELF program as the script to a Sandbox node. Don't do that. Calls you make to the Sandbox node will not go to the script first. The empty Sandbox will fail on random things and just appear confusing. Just make a regular Node and assign the ELF to that. You can use a Sandbox node, but don't set an ELF program as the script.
+
+:::
+
 
 ![attach signal](/img/sandbox/attach_signal.png)
 
