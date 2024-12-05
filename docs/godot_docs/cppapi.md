@@ -81,6 +81,20 @@ struct Property {
 #define SANDBOXED_PROPERTIES(num, ...) \
 	extern "C" const Property properties[num+1] { __VA_ARGS__, {0} };
 
+/// @brief Add a new property to the Sandbox class.
+/// @param name The name of the property.
+/// @param type The type of the property.
+/// @param default_value The default value of the property.
+/// @param getter A function that returns the property value.
+/// @param setter A function that sets the property value.
+/// @note This function must be called during the initialization phase of the program.
+/// @example
+/// add_property("meaning_of_life", Variant::Type::INT, 42,
+/// 	[]() -> Variant { return 42; },
+/// 	[](Variant value) -> Variant { print("Set to: ", value); return Nil; });
+void add_property(std::string_view name, Variant::Type type, const Variant &default_value,
+	Variant (*getter)(), Variant (*setter)(Variant));
+
 /// @brief Stop execution of the program.
 /// @note This function may return if the program is resumed. However, no such
 /// functionality is currently implemented.
@@ -91,28 +105,19 @@ inline void halt();
 inline bool is_editor();
 inline bool is_editor_hint(); // Alias
 
-/// @brief Create a public API for the program.
-/// @param ... The list of public API functions.
-/// @example
-/// SANDBOX_API({
-/// 	.name = "hello_world",
-/// 	.address = (void *)hello_world,
-/// 	.description = "Prints 'Hello, world!' to the console.",
-/// 	.return_type = "void",
-/// 	.arguments = "",
-/// });
-extern "C" struct PublicAPI {
-	const char * const name;
-	const void * const address;
-	const char * const description;
-	const char * const return_type;
-	// Simple comma-separated list of arguments: "int a, double b, String c"
-	const char * const arguments;
-};
-#define NUM_APIARGS(...)  (sizeof((PublicAPI[]){PublicAPI{}, ##__VA_ARGS__})/sizeof(PublicAPI))
-#define SANDBOX_API(...) \
-	extern "C" const PublicAPI public_api[NUM_APIARGS(__VA_ARGS__)] { __VA_ARGS__, {0} };
-```
+/// @brief Add a new public API function to the program during initialization.
+/// @param name  The name of the function. Eg. "my_function".
+/// @param address  The address of the function. Eg. my_function.
+/// @param return_type  The return type of the function. Eg. void, int, String, Dictionary, etc.
+/// @param args  The comma-separated arguments of the function. Eg. "int a, double b, String c"
+/// @param description  The description of the function. Can be empty.
+/// @example add_sandbox_api_function(
+///    "add_numbers", (void *)add_numbers, "int", "int a, int b", "Adds two numbers together.");
+template <typename F>
+static inline void add_sandbox_api_function(std::string_view name, F *address,
+	std::string_view return_type, std::string_view args, std::string_view description = "");
+#define ADD_API_FUNCTION(func, return_type, args, ...) \
+	add_sandbox_api_function(#func, func, return_type, args, ##__VA_ARGS__)
 
 
 ## Variant
