@@ -42,19 +42,13 @@ Using these methods we can create arbitrary Sandboxes from downloaded programs w
 It's possible to create a custom public API for a sandbox program. The public API is meant to show how to use a program, providing a list of functions, their arguments and return value, and a description of how or why to use them. Here's a C++ example:
 
 ```cpp
-SANDBOX_API({
-	.name = "pba_operation",
-	.address = (void*)&pba_operation,
-	.description = "Sets each float in a PackedArray to 1.0f",
-	.return_type = "void",
-	.arguments = "PackedFloat32Array farr",
-}, {
-	.name = "function3",
-	.address = (void*)&function3,
-	.description = "Prints the arguments",
-	.return_type = "int",
-	.arguments = "long x, long y, String text",
-});
+int main() {
+	ADD_API_FUNCTION(my_function, "Dictionary", "Dictionary text");
+	ADD_API_FUNCTION(function3, "int", "long x, long y, Array text");
+	ADD_API_FUNCTION(adding_function, "int", "int a1, int a2, int a3, int a4, int a5, int a6");
+	ADD_API_FUNCTION(pba_operation, "void", "PackedFloat32Array farr", "Sets each float in a PackedArray to 1.0f");
+	...
+}
 ```
 
 This API will expose exactly two functions to the Godot engine, and if you open the ELF resource (double-click the program) in the editor, you will see something like this:
@@ -120,13 +114,12 @@ Another example is a RISC-V assembler program:
 It exposes a single function `assemble`, which is done like this in the C++ code:
 
 ```cpp
-SANDBOX_API({
-	.name = "assemble",
-	.address = (void*)&assemble,
-	.description = "Assemble RISC-V assembly code and return a callable function",
-	.return_type = "Callable",
-	.arguments = "String assembly_code",
-});
+int main() {
+	// Add public API
+	ADD_API_FUNCTION(assemble, "Callable", "String assembly_code",
+		"Assemble RISC-V assembly code and return a callable function");
+	...
+}
 ```
 
 When we go into the Godot editor and try to use the auto-generated Sandbox class from this program, called `Sandbox_TestAsmjit` in the test project, we can see that it auto-completes `assemble`:
