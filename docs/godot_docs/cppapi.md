@@ -118,7 +118,7 @@ static inline void add_sandbox_api_function(std::string_view name, F *address,
 	std::string_view return_type, std::string_view args, std::string_view description = "");
 #define ADD_API_FUNCTION(func, return_type, args, ...) \
 	add_sandbox_api_function(#func, func, return_type, args, ##__VA_ARGS__)
-
+```
 
 ## Variant
 

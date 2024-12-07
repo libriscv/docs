@@ -34,7 +34,7 @@ With the program loaded, the program in the Sandbox will go through an initializ
 
 In theory, no modding API is needed and instead just a general map of the scene trees in the game is enough.
 
-Using these methods we can create arbitrary Sandboxes from downloaded programs without going through resources or even files in Godot. While example uses a zip-file, that is just for demonstration.
+Using these methods we can create arbitrary Sandboxes from downloaded programs without going through resources or even files in Godot. While the example uses a zip-file, that is just for demonstration.
 
 
 ## Crafting a public API

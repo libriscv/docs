@@ -52,7 +52,9 @@ That's it.
 
 This method of accelerating the performance of sandboxed programs is particularly attractive if you are targeting several (if not all) platforms that Godot can publish to. Every single platform will benefit from this feature in the same way, leaving no platform behind as a laggy mess.
 
-JIT-compilers are very popular because they give instant performance increases without much user interaction, but can only leave you with a laggy mess when you're publishing for platforms that don't allow JIT. Most mobile- and console-platforms don't allow JIT at all.
+JIT-compilers are very popular because they give instant performance increases without much user interaction, but can only leave you with a laggy mess when you're publishing for platforms that don't allow JIT. Web-, mobile- and console-platforms don't allow JIT at all.
+
+You can [see here what happens](https://ask.vrchat.com/t/on-udon-2-soba-and-why-we-changed-directions/28484) when someone inexperienced picks an emulator that doesn't support the same performance characteristics across all supported platforms.
 
 ## Loading binary translations at run-time
 
