@@ -327,42 +327,32 @@ Once connected, the Godot engine will directly call the function `_on_body_enter
 
 static float jump_velocity = -300.0f;
 static float player_speed = 150.0f;
+static std::string player_name = "Slight Knight";
 
-SANDBOXED_PROPERTIES(3, {
-	.name = "player_speed",
-	.type = Variant::FLOAT,
-	.getter = []() -> Variant { return player_speed; },
-	.setter = [](Variant value) -> Variant { return player_speed = value; },
-	.default_value = Variant{player_speed},
-}, {
-	.name = "player_jump_vel",
-	.type = Variant::FLOAT,
-	.getter = []() -> Variant { return jump_velocity; },
-	.setter = [](Variant value) -> Variant { return jump_velocity = value; },
-	.default_value = Variant{jump_velocity},
-}, {
-	.name = "player_name",
-	.type = Variant::STRING,
-	.getter = []() -> Variant { return "Slide Knight"; },
-	.setter = [](Variant value) -> Variant { return Nil; },
-	.default_value = Variant{"Slight Knight"},
-});
+int main() {
+	ADD_API_FUNCTION(_physics_process, "void", "double delta");
+	ADD_API_FUNCTION(_process, "void");
 
-// More code ...
+	add_property("player_speed", Variant::FLOAT, player_speed,
+		[]() -> Variant { return player_speed; },
+		[](Variant value) -> Variant { return player_speed = value; });
+	add_property("player_jump_vel", Variant::FLOAT, jump_velocity,
+		[]() -> Variant { return jump_velocity; },
+		[](Variant value) -> Variant { return jump_velocity = value; });
+	add_property("player_name", Variant::STRING, player_name,
+		[]() -> Variant { return player_name; },
+		[](Variant value) -> Variant { return player_name = value.as_std_string(); });
+
+	halt();
+}
 ```
 
-Properties in the Sandbox are supported. They are stored in the global scope, and each one has a custom getter and setter function.
+Properties in the Sandbox are supported. They are added through the `add_property()` API function, and each one has a custom getter and setter function.
 
 ![alt text](/img/cppexamples/properties.png)
 
 Properties can be edited in the Godot inspector and is a powerful and simple way to expose data from the script. The values of these properties are saved in the Godot project and restored on reopening the project.
 
-
-:::note
-
-In this example, the players name cannot be changed in the editor, as the property will just keep returning the same value, _effectively making it read-only_. That is, the getter for the `player_name` property only returns `"Slide Knight"`.
-
-:::
 
 ### Per-instance Sandboxed Properties
 
@@ -381,41 +371,25 @@ static PlayerState &get_player_state() {
 	return GetPlayerState(get_node());
 }
 
-SANDBOXED_PROPERTIES(3, {
-	.name = "player_speed",
-	.type = Variant::FLOAT,
-	.getter = []() -> Variant { return get_player_state().player_speed; },
-	.setter = [](Variant value) -> Variant { return get_player_state().player_speed = value; },
-	.default_value = Variant{get_player_state().player_speed},
-}, {
-	.name = "player_jump_vel",
-	.type = Variant::FLOAT,
-	.getter = []() -> Variant { return get_player_state().jump_velocity; },
-	.setter = [](Variant value) -> Variant { return get_player_state().jump_velocity = value; },
-	.default_value = Variant{get_player_state().jump_velocity},
-}, {
-	.name = "player_name",
-	.type = Variant::STRING,
-	.getter = []() -> Variant { return get_player_state().player_name; },
-	.setter = [](Variant value) -> Variant { return get_player_state().player_name = value.as_std_string(); },
-	.default_value = Variant{"Slide Knight"},
-});
+int main() {
+	ADD_API_FUNCTION(_physics_process, "void", "double delta");
+	ADD_API_FUNCTION(_process, "void");
+
+	add_property("player_speed", Variant::FLOAT, 150.0f,
+		[]() -> Variant { return get_player_state().player_speed; },
+		[](Variant value) -> Variant { return get_player_state().player_speed = value; });
+	add_property("player_jump_vel", Variant::FLOAT, -300.0f,
+		[]() -> Variant { return get_player_state().jump_velocity; },
+		[](Variant value) -> Variant { return get_player_state().jump_velocity = value; });
+	add_property("player_name", Variant::STRING, "Slide Knight",
+		[]() -> Variant { return get_player_state().player_name; },
+		[](Variant value) -> Variant { return get_player_state().player_name = value.as_std_string(); });
+
+	halt();
+}
 ```
 
 In this program, each instance will have their own separate properties.
-
-### Adding properties dynamically
-
-It's possible to add properties during `main()` using `add_property`:
-
-```cpp
-add_property("player_speed", Variant::FLOAT,
-	[]() -> Variant { return player_speed; },
-	[](Variant value) -> Variant { return player_speed = value; },
-	player_speed);
-```
-
-This feature is intended to make it easier to support languages with limited capability of instantiating an array of structs on the global scope.
 
 
 ## Timers
