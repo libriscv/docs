@@ -16,7 +16,7 @@ _libriscv_ regularly out-performs other interpreters.
 
 ![STREAM benchmark](/img/performance/stream2.png)
 
-I benchmarked interpreted [libriscv](https://github.com/libriscv/libriscv) vs [wasm3](https://github.com/wasm3/wasm3) on two of my machines.
+I benchmarked interpreted [libriscv](https://github.com/libriscv/libriscv) vs [wasm3](https://github.com/wasm3/wasm3) on two of my machines. The CoreMark values are from running it in libriscv as well as the wasmi benchmark suite. I added the 64-bit CoreMark value from rv64gcb that isn't very flattering, however for many it's the default when using libriscv.
 
 [Others have also benchmarked](https://github.com/sysprog21/rv32emu/issues/288) _libriscv_, and found it to be fast. Although likely with C-extension enabled, which is not the fastest interpreter mode in _libriscv_.
 
