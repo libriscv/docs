@@ -1648,6 +1648,14 @@ struct PackedArray {
 	/// @param size The size of the data in elements.
 	PackedArray(const T *data, size_t size);
 
+	/// @brief Retrieve the size of the host-side array.
+	/// @return size_t The size of the host-side array.
+	size_t size() const;
+
+	/// @brief Check if the host-side array is empty.
+	/// @return bool True if the host-side array is empty, false otherwise.
+	bool is_empty() const;
+
 	/// @brief Retrieve the host-side array data.
 	/// @return std::vector<T> The host-side array data.
 	std::vector<T> fetch() const;
@@ -1665,6 +1673,18 @@ struct PackedArray {
 	template <typename... Args>
 	Variant operator () (std::string_view method, Args&&... args);
 };
+
+// Aliases for common PackedArray types.
+using PackedByteArray = PackedArray<uint8_t>;
+using PackedInt32Array = PackedArray<int32_t>;
+using PackedInt64Array = PackedArray<int64_t>;
+using PackedFloat32Array = PackedArray<float>;
+using PackedFloat64Array = PackedArray<double>;
+using PackedVector2Array = PackedArray<Vector2>;
+using PackedVector3Array = PackedArray<Vector3>;
+using PackedVector4Array = PackedArray<Vector4>;
+using PackedColorArray = PackedArray<Color>;
+using PackedStringArray = PackedArray<std::string>;
 ```
 
 ## Resources

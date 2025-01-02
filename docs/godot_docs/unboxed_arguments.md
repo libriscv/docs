@@ -43,16 +43,16 @@ When making a function call into a Sandbox program, `sandbox.vmcall("my_function
 
 |  Packed Array         |  GDScript func argument  |  Unboxed type           |
 |-----------------------|:------------------------:|:-----------------------:|
-| PACKED_BYTE_ARRAY     | PackedByteArray(...)     | PackedArray\<uint8_t\>  |
-| PACKED_INT32_ARRAY    | PackedInt32Array(...)    | PackedArray\<int32_t\>  |
-| PACKED_INT64_ARRAY    | PackedInt64Array(...)    | PackedArray\<int64_t\>  |
-| PACKED_FLOAT32_ARRAY  | PackedFloat32Array(...)  | PackedArray\<float\>    |
-| PACKED_FLOAT64_ARRAY  | PackedFloat64Array(...)  | PackedArray\<double\>   |
-| PACKED_STRING_ARRAY   | PackedStringArray(...)   | PackedArray\<std::string\> |
-| PACKED_VECTOR2_ARRAY  | PackedVector2Array(...)  | PackedArray\<Vector2\>  |
-| PACKED_VECTOR3_ARRAY  | PackedVector3Array(...)  | PackedArray\<Vector3\>  |
-| PACKED_COLOR_ARRAY    | PackedColorArray(...)    | PackedArray\<Color\>    |
-| PACKED_VECTOR4_ARRAY  | PackedVector4Array(...)  | PackedArray\<Vector4\>  |
+| PACKED_BYTE_ARRAY     | PackedByteArray(...)     | PackedByteArray         |
+| PACKED_INT32_ARRAY    | PackedInt32Array(...)    | PackedInt32Array        |
+| PACKED_INT64_ARRAY    | PackedInt64Array(...)    | PackedInt64Array        |
+| PACKED_FLOAT32_ARRAY  | PackedFloat32Array(...)  | PackedFloat32Array      |
+| PACKED_FLOAT64_ARRAY  | PackedFloat64Array(...)  | PackedFloat64Array      |
+| PACKED_STRING_ARRAY   | PackedStringArray(...)   | PackedStringArray       |
+| PACKED_VECTOR2_ARRAY  | PackedVector2Array(...)  | PackedVector2Array      |
+| PACKED_VECTOR3_ARRAY  | PackedVector3Array(...)  | PackedVector3Array      |
+| PACKED_VECTOR4_ARRAY  | PackedVector4Array(...)  | PackedVector4Array      |
+| PACKED_COLOR_ARRAY    | PackedColorArray(...)    | PackedColorArray        |
 
 An astute reader will notice that whenever a wrapper class is not yet implemented, the Variant type is passed unchanged, as a Variant. Variants can use calls, and so even though many are already implemented as wrapper classes, here is an example of how to use *any class* through a Variant:
 
