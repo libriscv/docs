@@ -196,7 +196,7 @@ void syscall_string(Machine<W>& machine)
 	const auto strview = machine.memory.memview(address, len);
 }
 ```
-Using a `std::string_view` is only possible when memory is sequential, and requires 2 registers (address and length). It is sequential by default. No memory is copied, making this a preferred and very fast operation.
+Using a `std::string_view` is only possible when memory is sequential, and requires 2 registers (address and length). It is sequential by default. No memory is copied, making this a preferred and very fast operation. `machine.memory.memview()` works on all readable memory, but you must not write to the resulting buffer. Instead use `machine.memory.writable_memview()`, which can only access writable memory, but you may write to it.
 
 6. Using `std::string_view` directly is a shortcut for example 5, shown above. The same rules apply.
 ```cpp
@@ -227,7 +227,7 @@ void syscall_struct(Machine<W>& machine)
 ```
 
 2. Get a pointer `T*` to a struct.
-> Note: This function will throw an exception under all circumstances if it cannot complete successfully. Page permissions *do not* apply, instead read-write arena rules apply. Uses `memarray<T> (addr, 1)` behind the scenes.
+> Note: This function will throw an exception under all circumstances if it cannot complete successfully. Page permissions *do not* apply, instead read-write arena rules apply. Uses `memarray<T> (addr, 1)` behind the scenes. The const-ness of the type T determines which area of memory can be accessed. When const, all readable memory, while when non-const (mutable) only writable memory.
 
 ```cpp
 template <int W>
@@ -243,6 +243,8 @@ void syscall_struct(Machine<W>& machine)
 ```
 Notice how the type is _a pointer_. If instead you want a fixed-size span of T, you can use `std::span<T, N>` or use a pointer to a fixed-size std::array: `std::array<T, N>*`. Not all platforms you might want to support will have span support.
 
+IMPORTANT: Since `MyStruct*` is writable (non-const), it can only read writable memory (eg. stack, heap). If you want to read memory that can also be read-only, use `const MyStruct*`. The const-ness of the type determines which area of memory can be accessed.
+
 3. Get a dynamic N-element span of struct (`std::span<T>`).
 > Note: This function will throw an exception under all circumstances if it cannot complete successfully. Page permissions *do not* apply, instead read-write arena rules apply. Uses `memspan<T> (addr, n)` behind the scenes.
 
@@ -257,6 +259,8 @@ void syscall_struct(Machine<W>& machine)
 		machine.template sysargs <std::span<MyStruct>> (); // Consumes 2 registers
 }
 ```
+Span-based helpers can only access writable memory. They are always considered non-const (mutable).
+
 
 4. Get a pointer to an N-element array of struct (`std::array<T, N>*`).
 > Note: This function will throw an exception under all circumstances if it cannot complete successfully. Page permissions *do not* apply, instead read-write arena rules apply. Uses `memarray<T, N> (addr)` behind the scenes.
