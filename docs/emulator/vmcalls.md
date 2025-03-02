@@ -222,7 +222,30 @@ The helper function `machine.instruction_limit_reached()` will tell you if the i
 
 It is possible to interrupt a running machine to perform another task. This can be done using the `machine.preempt()` function. A machine can also interrupt itself without any issues. Preemption stores and restores all registers, making it slightly expensive, but guarantees the ability to preempt from any location.
 
-High-quality scripting solutions will use pre-emption when re-entrancy is detected:
+### Alternative 1:
+
+```cpp
+template <typename... Args>
+inline std::optional<int64_t> Script::call(gaddr_t address, Args&&... args)
+{
+	try
+	{
+		return {machine().preempt(MAX_CALL_INSTR, address, std::forward<Args>(args)...)};
+	}
+	catch (const std::exception& e)
+	{
+		this->handle_exception(address);
+	}
+	return std::nullopt;
+}
+```
+This example uses optional to determine if a call failed. Otherwise, it returns an (optional) integer which is the return value from the called function. `MAX_CALL_INSTR` is the number of instruction to execute before it's considered a timeout. `address` is the address of the function we want to call, which you can get with `machine.address_of("my_function")`.
+
+We make `handle_exception()` opaque so that it hides the implementation, and inside we re-throw the exception to handle it properly.
+
+### Alternative 2:
+
+High-quality scripting solutions will use pre-emption only when re-entrancy is detected:
 
 ```cpp
 template <typename... Args>
@@ -247,4 +270,4 @@ inline std::optional<Script::sgaddr_t> Script::call(gaddr_t address, Args&&... a
 	return std::nullopt;
 }
 ```
-From `script.call(...)` as implemented in the [gamedev example](https://github.com/libriscv/libriscv/blob/master/examples/gamedev/script.hpp). `ScriptDepthMeter` measures the current call depth in order to avoid recursive calls back into the script, while also using `preempt()` on the second call.
+From `script.call(...)` as implemented in the [gamedev example](https://github.com/libriscv/libriscv/blob/master/examples/gamedev/script.hpp). `ScriptDepthMeter` measures the current call depth in order to avoid too many recursive calls back into the script, while also using the faster `vmcall()` on the first call.
