@@ -2,7 +2,7 @@
 sidebar_position: 2
 ---
 
-# Performance Benchmarks
+# Performance
 
 _libriscv_ is no slouch when it comes to performance, even in interpreter mode.
 

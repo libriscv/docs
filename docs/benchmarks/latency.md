@@ -2,7 +2,7 @@
 sidebar_position: 1
 ---
 
-# Latency Benchmarks
+# Latency
 
 [_libriscv_](https://github.com/libriscv/libriscv) is a unique emulator that focuses heavily on low-latency emulation. Most game scripts don't do any heavy computation, and when they do, it is often outsourced to the host. As an example, LLM computations don't happen in WASM sandboxes, rather it happens outside of the sandbox in order to benefit from CPU- and hardware-specific features, GPU support and such.
 

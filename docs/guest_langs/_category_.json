@@ -1,0 +1,9 @@
+{
+    "label": "Guest Languages",
+    "collapsed": false,
+    "position": 6,
+    "link": {
+      "type": "generated-index",
+      "description": "Guest programs can be written in any language supporting riscv64-unknown-elf-gcc, riscv64-unknown-linux-gnu, and similar target platforms."
+    }
+}
