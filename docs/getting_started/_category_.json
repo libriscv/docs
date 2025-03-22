@@ -4,6 +4,6 @@
 	"position": 2,
 	"link": {
 		"type": "generated-index",
-		"description": "Learn more about libriscv performance."
+		"description": "Get started with libriscv here! This tutorial will guide you through a simple C++ host and C guest program."
 	}
 }

@@ -111,3 +111,8 @@ Hello from host!
 Hello world!
 Hello from riscv64 guest!
 ```
+
+### Note
+
+Host programs may also be written in other [languages](/docs/category/host-languages).
+

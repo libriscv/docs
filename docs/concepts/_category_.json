@@ -4,6 +4,6 @@
 	"position": 3,
 	"link": {
 		"type": "generated-index",
-		"description": "Learn more about the libriscv APIs."
+		"description": "Learn more about libriscv concepts and important parts of the C++ API."
 	}
 }

@@ -41,4 +41,4 @@ zig cc -target riscv64-linux guest.c -o guest.bin
 
 ### Note
 
-Guest binaries may also be written in other [languages](/docs/category/guest-languages).
+Guest programs may also be written in other [languages](/docs/category/guest-languages).
