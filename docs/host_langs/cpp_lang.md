@@ -26,4 +26,34 @@ C++ headers for libriscv can be found at https://github.com/libriscv/libriscv/tr
 
 ## Examples
 
+### VM call example
+
+Guest Function:
+```c
+long my_function(
+    const char* arg1, 
+    const bool arg2, 
+    const struct my_struct* arg3, 
+    size_t arg4, 
+    float arg5
+    );
+```
+
+Input values:
+```c
+const char* mystring = "";
+const bool  mybool = true;
+const struct mystruct s;
+const size_t mysize = 4;
+const float  myfloat = 5.0f;
+```
+
+C++ Host:
+```cpp
+long result = machine.vmcall(guest_function_address,
+	mystring, mybool, mystruct, mysize, myfloat);
+```
+
+### Misc Examples
+
 Most examples located here are written for a C++ host: https://github.com/libriscv/libriscv/tree/master/examples
