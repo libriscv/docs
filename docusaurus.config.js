@@ -9,7 +9,7 @@ import {themes as prismThemes} from 'prism-react-renderer';
 /** @type {import('@docusaurus/types').Config} */
 const config = {
   title: 'RISC-V sandbox',
-  tagline: 'Lib RISC-V is a simple, slim and complete sandbox that is highly embeddable and configurable',
+  tagline: 'libriscv is a simple, slim and complete sandbox that is highly embeddable and configurable',
   favicon: 'img/logo.png',
 
   // Set the production url of your site here
@@ -110,7 +110,7 @@ const config = {
             ],
           },
         ],
-        copyright: `Copyright © ${new Date().getFullYear()} Lib RISC-V, Inc. Built with Docusaurus.`,
+        copyright: `Copyright © ${new Date().getFullYear()} Alf-André Walla. Built with Docusaurus.`,
       },
       prism: {
         theme: prismThemes.github,
