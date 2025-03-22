@@ -279,7 +279,26 @@ In the C API each argument register has to be populated manually, and the return
 A general rule for passing data to a function is that:
 1. Each integer goes into the next free integer register
 2. Each pointer goes into the next free integer register
+
+```c
+LIBRISCV_ARG_REGISTER(regs, 0) = 1;
+LIBRISCV_ARG_REGISTER(regs, 1) = true;
+LIBRISCV_ARG_REGISTER(regs, 2) = libriscv_stack_push(machine, regs, mystruct, sizeof(mystruct));
+LIBRISCV_ARG_REGISTER(regs, 3) = libriscv_address_of(machine, "my_function");
+```
+A function address is also a pointer, which goes into the integer register file.
+
+
 3. Each float goes into the next free float register of that type
+
+```c
+LIBRISCV_FP32_ARG_REG(regs, 0) = 1.0f;
+LIBRISCV_FP32_ARG_REG(regs, 1) = 2.0f;
+LIBRISCV_FP64_ARG_REG(regs, 2) = 3.0;
+LIBRISCV_FP64_ARG_REG(regs, 3) = 4.0;
+```
+32- and 64-bit floating point values use the same register file.
+
 
 ### Example
 
