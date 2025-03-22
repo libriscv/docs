@@ -54,6 +54,6 @@ long result = machine.vmcall(guest_function_address,
 	mystring, mybool, mystruct, mysize, myfloat);
 ```
 
-### Misc Examples
+### Misc examples
 
 Most examples located here are written for a C++ host: https://github.com/libriscv/libriscv/tree/master/examples
