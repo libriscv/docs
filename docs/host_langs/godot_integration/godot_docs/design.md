@@ -72,7 +72,7 @@ If you need to change restrictions during a Sandbox call, wait until the call is
 
 A major design goal is having the lowest latency between the Sandbox and the Godot engine. As a result, calling functions, and in general, communication forth with the Godot engine is fairly fast. Often an order of magnitude faster than other sandboxing solutions.
 
-As an example, to check if we are currently in the editor, we have to have ask Godot for `Engine::is_editor_hint()`. If the cost to leave the VM to ask for this is ~90ns then we have to ask ourselves if we shouldn't cache that value inside the VM instead, to avoid the overhead of having to ask. However, with _libriscv_ the system call overhead is ~2ns, and so asking Godot directly always makes sense. Check out the [latency benchmarks page](/performance/latency.md). You will see that Godot Sandbox is lower-latency and faster than even GDScript, which is not sandboxed.
+As an example, to check if we are currently in the editor, we have to have ask Godot for `Engine::is_editor_hint()`. If the cost to leave the VM to ask for this is ~90ns then we have to ask ourselves if we shouldn't cache that value inside the VM instead, to avoid the overhead of having to ask. However, with _libriscv_ the system call overhead is ~2ns, and so asking Godot directly always makes sense. Check out the [latency benchmarks page](/benchmarks/latency.md). You will see that Godot Sandbox is lower-latency and faster than even GDScript, which is not sandboxed.
 
 ## Maximum portability
 
