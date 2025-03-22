@@ -318,8 +318,8 @@ const float  myfloat = 5.0f;
 
 C++ API:
 ```cpp
-long result =
-  machine.vmcall(mystring, mybool, mystruct, mysize, myfloat);
+long result = machine.vmcall(guest_function_address,
+	mystring, mybool, mystruct, mysize, myfloat);
 ```
 
 C API:
