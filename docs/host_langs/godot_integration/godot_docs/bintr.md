@@ -132,6 +132,18 @@ This is a run-time setting which could be toggled before producing the C code, a
 
 A process that is stuck looping forever does not really pose a danger to users. However, limiting this to "blessed" programs is considered a good tradeoff. We can benefit from the timeouts while developing the program, and when we are happy and it works, we can turn up the heat to max.
 
+## Experimental JIT
+
+There is an addon build available with an experimental JIT compiler enabled. You can always find the [latest addon-JIT archive under releases](https://github.com/libriscv/godot-sandbox/releases). This archive contains shared libraries that replaces those from the regular addon archive. So, if you downloaded godot-sandbox from the asset store, simply download the JIT archive and replace the existing files in your project. From now on you should see that programs run faster at run-time but require a little bit of loading time during initialization.
+
+In order to check if a program is using a JIT compiler, use:
+```py
+	if (my_program.is_binary_translated() and !my_program.is_jit()):
+		print("test.cpp was fully binary translated")
+	elif my_program.is_jit():
+		print("test.cpp was JIT compiled")
+```
+
 ## Even more performance
 
 The highest performance setting is when automatic N-bit address space mode is enabled. The Sandbox should have a max memory that is a power-of-two, such as 8MB, 16MB, 32MB etc. It's the second argument to `emit_binary_translation(ignore_timeouts, enable_automatic_nbit_as)`. Enabling it will completely disable page protections, making the entire address space writable (inside the Sandbox). This should not be enabled unless the program is somewhat trusted, and only if the program appears to work correctly with this mode. Enabling this setting can give a large boost to performance, especially on weaker CPUs: `mysandbox.emit_binary_translation(true, true)`.
