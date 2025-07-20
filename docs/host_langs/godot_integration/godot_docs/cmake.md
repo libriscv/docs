@@ -39,18 +39,29 @@ FetchContent_Declare(
 	godot-sandbox
 	GIT_REPOSITORY https://github.com/libriscv/godot-sandbox.git
 	GIT_TAG        main
+	GIT_SHALLOW    TRUE
+	GIT_SUBMODULES ""
 	SOURCE_SUBDIR  "program/cpp/cmake"
 )
 FetchContent_MakeAvailable(godot-sandbox)
 
 add_sandbox_program(example
-    example.cpp
+    example1.cpp
+    example2.cpp
 )
 ```
 
 Here `example` becomes a program that you can load in the sandbox. You can add as many programs as you want.
 
-In order to build this project, we can use one of the scripts from the godot-sandbox-programs repository:
+In order to build this project, you should put the `CMakeLists.txt` file in a folder called `cmake` in your Godot project. The CMake build script should now be located at `./cmake/CMakeLists.txt` relative to your project. If you save a C++ file in Godot, it will try to configure CMake for you automatically.
+
+Note that you will need all the build dependencies installed in order to be able to do this:
+- zig
+- cmake
+- git
+- ninja
+
+If you want to inspect how the toolchain is set up, have a look at one of the scripts from the godot-sandbox-programs repository:
 
 1. [Linux 64-bit RISC-V cross compiler script](https://github.com/libriscv/godot-sandbox-programs/blob/main/build.sh)
 
@@ -58,6 +69,7 @@ In order to build this project, we can use one of the scripts from the godot-san
 
 3. [Windows Zig cross-compiler script](https://github.com/libriscv/godot-sandbox-programs/blob/main/zig.sh)
 
+The godot-sandbox-programs project builds programs for all 3 major desktop platforms: Windows, Linux and macOS.
 
 ### macOS
 
