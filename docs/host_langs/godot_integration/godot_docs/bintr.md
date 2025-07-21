@@ -58,7 +58,40 @@ You can [see here what happens](https://ask.vrchat.com/t/on-udon-2-soba-and-why-
 
 ## Loading binary translations at run-time
 
-A minority of platforms support loading shared libraries at run-time. Windows, Linux and macOS. If you want to quickly test binary translations or even ship them to players on those platforms at login time in a server-client architecture, you can do so.
+Some (mostly desktop) platforms support loading shared libraries at run-time. Windows, Linux and macOS. If you want to quickly test binary translations or even ship them to players on those platforms at login time in a server-client architecture, you can do so.
+
+### Compiling from Editor
+
+The Sandbox class has a function called `try_compile_binary_translation()` that will try to invoke the currently globally chosen (`$CC`) C-compiler. This method will work mostly on macOS and Linux systems. Also, remember that in order to load the binary translation DLL the game/editor has to be restarted.
+
+Linux Example:
+```py
+my_program.try_compile_binary_translation("res://my_program", "gcc", "", true, true)
+```
+
+Windows Example:
+```py
+my_program.try_compile_binary_translation("res://my_program", "zig", "", true, true)
+```
+
+This will try to produce a binary translation for `my_program` to `my_program` using `gcc` or `zig` as the C-compiler frontend. The final shared object will have the appropriate platform-specific extension appended:
+```sh
+$ ls -lah my_program.so
+-rwxrwxr-x 1 user user 2,3M nov.  29 18:36 my_program.so
+```
+
+Please note that if you want Godot Sandbox to automatically load this binary translation when needed, it must be placed with the ELF file, using the same basename:
+
+```
+myfolder/myprogram.elf
+myfolder/myprogram.dll
+```
+So, for this example, the Windows incantation would be:
+```py
+my_program.try_compile_binary_translation("res://myfolder/myprogram", "zig", "", true, true)
+```
+The correct extension is automatically added based on the platform.
+
 
 ### Creating the translation source file from a program
 
@@ -85,21 +118,6 @@ x86_64-w64-mingw32-gcc-win32 -shared -O2 -DCALLBACK_INIT my_program.c -o my_prog
 The define `-DCALLBACK_INIT` allows Godot Sandbox to look for and use a callback init function which works even if the Godot Sandbox extension is stripped.
 
 
-### Compiling from Editor
-
-The Sandbox has a function called `try_compile_binary_translation()` that will try to invoke the currently globally chosen (`$CC`) C-compiler. This method will work mostly on macOS and Linux systems. Also, remember that in order to load the binary translation DLL the game/editor has to be restarted.
-
-Example:
-```py
-my_program.try_compile_binary_translation("res://my_program", "clang-19", "", true, true)
-```
-
-This will try to produce a binary translation for `my_program` to `my_program` using `clang-19` as the C-compiler frontend. The final shared object will have the appropriate platform-specific extension appended:
-```sh
-$ ls -lah my_program.so 
--rwxrwxr-x 1 user user 2,3M nov.  29 18:36 my_program.so
-```
-
 ### Loading the binary translation DLL
 
 Now we can load it during `_init` from GDScript like so:
@@ -120,6 +138,16 @@ The program should be running quite a bit faster now.
 Shared libraries are only allowed to be loaded at the beginning, before any Sandboxes are created. This is a security feature.
 
 :::
+
+#### Automatically loaded binary translations
+
+If you want Godot Sandbox to automatically load a binary translation, it must be placed with the ELF file, using the same basename:
+
+```
+myfolder/myprogram.elf
+myfolder/myprogram.dll
+```
+As soon as the ELF is needed, it will first load the binary translation which ensures it gets registered before the program is loaded into a Sandbox.
 
 
 ## Differences from interpreted
@@ -149,3 +177,5 @@ In order to check if a program is using a JIT compiler, use:
 The highest performance setting is when automatic N-bit address space mode is enabled. The Sandbox should have a max memory that is a power-of-two, such as 8MB, 16MB, 32MB etc. It's the second argument to `emit_binary_translation(ignore_timeouts, enable_automatic_nbit_as)`. Enabling it will completely disable page protections, making the entire address space writable (inside the Sandbox). This should not be enabled unless the program is somewhat trusted, and only if the program appears to work correctly with this mode. Enabling this setting can give a large boost to performance, especially on weaker CPUs: `mysandbox.emit_binary_translation(true, true)`.
 
 Is is ultimately an experimental option that doesn't work reliably for all programs. However, it may be worth trying it just to see if the program is compatible.
+
+You may also look into enabling LTO for the program build. Configure cmake with `FLTO=ON`.
