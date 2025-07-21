@@ -10,22 +10,7 @@ This method requires a local RISC-V compiler installed on your system. If you do
 
 CMake is completely optional. Normally, you can use Docker which compiles for you in the Godot editor.
 
-## Build using Zig
-
-In order to build programs you will need to install: CMake, git, Zig
-
-[Download Zig](https://ziglang.org/download/) and add the extracted folder to PATH so that it becomes globally accessible. This means that typing `zig` from anywhere should work.
-
-The easiest way to use CMake is to have a look at what [Godot Sandbox Programs](https://github.com/libriscv/godot-sandbox-programs) is doing. It has build scripts for Linux, macOS and Windows, and builds several projects for you.
-
-Either fork the godot-sandbox-programs repository or copy it into a new one that you just created. Then go into the programs folder and remove everything except hello-world. Also edit `programs/CMakeLists.txt` to remove the other projects that you just deleted. You can rename hello-world, if you want.
-
-Now you have two options:
-1. If you commit changes and push them, Github Actions will build programs for you and upload them to a draft release. These are ready-to-use and will be very small.
-2. You can build programs yourself using any of the root-level scripts. Linux/macOS: `./build.sh` Windows: `./build.cmd`
-
-
-## Manual CMake setup
+## CMake setup
 
 There is a [CMake project in the Godot Sandbox](https://github.com/libriscv/godot-sandbox/tree/main/program/cpp/cmake) repository that can be used to create ELFs with the API pre-included. This CMake script supports both RISC-V cross-compilers and Zig cross-compilation.
 
@@ -59,7 +44,36 @@ Note that you will need all the build dependencies installed in order to be able
 - zig
 - cmake
 - git
-- ninja
+- ninja (Windows)
+
+### Windows Powershell
+```sh
+choco install zig cmake git ninja
+```
+
+After having installed the dependencies, restart Godot and go to the Configuring CMake section.
+
+### Linux and macOS
+1. Download and place `zig` in PATH:
+```sh
+wget https://ziglang.org/download/0.14.0/zig-linux-x86_64-0.14.0.tar.xz
+```
+2. Install build dependencies for your OS/Distro
+```sh
+sudo apt install cmake git
+```
+Example is for Ubuntu.
+
+After having installed the dependencies, restart Godot and go to the Configuring CMake section.
+
+### Configuring CMake
+
+After all dependencies are installed, make sure that there is a `cmake` folder in your project, and a `cmake/CMakeLists.txt` that has the programs you want to build.
+
+Now you should save any C++ file inside the Godot editor. It will configure CMake for you.
+
+
+### Toolchain details
 
 If you want to inspect how the toolchain is set up, have a look at one of the scripts from the godot-sandbox-programs repository:
 
@@ -70,22 +84,6 @@ If you want to inspect how the toolchain is set up, have a look at one of the sc
 3. [Windows Zig cross-compiler script](https://github.com/libriscv/godot-sandbox-programs/blob/main/zig.sh)
 
 The godot-sandbox-programs project builds programs for all 3 major desktop platforms: Windows, Linux and macOS.
-
-### macOS
-
-You can use Zig as a cross-compiler. Have a look at the first chapter.
-
-The [macOS github action](https://github.com/libriscv/godot-sandbox-programs/blob/main/.github/workflows/zig-macos.yml) shows you what dependencies to install and how to build on macOS.
-
-The [Linux/macOS Zig cross-compiler script](https://github.com/libriscv/godot-sandbox-programs/blob/main/zig.sh) will also come in handy.
-
-
-### Windows
-
-You can use Zig as a cross-compiler. Have a look at the first chapter.
-
-The [Windows github action](https://github.com/libriscv/godot-sandbox-programs/blob/main/.github/workflows/zig-windows.yml) shows you how to build on Windows.
-
 
 ### Ubuntu and Windows WSL2
 
