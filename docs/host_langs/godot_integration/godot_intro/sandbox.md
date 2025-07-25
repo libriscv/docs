@@ -475,6 +475,38 @@ class Sandbox : public Node {
 	/// @return True if binary translation is loaded, false otherwise.
 	bool is_binary_translated() const;
 
+	/// @brief Check if the program has a binary translation produced by a JIT compiler.
+	/// @note is_binary_translated() will return true if the program has a binary translation,
+	/// regardless of whether it was produced by a JIT- or a system-compiler.
+	/// @return True if the program has a JIT-compiled binary translation, false otherwise.
+	bool is_jit() const;
+
+	/// @brief Set whether to automatically use nbit-as for binary translation.
+	/// @param automatic_nbit_as If true, use nbit-as for binary translation.
+	/// @warning Do *NOT* enable this unless you are sure the program is compatible with it.
+	void set_binary_translation_automatic_nbit_as(bool automatic_nbit_as);
+	bool get_binary_translation_automatic_nbit_as() const;
+
+	/// @brief Set whether to use register caching for binary translation.
+	/// @param register_caching If true, use register caching for binary translation.
+	void set_binary_translation_register_caching(bool register_caching);
+	bool get_binary_translation_register_caching() const;
+
+	/// @brief Set whether to perform binary translation in the background.
+	/// @param bg_compilation If true, perform binary translation in the background.
+	void set_binary_translation_bg_compilation(bool bg_compilation);
+	bool get_binary_translation_bg_compilation() const;
+
+	/// @brief Enable or disable the use of JIT-compilation.
+	/// @param enable If true, enable JIT-compilation, false to disable it.
+	static void set_jit_enabled(bool enable);
+
+	/// @brief Check if JIT-compilation is enabled.
+	/// @return True if JIT-compilation is enabled, false otherwise.
+	static bool is_jit_enabled();
+
+	static bool has_feature_jit();
+
 	/// @brief Generate the run-time API for the guest program, by iterating through all loaded classes.
 	/// @param language The language to generate the API for.
 	/// @param header_extra Extra header code to add to the generated API.
