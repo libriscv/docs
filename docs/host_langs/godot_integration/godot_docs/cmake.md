@@ -12,13 +12,13 @@ CMake is completely optional. Normally, you can use Docker which compiles for yo
 
 ## CMake setup
 
-There is a [CMake project in the Godot Sandbox](https://github.com/libriscv/godot-sandbox/tree/main/program/cpp/cmake) repository that can be used to create ELFs with the API pre-included. This CMake script supports both RISC-V cross-compilers and Zig cross-compilation.
+Godot Sandbox automatically uses CMake when there is a `cmake` folder in the project root. If you're starting from scratch you can use an empty `cmake` folder as a starting point. CMake builds using a `CMakeLists.txt` script as the basis. If you don't have this file it will be auto-generated when saving a C++ script in Godot.
 
 ```cmake
 cmake_minimum_required(VERSION 3.10)
 project(example LANGUAGES CXX)
 
-# Fetch godot-sandbox repository (add_subdirectory is implicitly called)
+# Fetch godot-sandbox C++ API
 include(FetchContent)
 FetchContent_Declare(
 	godot-sandbox
@@ -30,9 +30,9 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(godot-sandbox)
 
-add_sandbox_program(example
-    example1.cpp
-    example2.cpp
+# Create example.elf in the src folder
+add_sandbox_program_at(example.elf ../src
+	../src/example.cpp
 )
 ```
 
@@ -71,6 +71,12 @@ After having installed the dependencies, restart Godot and go to the Configuring
 After all dependencies are installed, make sure that there is a `cmake` folder in your project, and a `cmake/CMakeLists.txt` that has the programs you want to build.
 
 Now you should save any C++ file inside the Godot editor. It will configure CMake for you.
+
+:::note
+
+If no CMakeLists.txt exists in the cmake folder, a default will be generated, which you can use as a starting point.
+
+:::
 
 
 ### Toolchain details
