@@ -17,7 +17,9 @@ Early prototype of buying from the shop
 <iframe width="100%" style={{"aspect-ratio": "16 / 9"}} src="https://www.youtube.com/embed/9--ife2HcqY" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
 
 I’ve implemented support for Drafft 2, a game organizing tool, by implementing a converter in Python. The converter produces various loadable data for my game engine. For example, Drafft 2 supports complex dialogue chains that you create by connecting together visual nodes in Drafft 2. I also added support for some inline hints that produce features specific to my game engine in the text, such as `[a:talking]` will make an NPC appear like he’s talking. Or `{event:std,stdRingCounterBell}` will call that function during the dialogue, which then can RPC to the server to do something specific like ringing a counter bell, which can be seen and heard by all nearby players.
-Press enter or click to view image in full size
+
+![alt text](<Screenshot from 2026-04-07 21-14-26.png>)
+
 A dialogue chain that shows what happens if you keep ringing the bell too much
 
 Beardy will pick up the bell and hold it in his hand for a day. 😆
