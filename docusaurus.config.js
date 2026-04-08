@@ -42,6 +42,17 @@ const config = {
         docs: {
           sidebarPath: './sidebars.js',
         },
+        blog: {
+          showReadingTime: true,
+          feedOptions: {
+            type: ['rss', 'atom'],
+            xslt: true,
+          },
+          // Useful options:
+          // editUrl: 'https://github.com/libriscv/libriscv/tree/main/docs/',
+          // blogSidebarTitle: 'All posts',
+          // blogSidebarCount: 'ALL',
+        },
         theme: {
           customCss: './src/css/custom.css',
         },
@@ -65,6 +76,11 @@ const config = {
             sidebarId: 'tutorialSidebar',
             position: 'left',
             label: 'Documentation',
+          },
+          {
+            to: '/blog',
+            label: 'Blog',
+            position: 'left'
           },
           {
             href: 'https://discord.gg/n4GcXr66X5',

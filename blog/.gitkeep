@@ -1,0 +1,50 @@
+# Blog Posts Directory
+
+Place your blog posts in this directory. Each post should be a Markdown file with front matter.
+
+## File Naming Convention
+
+Blog posts should follow this naming pattern:
+- `YYYY-MM-DD-post-title.md` (e.g., `2026-04-08-my-first-post.md`)
+- `YYYY-MM-DD-post-title/index.md` (for posts with images/assets)
+
+## Front Matter Template
+
+```markdown
+---
+slug: post-url-slug
+title: Your Post Title
+authors: [author_key]
+tags: [tag1, tag2, tag3]
+---
+
+Your post summary (shown in list view).
+
+<!--truncate-->
+
+Full post content goes here...
+```
+
+## Front Matter Options
+
+- **slug**: URL-friendly identifier (optional, defaults to filename)
+- **title**: Post title
+- **authors**: Array of author keys from authors.yml
+- **tags**: Array of tags for categorization
+- **date**: Override date (optional, defaults to filename date)
+- **image**: Cover image URL
+- **hide_table_of_contents**: true/false
+- **draft**: true to hide from production builds
+
+## Assets
+
+For posts with images or other assets, create a folder:
+```
+blog/
+  2026-04-08-my-post/
+    index.md
+    image1.png
+    image2.png
+```
+
+Then reference images: `![Alt text](./image1.png)`

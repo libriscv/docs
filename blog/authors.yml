@@ -1,0 +1,12 @@
+libriscv_team:
+  name: libriscv Team
+  title: Core Team
+  url: https://github.com/libriscv/libriscv
+  image_url: https://github.com/libriscv.png
+
+gonzo:
+   name: Alf-André Walla
+   title: Computer Neophyte
+   url: https://libriscv.no/
+   image_url: https://github.com/fwsGonzo.png
+   email: fwsgonzo@hotmail.com
