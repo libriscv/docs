@@ -11,13 +11,13 @@ Automatia now has several skills! Crafting, farming, mining, alchemy, fishing, c
 
 ## Skills
 
-There are now seven skills: crafting, farming, mining, alchemy, fishing, cooking and magic. Each one has its own experience, levels, and a tab in the UI to keep track of it all. The underlying system is the same for all of them, so adding a new skill later is fairly simple. However, a new skill also means deciding how it relates to the other skills, how it changes the economy and seeing if it's fun or not. It's also natural that some skills are more important than others, and that this may even change throughout the game. Either way, there's an XP bar, levelling sounds and an under-utilized toast for when you discover new things.
+There are now seven skills: crafting, farming, mining, alchemy, fishing, cooking and magic. I couldn't dream up any more generic skills, so those are the ones we're stuck with. Each one has its own experience, levels, and a tab in the UI to keep track of it all. The underlying system is the same for all of them, so adding a new skill later is fairly simple. However, a new skill also means deciding how it relates to the other skills, how it changes the economy and seeing if it's fun or not. It's also natural that some skills are more important than others, and that this may even change throughout the game. Either way, there's an XP bar, levelling sounds and an under-utilized toast for when you discover new things.
 
 ![alt text](<Screenshot from 2026-06-07 19-15-42.png>)
 
 Creating row-based GUI widgets that list something with icons and text is fairly straight-forward now, so I've created the ones I could think of to support the skills system and NPCs. As a bonus, they are gamepad compatible because of their simplicity. Right now some skills are far more designed than others, while at the same time none of them are complete.
 
-To debug all of this from the server side, I added the usual pile of debug commands so I can grant experience, set levels, and reset things without having to actually play the game.
+To debug all of this from the server side, I added a pile of debug commands so I can grant experience, set levels, and reset things without having to actually play the game.
 
 ![alt text](<Screenshot from 2026-06-06 09-00-16.png>)
 
@@ -47,7 +47,7 @@ Crops take multiple days to grow. I'm using game time for this, so a crop plante
 
 ![alt text](<Screenshot from 2026-06-07 20-22-16.png>)
 
-Water improves crops. I haven't fully nailed down the exact numbers, but watered crops do better than dry ones. Nobody's selling any watering cans yet though.
+Water improves crops. I haven't fully nailed down the exact numbers, but watered crops do better than dry ones. Nobody's selling any watering cans yet though. It'll come.
 
 ## Quality and stars
 
@@ -104,7 +104,7 @@ I've worked a little bit on villages, and I'm using collaboration-free ring-base
 
 ## New NPCs
 
-It makes a lot of sense to bring in new NPCs now with new skills, buying/selling screens. Here is Merring the fishmonger:
+It makes a lot of sense to bring in new NPCs now with new skills, buying/selling screens. Here is Merrin the fishmonger:
 
 ![alt text](<Screenshot from 2026-06-07 20-17-54.png>)
 
