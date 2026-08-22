@@ -76,7 +76,7 @@ As an example, to check if we are currently in the editor, we have to have ask G
 
 ## Maximum portability
 
-The Sandbox has implemented support for the C++ and Rust system languages currently. The extension supports all of Godots platforms, including future platforms like RISC-V, Loongarch, Switch 2, Quest 3 and any other platform where one would be able to compile standard C++ with no dependencies.
+The Sandbox supports SafeGDScript, C++ and Rust. SafeGDScript's `.sgd` files are compiled on-the-fly at run-time. C++ and Rust programs are compiled ahead of time using Docker. The extension supports all of Godots platforms, including future platforms like RISC-V, Loongarch, Switch 2, Quest 3 and any other platform where one would be able to compile standard C++ with no dependencies.
 
 Anyone can implement support for new languages, as long as those languages transpile to C or C++, or can emit RISC-V directly.
 
